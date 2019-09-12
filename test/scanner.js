@@ -31,7 +31,7 @@
         },
     };
 
-    it("TESTTESTdefault ctor", () => {
+    it("default ctor", () => {
         var scanner = new Scanner();
         should(scanner).instanceOf(Scanner);
         should.deepEqual(scanner.map, {});
@@ -39,7 +39,7 @@
             tag: 'scanned',
         });
     });
-    it("TESTTESTcustom ctor",() => {
+    it("custom ctor",() => {
         var map = TESTMAP;
         var tag = 'barcode';
         var scanner = new Scanner({
@@ -51,7 +51,7 @@
             tag,
         });
     });
-    it("TESTTESTscan(data) returns mapped Observation", () => {
+    it("scan(data) returns mapped Observation", () => {
         var scanner = new Scanner({
             map: TESTMAP,
         });
@@ -76,7 +76,7 @@
         should(dataout.value).equal(5);
         should(dataout.tag).equal('height');
     });
-    it("TESTTESTtransform(is,os) transforms input to output stream", (done) => {
+    it("transform(is,os) transforms input to output stream", (done) => {
         (async function() { try {
             var scanner = new Scanner({
                 map: TESTMAP,

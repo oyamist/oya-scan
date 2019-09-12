@@ -5,7 +5,7 @@
         Observation,
     } = require("../index");
 
-    it("TESTTESTdefault ctor", function() {
+    it("default ctor", function() {
         var obs = new Observation();
         should(obs.t).instanceOf(Date);
         should(Date.now() - obs.t).above(-1).below(1);
@@ -13,7 +13,7 @@
         should(obs.value).equal(undefined);
         should(obs.text).equal(undefined);
     });
-    it("TESTTESTcustom ctor", function() {
+    it("custom ctor", function() {
         var t = new Date(2018, 3, 11);
         var tag = "color";
         var text = "some-annotation";
@@ -35,7 +35,7 @@
         // Retroactive date is JS minimum date. So there.
         should(Observation.RETROACTIVE.toJSON()).equal("-271821-04-20T00:00:00.000Z");
     });
-    it("TESTTESTObservations are serializable", function() {
+    it("Observations are serializable", function() {
         var t = new Date(2018,2,10,7,30,10);
         var tag = 'color';
         var value = 'purple';
@@ -54,7 +54,7 @@
         var o2 = new Observation(json);
         should.deepEqual(o2, o1);
     });
-    it("TESTTESTcompare_t_tag(a,b) sorts by (t,tag)", function() {
+    it("compare_t_tag(a,b) sorts by (t,tag)", function() {
         var t1 = Observation.RETROACTIVE;
         var t2 = new Date(2018,11,2);
         var o1_color = new Observation({
@@ -100,7 +100,7 @@
         oa.sort(Observation.compare_t_tag);
         should.deepEqual(oa, [ o1_color, o1_color_2, o1_size, o1_size, o2_color, ]);
     });
-    it("TESTTESTmergeObservations(oa1,oa2) merges observation arrays", function() {
+    it("mergeObservations(oa1,oa2) merges observation arrays", function() {
         var t = [
             new Date(2018,11,1),
             new Date(2018,11,2),
