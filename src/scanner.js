@@ -35,6 +35,60 @@
                 value,
             });
         }
+
+        transform(is, os) {
+            if (!(is instanceof Readable)) {
+                return Promise.reject(new Error('Expected Readable input stream'));
+            }
+            if (!(os instanceof Writable)) {
+                return Promise.reject(new Error('Expected Writable output stream'));
+            }
+            var started = new Date();
+            return new Promise((resolve, reject) => {
+                is.setEncoding('utf8');
+                var remainder = '';
+                var that = this;
+                var bytes = 0;
+                var observations = 0;
+
+                is.on('data', (chunk) => {
+                    bytes += chunk.length;
+                    var lines = (remainder+chunk).split('\n');
+                    var n = lines.length-1;
+                    for (var i = 0; i < n; i++) {
+                        var odata = that.scan(lines[i]);
+                        os.write(JSON.stringify(odata)+'\n');
+                        observations++;
+                    }
+                    remainder = lines[n] || '';
+                });
+                is.on('end', () => {
+                    try {
+                        remainder = remainder.trim();
+                        if (remainder.length) {
+                            var odata = that.scan(remainder);
+                            os.write(JSON.stringify(odata)+'\n');
+                            observations++;
+                        }
+                        os.end();
+                        resolve({
+                            bytes,
+                            observations,
+                            started,
+                            ended: new Date(),
+                        });
+                    } catch (err) {
+                      os.end(`error: ${err.message}`);
+                      reject(err);
+                    }
+                });
+
+                is.on('error', (err) => {
+                    reject(err);
+                });
+
+            });
+        }
     }
 
     module.exports = exports.Scanner = Scanner;
