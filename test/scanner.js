@@ -60,19 +60,19 @@
         var datain = "hello";
         var dataout = scanner.scan(datain);
         should(dataout).instanceOf(Observation);
-        should(Date.now() - dataout.t).above(-1).below(1);
+        should(Date.now() - dataout.t).above(-1).below(5);
         should(dataout.value).equal(datain);
         should(dataout.tag).equal(scanner.tag);
 
         // mapped data
         var dataout = scanner.scan("a0001");
-        should(Date.now() - dataout.t).above(-1).below(1);
+        should(Date.now() - dataout.t).above(-1).below(5);
         should(dataout.value).equal('red');
         should(dataout.tag).equal('color');
 
         // mapped keys are trimmed
         var dataout = scanner.scan(" a0003\n  \n");
-        should(dataout.t - Date.now()).above(-1).below(1);
+        should(dataout.t - Date.now()).above(-1).below(5);
         should(dataout.value).equal(5);
         should(dataout.tag).equal('height');
     });
@@ -121,6 +121,5 @@
             done();
         } catch(e) {done(e)} })();
     });
-
 
 })

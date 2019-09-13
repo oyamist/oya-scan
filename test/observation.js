@@ -8,7 +8,7 @@
     it("default ctor", function() {
         var obs = new Observation();
         should(obs.t).instanceOf(Date);
-        should(Date.now() - obs.t).above(-1).below(1);
+        should(Date.now() - obs.t).above(-1).below(5);
         should(obs.tag).equal(undefined);
         should(obs.value).equal(undefined);
         should(obs.text).equal(undefined);

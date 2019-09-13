@@ -70,7 +70,7 @@
                             os.write(JSON.stringify(odata)+'\n');
                             observations++;
                         }
-                        os.end();
+                        //os.end();
                         resolve({
                             bytes,
                             observations,
