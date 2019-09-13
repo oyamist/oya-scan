@@ -115,3 +115,16 @@ have one line for each serialized Observation.
 {"t":"2019-09-13T17:25:27.912Z","tag":"scanned","value":"A0003"}
 ```
 
+### Scripts
+Executable scripts are in `scripts`:
+
+* **scan.sh** transforms stdin barcode data into stdout serialized Observations with an optional mapping file
+
+### Installation
+
+```
+git clone https://github.com/oyamist/oya-scan.git
+cd oya-scan
+npm install
+npm test
+```
