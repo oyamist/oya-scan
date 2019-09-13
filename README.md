@@ -118,7 +118,7 @@ have one line for each serialized Observation.
 ### Scripts
 Executable scripts are in `scripts`:
 
-* **scan.sh** transforms stdin barcode data into stdout serialized Observations with an optional mapping file
+* **scan.sh** transforms stdin barcode data into stdout serialized Observations using an optional mapping file
 
 ### Installation
 
