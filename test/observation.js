@@ -5,15 +5,15 @@
         Observation,
     } = require("../index");
 
-    it("default ctor", function() {
+    it("TESTTESTdefault ctor", function() {
         var obs = new Observation();
         should(obs.t).instanceOf(Date);
         should(Date.now() - obs.t).above(-1).below(5);
         should(obs.tag).equal(undefined);
-        should(obs.value).equal(undefined);
+        should(obs.value).equal(obs.t);
         should(obs.text).equal(undefined);
     });
-    it("custom ctor", function() {
+    it("TESTTESTcustom ctor", function() {
         var t = new Date(2018, 3, 11);
         var tag = "color";
         var text = "some-annotation";

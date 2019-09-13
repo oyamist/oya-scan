@@ -16,6 +16,8 @@
             }
             if (opts.hasOwnProperty('value')) {
                 this.value = opts.value;
+            } else {
+                this.value = this.t;
             }
             if (opts.hasOwnProperty('text')) {
                 this.text = opts.text;
@@ -70,7 +72,11 @@
         }
 
         toString() {
-            return `${this.t.toJSON()} ${this.tag} ${this.value} ${this.text ? this.text : ""}`;
+            if (this.hasOwnProperty('text')) {
+                return `${this.t.toJSON()} ${this.tag} ${this.value} ${this.text}`;
+            } else {
+                return `${this.t.toJSON()} ${this.tag} ${this.value}`;
+            }
         }
 
     } // class Observation
