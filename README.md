@@ -106,24 +106,6 @@ promise.then(result => {
 });
 ```
 
-The Scanner class also provides a streaming method that returns a Promise.
-The returned promise resolves upon input stream end with a summary 
-of the transformation. 
-
-```JS
-var promise = scanner.transform(process.stdin, process.stdout);
-promise.then(result => {
-    console.log(result);
-    // {
-    //     bytes: 18,
-    //     observations: 3,
-    //     started: "2019-09-13T17:25:17.799Z",
-    //     ended: "2019-09-13T17:34:02.112Z",
-    //     argv: [ ... ],
-    // }
-});
-```
-
 The transformed output stream will
 have one line for each serialized Observation.
 
