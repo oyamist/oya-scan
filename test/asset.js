@@ -62,7 +62,7 @@
         should(asset.id).equal(asset.guid.substr(0,7)); // Default id 
         should(asset.get(Asset.T_NAME))
             .equal(`Asset_${asset.guid.substr(0,7)}`); // Default namesset
-        should.deepEqual(asset.observations, [
+        should.deepEqual(asset.obs, [
             new Observation({
                 t: Observation.RETROACTIVE,
                 tag: 'id',
@@ -81,7 +81,7 @@
             "end",
             "guid",
             "type",
-            "observations",
+            "obs",
         ].sort());
 
         // Asset name is generated if not provided
@@ -140,7 +140,7 @@
             end: null,
             type: "Asset",
             guid: asset.guid,
-            observations:[{
+            obs:[{
                 t: Observation.RETROACTIVE.toJSON(),
                 tag: 'id',
                 value: 'A0001',
@@ -311,7 +311,7 @@
             created: t0,
             id: "A0001",
             name: "Mister1",
-            observations:[{
+            obs:[{
                 tag: 'color',
                 value: 'red',
                 t: t0,
@@ -363,7 +363,7 @@
             }, t1, 'update1');
             should(asset.id).equal('A0001');
             should(asset.get('id', t0)).equal(assetOld.id);
-            should.deepEqual(asset.observations.length, 3);
+            should.deepEqual(asset.obs.length, 3);
             should.deepEqual(asset.valueHistory('id'), [
                 new Observation({
                     t:Observation.RETROACTIVE,
@@ -386,7 +386,7 @@
             }, t2, 'update1');
             should(asset.id).equal('A0001');
             should(asset.get('id', t0)).equal(assetOld.id);
-            should.deepEqual(asset.observations.length, 3);
+            should.deepEqual(asset.obs.length, 3);
 
             should.throws(() => {
                 asset.updateSnapshot({
@@ -601,14 +601,14 @@
         asset2.observe('inspected', true, t[2]);
 
         var expected = new Asset(JSON.parse(JSON.stringify(asset2)));
-        var etv = expected.observations.sort((a,b) => Observation.compare_t_tag(a,b));
+        var etv = expected.obs.sort((a,b) => Observation.compare_t_tag(a,b));
         for (var i = 1; i < etv.length; i++) {
             should(Observation.compare_t_tag(etv[i-1],etv[i])).below(1);
         }
         var merged = Asset.merge(asset1,asset2);
-        merged.observations.sort(Observation.compare_t_tag);
-        should.deepEqual(merged.observations.map(tv=>tv.toString()), 
-            expected.observations.map(tv=>tv.toString()));
+        merged.obs.sort(Observation.compare_t_tag);
+        should.deepEqual(merged.obs.map(tv=>tv.toString()), 
+            expected.obs.map(tv=>tv.toString()));
         should.deepEqual(merged, expected);
     });
 

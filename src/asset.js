@@ -17,10 +17,10 @@
             // core properties
             this.guid = opts.guid || this.guid || uuidv4();
             this.type = this.constructor.name;
-            Object.defineProperty(this, "observations", {
+            Object.defineProperty(this, "obs", {
                 enumerable: true,
                 writable: true,
-                value: (opts.observations || []).map(ob =>
+                value: (opts.obs || []).map(ob =>
                     (ob instanceof Observation ? ob : new Observation(ob))),
             });
 
@@ -30,7 +30,7 @@
                 key !== 'guid' && // immutable non-temporal
                 key !== 'id' && // retroactive temporal
                 key !== 'created' && // mutable non-temporal
-                key !== 'observations' && // temporal implementation 
+                key !== 'obs' && // temporal implementation 
                 key !== 'name');// retroactive temporal
             keys.forEach(key => {
                 this[key] = opts[key];
@@ -39,8 +39,8 @@
             // Asset id is retroactive temporal value initializable with ctor options
             if (opts.hasOwnProperty('id')) {
                 this.observe(Asset.T_ID, opts.id, Observation.RETROACTIVE);
-            } else if (opts.observations) {
-                // id is in the observations
+            } else if (opts.obs) {
+                // id is in the obs
             } else {
                 this.observe(Asset.T_ID, 
                     this.guid.substr(0,SHORT_GUID_DIGITS), Observation.RETROACTIVE);
@@ -49,8 +49,8 @@
             // Asset name is retroactive temporal value initializable with ctor options
             if (opts.hasOwnProperty('name')) {
                 this.observe(Asset.T_NAME, opts.name, Observation.RETROACTIVE);
-            } else if (opts.observations) {
-                // name is in observations
+            } else if (opts.obs) {
+                // name is in obs
             } else {
                 var name = `${this.namePrefix(opts)}${this.id}`;
                 this.observe(Asset.T_NAME, name, Observation.RETROACTIVE);
@@ -97,7 +97,7 @@
             var { 
                 temporal,
                 retroactive,
-            } = this.observations.reduce((acc,ob) => {
+            } = this.obs.reduce((acc,ob) => {
                     if (ob.tag === name) {
                         acc.temporal = true;
                         if (ob.t.getTime() === retroTime) {
@@ -154,13 +154,13 @@
             if (!(ob instanceof Observation)) {
                 ob = new Observation(ob);
             }
-            this.observations.push(ob);
+            this.obs.push(ob);
             return undefined; // TBD
         }
 
         getObservation(valueTag, date = new Date()) {
             this.validateTag(valueTag);
-            return this.observations.reduce((acc,evt) => {    
+            return this.obs.reduce((acc,evt) => {    
                 if (evt.tag === valueTag) {
                    return evt.t<=date && (!acc || evt.t >= acc.t) ? evt : acc;
                 }
@@ -219,25 +219,25 @@
 
         valueHistory(tag) {
             this.validateTag(tag);
-            return this.observations
+            return this.obs
                 .filter(ob => ob.tag === tag)
                 .sort(Observation.compareTime);
         }
 
         updateValueHistory(tag, history) {
             this.validateTag(tag);
-            var observations = this.observations.filter(ob => ob.tag !== tag);
+            var obs = this.obs.filter(ob => ob.tag !== tag);
             Observation.concat(history.filter(ob => ob.tag === tag));
-            this.observations = observations;
+            this.obs = obs;
             return undefined; // TBD
         }
 
         snapshot(t=new Date()) {
             var snapshot = JSON.parse(JSON.stringify(this));
-            delete snapshot.observations;
+            delete snapshot.obs;
             delete snapshot.name;
             var tagMap = {};
-            return this.observations.reduce((snapshot,observation) => {    
+            return this.obs.reduce((snapshot,observation) => {    
                 var valueTag = observation.tag;
                 var ob = tagMap[valueTag];
                 if (!ob && observation.t <= t || ob && ob.t <= observation.t && observation.t <= t) {
@@ -283,12 +283,12 @@
             if (asset1.guid !== asset2.guid) {
                 throw new Error(`Assets with different guids cannot be merged: asset1:${asset1.guid} asset2:${asset2.guid}`);
             }
-            if (asset1.observations.length < asset2.observations.length) {
+            if (asset1.obs.length < asset2.obs.length) {
                 [asset1, asset2] = [asset2, asset1]; // asset1 is primary asset
             }
             var merged = new Asset(asset1);
-            merged.observations = Observation.mergeObservations(
-                asset1.observations, asset2.observations);
+            merged.obs = Observation.mergeObservations(
+                asset1.obs, asset2.obs);
             return merged;
         }
 
