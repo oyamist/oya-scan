@@ -404,15 +404,14 @@
         async.next();
     });
     it("TESTTESTupdateSnapshot(...) throws", function() {
-        var t0 = new Date();
         var asset = new Asset();
 
-        should.throws(() => {
+        should.throws(() => { // type is immutable
             asset.updateSnapshot({
                 type: 'a new type',
             });
         });
-        should.throws(() => {
+        should.throws(() => { // guid is immutable
             asset.updateSnapshot({
                 guid: 'a new guid',
             });
