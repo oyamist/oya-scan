@@ -131,16 +131,14 @@
         observe(...args) {
             if (typeof args[0] === 'string') { // set(tag,value,date)
                 var tag = args[0];
-                var ob = {
-                    tag,
-                    value: args[1],
-                    t: args[2] || new Date(),
-                };
-                if (this.hasOwnProperty(args[0])) { // non-temporal
+                var t = args[2] || new Date();
+                var value = args[1] === undefined ? t : args[1];
+                var ob = { tag, value, t, };
+                if (this.hasOwnProperty(tag)) { // non-temporal
                     if (tag === 'guid' || tag === 'type') {
                         throw new Error(`Attempt to change immutable property:${tag}`);
                     }
-                    this[tag] = ob.value;
+                    this[tag] = value;
                     return undefined; // TBD
                 }
                 this.validateTag(tag);

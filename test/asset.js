@@ -53,7 +53,7 @@
     }
     var DIMENSIONS = "dimensions";
     var LOCATION = "location";
-    var ACTIVATED = "activated";
+    var HARVESTED = "harvested";
 
     it("TESTTESTdefault ctor", function() {
         // Default ctor
@@ -213,10 +213,10 @@
 
         var t1 = new Date(2018,1,1);
         var t2 = new Date(2018,1,2);
-        asset.observe(ACTIVATED, t1, t1);
-        should.equal(asset.get(ACTIVATED, t1), t1); 
-        asset.observe(ACTIVATED, false, t2);
-        should.equal(asset.get(ACTIVATED, t2), false);
+        asset.observe(HARVESTED, t1, t1);
+        should.equal(asset.get(HARVESTED, t1), t1); 
+        asset.observe(HARVESTED, false, t2);
+        should.equal(asset.get(HARVESTED, t2), false);
     });
     it("TESTTESTget(valueTag,date) returns non-temporal value", function() {
         var asset = new Asset();
@@ -349,168 +349,154 @@
         }();
         async.next();
     });
-    it("TESTTESTupdateSnapshot(...) updates properties", function(done) {
+    it("TESTTESTupdateSnapshot(...) updates multiple properties", function(done) {
         var async = function*() {
-            var t0 = new Date();
+            var t0 = new Date(2018, 1, 2);
             var asset = new Asset();
-            var assetOld = new Asset(asset);
-            var snapBase = asset.snapshot();
-            yield setTimeout(() => (async.next()), 10);
-            var t1 = new Date();
+            var snap0 = asset.snapshot();
+            var t1 = new Date(t0.getTime()+1);
+            should.deepEqual(asset.snapshot(t0), snap0);
 
-            asset.updateSnapshot({
+            // t1: set id and color 
+            var snap1 = {
                 id: 'A0001',
-            }, t1, 'update1');
-            should(asset.id).equal('A0001');
-            should(asset.get('id', t0)).equal(assetOld.id);
-            should.deepEqual(asset.obs.length, 3);
-            should.deepEqual(asset.valueHistory('id'), [
-                new Observation({
-                    t:Observation.RETROACTIVE,
-                    tag: 'id',
-                    value: `${asset.guid.substr(0,7)}`,
-                }), 
-                new Observation({
-                    t:t1,
-                    text: 'update1',
-                    tag: 'id',
-                    value: 'A0001',
-                }),
-            ]);
-
-            // ignore redundant updates
-            yield setTimeout(() => (async.next()), 1);
-            var t2 = new Date();
-            asset.updateSnapshot({
-                id: 'A0001',
-            }, t2, 'update1');
-            should(asset.id).equal('A0001');
-            should(asset.get('id', t0)).equal(assetOld.id);
-            should.deepEqual(asset.obs.length, 3);
-
-            should.throws(() => {
-                asset.updateSnapshot({
-                    type: 'a new type',
-                });
+                color: 'red',
+            };
+            asset.updateSnapshot(snap1, t1, 'update1');
+            should.deepEqual(asset.snapshot(t0), snap0); // historical
+            should(asset.snapshot(t1)).properties(snap1); // historical
+            var id0 = {
+                tag: 'id',
+                value: 'A0001',
+                text: 'update1',
+            };
+            should(asset.getObservation('id')).properties(id0); // current
+            should(asset.getObservation('color')).properties({ // current
+                tag: 'color',
+                value: 'red',
+                text: 'update1',
             });
-            should.throws(() => {
-                asset.updateSnapshot({
-                    guid: 'a new guid',
-                });
+
+            // t2: set color and size
+            var t2 = new Date(t1.getTime()+1);
+            var snap2 = {
+                color: 'blue',
+                size: 'small',
+            };
+            asset.updateSnapshot(snap2, t2, 'update2');
+            should.deepEqual(asset.snapshot(t0), snap0); // historical
+            should(asset.snapshot(t1)).properties(snap1); // historical
+            should(asset.snapshot(t2)).properties(snap2); // historical
+            should(asset.getObservation('id')).properties(id0); // historical
+            should(asset.getObservation('color')).properties({ // current
+                tag: 'color',
+                value: 'blue',
+                text: 'update2',
+            });
+            should(asset.getObservation('size')).properties({ // current
+                tag: 'size',
+                value: 'small',
+                text: 'update2',
             });
 
             done();
         }();
         async.next();
     });
-    it("TESTTESTupdateSnapshot(...) adds properties", function(done) {
-        var async = function*() {
-            var t0 = new Date();
-            var asset = new Asset({
-                created: t0,
-            });
-            var assetOld = new Asset(asset);
-            var snapBase = asset.snapshot();
-            yield setTimeout(() => (async.next()), 10);
-            var t1 = new Date();
+    it("TESTTESTupdateSnapshot(...) throws", function() {
+        var t0 = new Date();
+        var asset = new Asset();
 
+        should.throws(() => {
             asset.updateSnapshot({
-                size: 'Large',
-            }, t1, 'update1');
-            should(asset.get('size', t0)).equal(undefined);
-            should(asset.get('size', t1)).equal('Large');
-            should(asset.get('size')).equal('Large');
-            should.deepEqual(asset.snapshot(), {
-                created: t0.toJSON(),
-                end: null,
-                guid: asset.guid,
-                id: asset.id,
-                name: asset.name,
-                type: 'Asset',
-                size: 'Large',
+                type: 'a new type',
             });
-            done();
-        }();
-        async.next();
+        });
+        should.throws(() => {
+            asset.updateSnapshot({
+                guid: 'a new guid',
+            });
+        });
     });
     it("TESTTESTsnapshots map undefined values to assignment date", function(done) {
         done(); return; // dbg TODO
         var async = function*() {
-            var asset = new Asset();
+            // initial state
+            class Plant extends Asset {};
+            var asset = new Plant();
             var t0 = Observation.RETROACTIVE;
+            should(asset.get(HARVESTED, t0)).equal(undefined);
+
+            // assignment can be with explicit date
             var t1 = new Date(2018, 1, 1);
             var ob1 = new Observation({
-                tag: ACTIVATED,
-                value: undefined,
+                tag: HARVESTED,
+                //value: undefined,
                 t: t1,
             });
+            asset.updateSnapshot({
+                [HARVESTED]: t1.toJSON(),
+            });
+            should.deepEqual(asset.valueHistory(HARVESTED), [ ob1 ]);
+            should.deepEqual(ob1.value, undefined); // store event marker value
+            should(asset.snapshot()).properties({
+                HARVESTED: t1.toJSON(),
+            });
+
             var t2 = new Date(2018, 1, 2);
             var ob2 = new Observation({
-                tag: ACTIVATED,
-                value: undefined,
+                tag: HARVESTED,
+                //value: undefined,
                 t: t2,
             });
             var t3 = new Date(2018, 1, 3);
             var ob3 = new Observation({
-                tag: ACTIVATED,
+                tag: HARVESTED,
                 value: false,
                 t: t3,
             });
             var tfuture = new Date(Date.now() + 365*24*3600*1000);
             var obfuture = new Observation({
-                tag: ACTIVATED,
-                value: undefined,
+                tag: HARVESTED,
+                //value: undefined,
                 t: tfuture,
-            });
-
-            // before first assignment
-            should(asset.get(ACTIVATED, t0)).equal(undefined);
-
-            // assignment can be with explicit date
-            asset.updateSnapshot({
-                [ACTIVATED]: t1.toJSON(),
-            });
-            should.deepEqual(asset.valueHistory(ACTIVATED), [ ob1 ]);
-            should.deepEqual(ob1.value, undefined); // store event marker value
-            should(asset.snapshot()).properties({
-                activated: t1.toJSON(),
             });
 
             // map undefined to assignment date
             asset.updateSnapshot({
-                [ACTIVATED]: undefined,
+                [HARVESTED]: undefined,
             }, t2);
-            should.deepEqual(asset.valueHistory(ACTIVATED), [ ob1, ob2 ]);
+            should.deepEqual(asset.valueHistory(HARVESTED), [ ob1, ob2 ]);
             should.deepEqual(ob2.value, undefined); // event marker value
-            should(asset.snapshot()).properties({ // snapshot returns current activated date
-                activated: t2.toJSON(),
+            should(asset.snapshot()).properties({ // snapshot returns current HARVESTED date
+                HARVESTED: t2.toJSON(),
             });
             should(asset.snapshot(t1)).properties({ 
-                activated: t1.toJSON(),
+                HARVESTED: t1.toJSON(),
             });
 
             // future dates are supported without "plan vs. actual" distinction
             asset.updateSnapshot({
-                [ACTIVATED]: tfuture.toJSON(),
+                [HARVESTED]: tfuture.toJSON(),
             });
-            should.deepEqual(asset.valueHistory(ACTIVATED), [ ob1, ob2, obfuture ]);
-            should(asset.snapshot()).properties({ // snapshot returns current activated date
-                activated: t2.toJSON(),
+            should.deepEqual(asset.valueHistory(HARVESTED), [ ob1, ob2, obfuture ]);
+            should(asset.snapshot()).properties({ // snapshot returns current HARVESTED date
+                HARVESTED: t2.toJSON(),
             });
-            should(asset.snapshot(tfuture)).properties({ // snapshot returns current activated date
-                activated: tfuture.toJSON(),
+            should(asset.snapshot(tfuture)).properties({ // snapshot returns current HARVESTED date
+                HARVESTED: tfuture.toJSON(),
             });
 
             // false is supported directly
             asset.updateSnapshot({
-                [ACTIVATED]: false,
+                [HARVESTED]: false,
             }, t3);
-            should.deepEqual(asset.valueHistory(ACTIVATED), [ ob1, ob2, ob3, obfuture ]);
-            should(asset.snapshot()).properties( { // snapshot returns current activated date
-                activated: false,
+            should.deepEqual(asset.valueHistory(HARVESTED), [ ob1, ob2, ob3, obfuture ]);
+            should(asset.snapshot()).properties( { // current HARVESTED date
+                HARVESTED: false,
             });
             should(asset.snapshot(tfuture)).properties({
-                activated: tfuture.toJSON(),
+                HARVESTED: tfuture.toJSON(),
             });
 
             done();
@@ -552,7 +538,7 @@
         should.deepEqual(history.map(tv=>tv.tag), ['color','color','color']);
         should.deepEqual(history.map(tv=>tv.text), ['A','B','C']);
     });
-    it("describeProperty(name) returns property description", function() {
+    it("TESTTESTdescribeProperty(name) returns property description", function() {
         var asset = new Asset({
             size: 'large',
         });
