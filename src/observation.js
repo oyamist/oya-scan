@@ -2,7 +2,17 @@
     const uuidv4 = require("uuid/v4");
 
     class Observation {
-        constructor(opts={}) {
+        //constructor(opts={}) {
+        constructor(...args) {
+            if (typeof args[0] === 'string') {
+                var opts = {};
+                args[0] !== undefined && (opts.tag = args[0]);
+                args[1] !== undefined && (opts.value = args[1]);
+                args[2] !== undefined && (opts.t = args[2]);
+                args[3] !== undefined && (opts.text = args[3]);
+            } else {
+                var opts = args[0] || {};
+            }
             if (opts.hasOwnProperty('t')) {
                 this.t = new Date(opts.t);
             } else {

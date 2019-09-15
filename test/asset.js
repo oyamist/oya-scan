@@ -59,26 +59,19 @@
         // Default ctor
         var asset = new Asset();
         should(asset.type).equal('Asset');
-        should(asset.id).equal(asset.guid.substr(0,7)); // Default id 
-        should(asset.get(Asset.T_NAME))
-            .equal(`Asset_${asset.guid.substr(0,7)}`); // Default namesset
+        var id = asset.guid.substr(0,7); // default
+        should(asset.id).equal(id); // Default id 
+        var name = `Asset_${asset.guid.substr(0,7)}`; // default
+        should(asset.get(Asset.T_NAME)).equal(name); 
         should.deepEqual(asset.obs, [
-            new Observation({
-                t: Observation.RETROACTIVE,
-                tag: 'id',
-                value: asset.guid.substr(0,7),
-            }),
-            new Observation({
-                t: Observation.RETROACTIVE,
-                tag: 'name',
-                value: `Asset_${asset.guid.substr(0,7)}`,
-            }),
+            new Observation('id', id, Observation.RETROACTIVE),
+            new Observation('name', name, Observation.RETROACTIVE),
         ]);
 
         // non-temporal properties are enumerable
         should.deepEqual(Object.keys(asset).sort(), [ 
             "created",
-            "end",
+            "ended",
             "guid",
             "type",
             "obs",
@@ -137,7 +130,7 @@
         var json = JSON.parse(JSON.stringify(asset));
         should.deepEqual(json, {
             created: created.toJSON(),
-            end: null,
+            ended: null,
             type: "Asset",
             guid: asset.guid,
             obs:[{
@@ -166,21 +159,28 @@
         should.deepEqual(asset2, asset);
         should(asset2.name).equal('tomatoA');
     });
-    it("TESTTESTobserve(valueTag, value, date) adds observation", function() {
+    it("TESTTESTobserve(...) adds observation", function() {
         var asset = new Asset();
 
-        // set(valueTag, value)
-        asset.observe(LOCATION, 'SFO');
+        // positional arguments
+        var t1 = new Date(2018,1,2);
+        asset.observe(LOCATION, 'SFO', t1, 'textsfo');
         should(asset.get(LOCATION)).equal('SFO');
-        asset.observe(LOCATION, 'LAX');
-        should(asset.get(LOCATION)).equal('LAX');
+        should.deepEqual(asset.getObservation(LOCATION, t1), 
+            new Observation(LOCATION, 'SFO', t1, 'textsfo'));
 
-        // set(Observation)
-        asset.observe(new Observation({
-            tag: LOCATION, 
-            value: 'ATL',
-        }));
+        // positional arguments defaults
+        asset.observe(LOCATION, 'LAX');
+        should(asset.getObservation(LOCATION)).properties({
+            tag: LOCATION,
+            value: 'LAX',
+        });
+
+        // Observation argument
+        asset.observe(new Observation(LOCATION, 'ATL'));
         should(asset.get(LOCATION)).equal('ATL');
+
+        // JSON argument
         asset.observe({
             tag: LOCATION, 
             value: 'PIT',
@@ -189,11 +189,7 @@
 
         // set prior value
         var t1 = new Date(2018,1,10);
-        asset.observe({
-            tag: LOCATION, 
-            value: 'NYC',
-            t: t1,
-        });
+        asset.observe(LOCATION, 'NYC', t1);
         should(asset.get(LOCATION,t1)).equal('NYC');
         should(asset.get(LOCATION)).equal('PIT');
     });
@@ -273,7 +269,7 @@
         // current snapshot
         should.deepEqual(asset.snapshot(), {
             created: t0.toJSON(),
-            end: null,
+            ended: null,
             type: "Asset",
             id: 'A0001',
             name: 'Asset_A0001',
@@ -319,7 +315,7 @@
         });
         should.deepEqual(asset.snapshot(), {
             created: t0.toJSON(),
-            end: null,
+            ended: null,
             type: 'Pump',
             id: 'A0001',
             name: 'Mister1',
@@ -428,11 +424,7 @@
 
             // assignment can be with explicit date
             var t1 = new Date(2018, 1, 1);
-            var ob1 = new Observation({
-                tag: HARVESTED,
-                //value: undefined,
-                t: t1,
-            });
+            var ob1 = new Observation(HARVESTED, undefined, t1);
             asset.updateSnapshot({
                 [HARVESTED]: t1.toJSON(),
             });
@@ -443,23 +435,11 @@
             });
 
             var t2 = new Date(2018, 1, 2);
-            var ob2 = new Observation({
-                tag: HARVESTED,
-                //value: undefined,
-                t: t2,
-            });
+            var ob2 = new Observation(HARVESTED, undefined, t2);
             var t3 = new Date(2018, 1, 3);
-            var ob3 = new Observation({
-                tag: HARVESTED,
-                value: false,
-                t: t3,
-            });
+            var ob3 = new Observation(HARVESTED, false, t3);
             var tfuture = new Date(Date.now() + 365*24*3600*1000);
-            var obfuture = new Observation({
-                tag: HARVESTED,
-                //value: undefined,
-                t: tfuture,
-            });
+            var obfuture = new Observation(HARVESTED, undefined, tfuture);
 
             // map undefined to assignment date
             asset.updateSnapshot({
@@ -467,11 +447,11 @@
             }, t2);
             should.deepEqual(asset.valueHistory(HARVESTED), [ ob1, ob2 ]);
             should.deepEqual(ob2.value, undefined); // event marker value
-            should(asset.snapshot()).properties({ // snapshot returns current HARVESTED date
-                HARVESTED: t2.toJSON(),
+            should(asset.snapshot()).properties({ 
+                HARVESTED: t2.toJSON(), // current 
             });
             should(asset.snapshot(t1)).properties({ 
-                HARVESTED: t1.toJSON(),
+                HARVESTED: t1.toJSON(), // historical
             });
 
             // future dates are supported without "plan vs. actual" distinction
@@ -518,10 +498,86 @@
         asset.graduated = t1;
         should.deepEqual(Asset.keyDisplayValue('graduated' , asset, assetMap), t1);
         asset.created = t1;
-        asset.end = t4;
+        asset.ended = t4;
         asset.married = t3.toISOString();
         should.deepEqual(Asset.keyDisplayValue('married' , asset, assetMap), 
             'Sat, Feb 3 (-7 days @ 2 days) \u2666 12:00 AM');
+    });
+    it("TESTTESTage(...) returns age since creation", () => {
+        var t1 = new Date(2018, 1, 2);
+        var asset = new Asset({
+            created: t1,
+        });
+
+        // non-ended asset: default is current age
+        var now = Date.now();
+        should(asset.age()).above(now-t1-1).below(now-t1+100);
+
+        // non-ended asset: age at given date
+        var days2 = 2 * 24 * 3600 * 1000;
+        var t2 = new Date(t1.getTime() + days2);
+        should(asset.age(t2)).equal(days2/Asset.AGE_MS);
+        should(asset.age(t2, Asset.AGE_SECONDS))
+            .equal(days2/Asset.AGE_SECONDS);
+        should(asset.age(t2, Asset.AGE_DAYS))
+            .equal(days2/Asset.AGE_DAYS);
+
+        // ended asset
+        asset.end(t2); // sets maximum age
+        should(asset.age(t2-1)).equal(days2-1);
+        should(asset.age(t2)).equal(days2);
+        should(asset.age(t2+1)).equal(days2);
+        should(asset.age()).equal(days2);
+
+    });
+    it("TESTTESTageOfTag(...) returns age of most recent observation", () => {
+        var t1 = new Date(2018, 1, 2);
+        var asset = new Asset({
+            created: t1,
+        });
+
+        // No observation
+        should(asset.ageOfTag(HARVESTED)).equal(null);
+
+        // Single observation
+        var days1 = 24 * 3600 * 1000;
+        var days2 = 2 * days1;
+        var t2 = new Date(t1.getTime() + days2);
+        asset.observe(HARVESTED, 1, t2); // Harvested 1 tomato
+        should(asset.ageOfTag(HARVESTED)).equal(days2);
+
+        // Multiple observations uses most recent
+        var t3 = new Date(t2.getTime() + days1);
+        asset.observe(HARVESTED, 3, t3); // Harvested 3 tomatoes
+        should(asset.ageOfTag(HARVESTED)).equal(days2+days1);
+
+        // Units
+        should(asset.ageOfTag(HARVESTED, Asset.AGE_DAYS)).equal(3);
+    });
+    it("TESTTESTageSinceTag(...) returns age since observation", () => {
+        var t1 = new Date(2018, 1, 2);
+        var asset = new Asset({
+            created: t1,
+        });
+
+        // No observation
+        should(asset.ageSinceTag(HARVESTED)).equal(null);
+
+        // Single observation
+        var days1 = 24 * 3600 * 1000;
+        var days2 = 2 * days1;
+        var t2 = new Date(t1.getTime() + days2);
+        asset.observe(HARVESTED, 1, t2); // Harvested 1 tomato
+        should(asset.ageSinceTag(HARVESTED)).equal(Date.now() - t2);
+
+        // Multiple observations uses most recent
+        var t3 = new Date(t2.getTime() + days1);
+        asset.observe(HARVESTED, 3, t3); // Harvested 3 tomatoes
+        should(asset.ageSinceTag(HARVESTED)).equal(Date.now() - t3);
+
+        // Units
+        should(asset.ageSinceTag(HARVESTED, Asset.AGE_DAYS))
+            .equal((Date.now() - t3) / days1);
     });
     it("TESTTESTvalueHistory(tag) returns array of observations of tag", function() {
         var asset = new Asset();
@@ -542,7 +598,7 @@
             size: 'large',
         });
         should.deepEqual(asset.describeProperty('guid'), immutable('guid'));
-        should.deepEqual(asset.describeProperty('type'), immutable('type'));
+        should.deepEqual(asset.describeProperty('type'), mutable('type'));
         should.deepEqual(asset.describeProperty('id'), retroactive('id'));
         should.deepEqual(asset.describeProperty('size'), mutable('size'));
         should.deepEqual(asset.describeProperty('asdf'), unused('asdf'));
@@ -560,7 +616,7 @@
         // serialized asset has same property definitions
         var asset = new Asset(JSON.parse(JSON.stringify(asset)));
         should.deepEqual(asset.describeProperty('guid'), immutable('guid'));
-        should.deepEqual(asset.describeProperty('type'), immutable('type'));
+        should.deepEqual(asset.describeProperty('type'), mutable('type'));
         should.deepEqual(asset.describeProperty('id'), retroactive('id'));
         should.deepEqual(asset.describeProperty('size'), mutable('size'));
         should.deepEqual(asset.describeProperty('asdf'), unused('asdf'));

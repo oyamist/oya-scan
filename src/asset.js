@@ -26,7 +26,7 @@
 
             // ctor properties are non-temporal
             var keys = Object.keys(opts).filter(key => 
-                key !== 'type' && // immutable non-temporal
+                key !== 'type' && // non-temporal
                 key !== 'guid' && // immutable non-temporal
                 key !== 'id' && // retroactive temporal
                 key !== 'created' && // mutable non-temporal
@@ -60,13 +60,16 @@
             } else {
                 this.created = new Date();
             }
-            this.end = opts.end || null;
+            this.ended = opts.ended || null;
         }
 
         static get JSON_DATE() { return JSON_DATE; }
         static get T_ASSET() { return "asset"; }
         static get T_ID() { return "id"; }
         static get T_NAME() { return "name"; }
+        static get AGE_MS() { return 1; }
+        static get AGE_SECONDS() { return 1000; }
+        static get AGE_DAYS() { return 24 * 3600 * 1000; }
 
         static compareId(a,b) {
             if (a.id < b.id) {
@@ -111,7 +114,7 @@
             });
             return {
                 name,
-                mutable: name !== 'guid' && name !== 'type',
+                mutable: name !== 'guid',
                 temporal,
                 retroactive,
                 own: this.hasOwnProperty(name),
@@ -175,40 +178,52 @@
             return Observation ? Observation.value : undefined;
         }
 
-        valueElapsed(targetType) {
-            this.validateTag(targetType);
-            if (this.created == null) {
-                throw new Error(`${this.name} has no Observation:${startType}`);
+        end(t = Date.now()) {
+            if (t < this.created) {
+                throw new Error(`end date ${t} must be after:${this.created}`);
             }
-            if (!(this.created instanceof Date)) {
-                throw new Error(`${this.name} has no timestamp for start Observation:${startType}`);
-            }
-            var eTarget = this.getObservation(targetType);
-            if (eTarget == null) {
-                return null; // hasn't happened yet
-            }
-            if (!(eTarget.t instanceof Date)) {
-                throw new Error(`${this.name} has no timestamp for target Observation:${targetType}`);
-            }
-            return eTarget.t-this.created;
+            this.ended = t;
         }
 
-        ageElapsed(elapsed) {
-            return Math.trunc(elapsed/MSDAYS);
-        }
-
-        age() {
+        age(t, units = Asset.AGE_MS) {
             if (this.created == null) {
                 throw new Error(`${this.name} has no created date`);
             }
-            var elapsed = (this.end ? this.end : Date.now()) - this.created;
-            return this.ageElapsed(elapsed);
+            t = new Date(t || this.ended || Date.now());
+            var elapsed = t - this.created;
+            return elapsed / units;
         }
 
-        ageAt(targetType) {
-            this.validateTag(targetType);
-            var elapsed = this.valueElapsed(targetType);
-            return typeof elapsed === 'number' ?  this.ageElapsed(elapsed) : elapsed;
+        ageOfTag(tag, units = Asset.AGE_MS) {
+            this.validateTag(tag);
+            if (!(this.created instanceof Date)) {
+                throw new Error(`Expected Date for ${this.name}.created`);
+            }
+            var ob = this.getObservation(tag);
+            if (ob == null) {
+                return null; // hasn't happened yet
+            }
+            if (!(ob.t instanceof Date)) {
+                throw new Error(`Undated observation: ${this.name}.${tag}`);
+            }
+            var elapsed = ob.t - this.created;
+            return elapsed / units;
+        }
+
+        ageSinceTag(tag, units = Asset.AGE_MS) {
+            this.validateTag(tag);
+            if (!(this.created instanceof Date)) {
+                throw new Error(`Expected Date for ${this.name}.created`);
+            }
+            var ob = this.getObservation(tag);
+            if (ob == null) {
+                return null; // hasn't happened yet
+            }
+            if (!(ob.t instanceof Date)) {
+                throw new Error(`Undated observation: ${this.name}.${tag}`);
+            }
+            var elapsed = Date.now() - ob.t;
+            return elapsed / units;
         }
 
         toJSON() {
@@ -305,8 +320,8 @@
 
             if (value.match(JSON_DATE)) {
                 var date = new Date(value);
-                var end = asset.end || Date.now();
-                var msElapsed = end - date;
+                var ended = asset.ended || Date.now();
+                var msElapsed = ended - date;
                 var days = (Math.round(msElapsed / (24*3600*1000))).toFixed(0);
                 if (days < 14) {
                     var dateStr = date.toLocaleDateString(language, {

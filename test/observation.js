@@ -13,7 +13,7 @@
         should(obs.value).equal(obs.t);
         should(obs.text).equal(undefined);
     });
-    it("TESTTESTcustom ctor", function() {
+    it("TESTTESTcustom object ctor", function() {
         var t = new Date(2018, 3, 11);
         var tag = "color";
         var text = "some-annotation";
@@ -31,6 +31,19 @@
             value,
         });
     });
+    it("TESTTESTcustom positional ctor", function() {
+        var t = new Date(2018, 3, 11);
+        var tag = "color";
+        var text = "some-annotation";
+        var value = "purple";
+        var obs2 = new Observation(tag, value, t, text);
+        should(obs2).properties({
+            t,
+            tag,
+            text,
+            value,
+        });
+    });
     it("RETROACTIVE is the timestamp for retroactive values", function() {
         // Retroactive date is JS minimum date. So there.
         should(Observation.RETROACTIVE.toJSON()).equal("-271821-04-20T00:00:00.000Z");
@@ -39,11 +52,7 @@
         var t = new Date(2018,2,10,7,30,10);
         var tag = 'color';
         var value = 'purple';
-        var o1 = new Observation({
-            tag,
-            t,
-            value,
-        });
+        var o1 = new Observation(tag, value, t);
         var json = JSON.parse(JSON.stringify(o1));
         should.deepEqual(json, {
             t: t.toJSON(),
@@ -54,21 +63,11 @@
         var o2 = new Observation(json);
         should.deepEqual(o2, o1);
     });
-    it("compare_t_tag(a,b) sorts by (t,tag)", function() {
+    it("TESTTESTcompare_t_tag(a,b) sorts by (t,tag)", function() {
         var t1 = Observation.RETROACTIVE;
         var t2 = new Date(2018,11,2);
-        var o1_color = new Observation({
-            t: t1,
-            tag: 'color',
-            text: 'asdf',
-            value: 'purple',
-        });
-        var o2_color = new Observation({
-            t: t2,
-            tag: 'color',
-            text: 'asdf',
-            value: 'purple',
-        });
+        var o1_color = new Observation('color', 'purple', t1, 'asdf');
+        var o2_color = new Observation('color', 'purple', t2, 'asdf');
 
         // t is primary sort key
         should(Observation.compare_t_tag(o1_color,o2_color)).equal(-1);
@@ -76,23 +75,13 @@
         should(Observation.compare_t_tag(o1_color,o1_color)).equal(0);
 
         // tag is secondary sort key
-        var o1_size = new Observation({
-            t: t1,
-            tag: 'size',
-            text: 'asdf',
-            value: 'large',
-        });
+        var o1_size = new Observation('size', 'large', t1, 'asdf');
         should('color').below('size');
         should(Observation.compare_t_tag(o1_color,o1_size)).equal(-1);
         should(Observation.compare_t_tag(o1_size,o1_color)).equal(1);
 
         // other properties are ignored
-        var o1_color_2 = new Observation({
-            t: new Date(t1.getTime()),
-            tag: 'color',
-            //text: undefined,
-            //value: undefined,
-        });
+        var o1_color_2 = new Observation('color', undefined, t1);
         should(Observation.compare_t_tag(o1_color,o1_color_2)).equal(0);
         should(Observation.compare_t_tag(o1_color_2,o1_color)).equal(0);
 
@@ -144,12 +133,8 @@
         ]);
     });
     it("toString() overrides Object.toString()", function() {
-        var tv = new Observation({
-            t: new Date(Date.UTC(2018,11,2)),
-            tag: 'Test',
-            value: 123,
-            text: 'abc',
-        });
+        var t = new Date(Date.UTC(2018,11,2));
+        var tv = new Observation('Test', 123, t, 'abc');
         should(tv+"").equal("2018-12-02T00:00:00.000Z Test 123 abc");
     });
 
