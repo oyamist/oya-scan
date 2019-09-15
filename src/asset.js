@@ -261,7 +261,7 @@
             }, snapshot);
         }
 
-        updateSnapshot(snapNew, t = new Date(), text, snapBase=this.snapshot()) {
+        updateSnapshot(snapNew, t=new Date(), text, snapBase=this.snapshot()) {
             Object.keys(snapNew).forEach(key => {
                 var newValue = snapNew[key];
                 var oldValue = snapBase[key];
@@ -270,21 +270,10 @@
                         throw new Error(`Asset ${key} cannot be changed`);
                     }
                 } else if (newValue !== oldValue) {
-                    if ((typeof newValue === 'string') && newValue.match(ISODATE)) {
-                        this.observe(new Observation({
-                            t: new Date(newValue),
-                            tag: key,
-                            value: Observation.V_EVENT,
-                            text,
-                        }));
-                    } else {
-                        this.observe(new Observation({
-                            t,
-                            tag: key,
-                            value: newValue,
-                            text,
-                        }));
+                    if (`${newValue}`.match(ISODATE)) {
+                        newValue = new Date(`${newValue}`);
                     }
+                    this.observe(key, newValue, t, text);
                 } else {
                     // no change
                 }
