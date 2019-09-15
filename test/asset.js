@@ -579,7 +579,7 @@
         should(asset.ageSinceTag(HARVESTED, Asset.AGE_DAYS))
             .equal((Date.now() - t3) / days1);
     });
-    it("TESTTESTvalueHistory(tag) returns array of observations of tag", function() {
+    it("TESTTESTvalueHistory(tag) returns tag observation array", ()=>{
         var asset = new Asset();
         var t1 = new Date(2018,1,1);
         var t2 = new Date(2018,1,2);
@@ -593,35 +593,51 @@
         should.deepEqual(history.map(tv=>tv.tag), ['color','color','color']);
         should.deepEqual(history.map(tv=>tv.text), ['A','B','C']);
     });
-    it("TESTTESTdescribeProperty(name) returns property description", function() {
+    it("TESTTESTdescribeProperty(name) returns description", ()=>{
         var asset = new Asset({
             size: 'large',
         });
-        should.deepEqual(asset.describeProperty('guid'), immutable('guid'));
-        should.deepEqual(asset.describeProperty('type'), mutable('type'));
-        should.deepEqual(asset.describeProperty('id'), retroactive('id'));
-        should.deepEqual(asset.describeProperty('size'), mutable('size'));
-        should.deepEqual(asset.describeProperty('asdf'), unused('asdf'));
-        should.deepEqual(asset.describeProperty('location'), unused('location'));
-        should.deepEqual(asset.describeProperty('color'), unused('color'));
+        should.deepEqual(asset.describeProperty('guid'),
+            immutable('guid'));
+        should.deepEqual(asset.describeProperty('type'),
+            mutable('type'));
+        should.deepEqual(asset.describeProperty('id'),
+            retroactive('id'));
+        should.deepEqual(asset.describeProperty('size'),
+            mutable('size'));
+        should.deepEqual(asset.describeProperty('asdf'),
+            unused('asdf'));
+        should.deepEqual(asset.describeProperty('location'), 
+            unused('location'));
+        should.deepEqual(asset.describeProperty('color'),
+            unused('color'));
 
         // create a temporal property
         asset.observe("location", "SFO");
-        should.deepEqual(asset.describeProperty('location'), temporal('location'));
+        should.deepEqual(asset.describeProperty('location'),
+            temporal('location'));
 
         // create retroactive property
         asset.observe("color", 'red', Observation.RETROACTIVE);
-        should.deepEqual(asset.describeProperty('color'), retroactive('color'));
+        should.deepEqual(asset.describeProperty('color'),
+            retroactive('color'));
 
         // serialized asset has same property definitions
         var asset = new Asset(JSON.parse(JSON.stringify(asset)));
-        should.deepEqual(asset.describeProperty('guid'), immutable('guid'));
-        should.deepEqual(asset.describeProperty('type'), mutable('type'));
-        should.deepEqual(asset.describeProperty('id'), retroactive('id'));
-        should.deepEqual(asset.describeProperty('size'), mutable('size'));
-        should.deepEqual(asset.describeProperty('asdf'), unused('asdf'));
-        should.deepEqual(asset.describeProperty('location'), temporal('location'));
-        should.deepEqual(asset.describeProperty('color'), retroactive('color'));
+        should.deepEqual(asset.describeProperty('guid'),
+            immutable('guid'));
+        should.deepEqual(asset.describeProperty('type'),
+            mutable('type'));
+        should.deepEqual(asset.describeProperty('id'),
+            retroactive('id'));
+        should.deepEqual(asset.describeProperty('size'),
+            mutable('size'));
+        should.deepEqual(asset.describeProperty('asdf'),
+            unused('asdf'));
+        should.deepEqual(asset.describeProperty('location'),
+            temporal('location'));
+        should.deepEqual(asset.describeProperty('color'),
+            retroactive('color'));
     });
     it("TESTTESTmerge(asset1,asset2) two versions of same asset", function() {
         var t = [
