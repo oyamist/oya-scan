@@ -283,7 +283,8 @@
 
         static merge(asset1, asset2) {
             if (asset1.guid !== asset2.guid) {
-                throw new Error(`Assets with different guids cannot be merged: asset1:${asset1.guid} asset2:${asset2.guid}`);
+                throw new Error(`Cannot merge Assets with different guids:`,
+                    `asset1:${asset1.guid} asset2:${asset2.guid}`);
             }
             if (asset1.obs.length < asset2.obs.length) {
                 [asset1, asset2] = [asset2, asset1]; // asset1 is primary asset

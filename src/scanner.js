@@ -15,13 +15,16 @@
     const Observation = require('./observation');
     class Scanner {
         constructor(opts = {}) {
-            this.map = Object.assign({}, opts.map);
+            this.map = opts.map || {};
             this.tag = opts.tag || "scanned";  // default tag
         }
 
         scan(data) {
             var t = new Date();
-            var m = this.map[data.trim()];
+            var barcode = data.trim();
+            var m = typeof this.map === 'function' 
+                ? this.map(barcode)
+                : this.map[barcode];
             var value = data;
             var tag = this.tag;
             if (m) {

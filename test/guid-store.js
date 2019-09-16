@@ -3,26 +3,40 @@
     const fs = require('fs');
     const path = require('path');
     const { MerkleJson } = require("merkle-json");
+    const tmp = require('tmp');
     const {
         GuidStore,
     } = require("../index");
     const local = path.join(__dirname, '..', 'local');
     var mj = new MerkleJson();
 
-    it("TESTTESTGuidStore(opts) creates an asset GuidStore", function() {
+    it("default and custom ctor", () => {
         var store = new GuidStore();
+        should(store.storeDir).equal(local);
         should(store.storePath).equal(path.join(local, 'guid-store'));
         should(fs.existsSync(store.storePath)).equal(true);
 
+        var storeDir = tmp.tmpNameSync();
         var store = new GuidStore({
-            type: 'SoundStore',
-            storeName: 'sounds',
+            type: 'TestStore',
+            storeName: 'a-test-store',
+            storeDir,
         });
-        should(store.storePath).equal(path.join(local, 'sounds'));
+        should(store.storeDir).equal(storeDir);
+        should(store.storePath).equal(path.join(storeDir, 'a-test-store'));
         should(store.volume).equal('common');
         should(fs.existsSync(store.storePath)).equal(true);
     });
-    it("TESTTESTguidPath(guid) returns file path of guid", function() {
+    it("derived class default ctor", () => {
+        class TestStore extends GuidStore {};
+        var storeDir = tmp.tmpNameSync();
+        var store = new TestStore({
+            storeDir,
+        });
+        should(store.storePath).equal(path.join(storeDir, 'test-store'));
+        should(fs.existsSync(store.storePath)).equal(true);
+    });
+    it("guidPath(guid) returns file path of guid", function() {
         var store = new GuidStore();
         var guid = mj.hash("hello world");
         var guidDir = guid.substring(0,2);
@@ -44,7 +58,7 @@
         var idPath = path.join(chapterPath, `${id}${suffix}`);
         should(store.guidPath(id,opts)).equal(idPath);
     });
-    it("TESTTESTsignaturePath(signature) returns file path of signature", function() {
+    it("signaturePath(signature) returns file path of signature", function() {
         var store = new GuidStore();
         var guid = mj.hash("hello world");
         var guidDir = guid.substring(0,2);
@@ -55,13 +69,14 @@
         };
         should(store.signaturePath(signature,'.txt')).equal(`${sigPath}.txt`);
 
+        var storeDir = tmp.tmpNameSync();
         var store = new GuidStore({
-            type: 'SoundStore',
-            storeName: 'sounds',
+            type: 'TestStore',
+            storeDir,
             suffix: '.ogg',
         });
         var guid = mj.hash("hello world");
-        var commonPath = path.join(local, 'sounds', 'common', guidDir);
+        var commonPath = path.join(storeDir, 'test-store', 'common', guidDir);
         var sigPath = path.join(commonPath, guid);
         var expectedPath = `${sigPath}.ogg`;
         var signature = {

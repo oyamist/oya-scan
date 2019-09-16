@@ -51,7 +51,7 @@
             tag,
         });
     });
-    it("scan(data) returns mapped Observation", () => {
+    it("scan(data) returns mapped Observation (Object)", () => {
         var scanner = new Scanner({
             map: TESTMAP,
         });
@@ -75,6 +75,37 @@
         should(dataout.t - Date.now()).above(-1).below(5);
         should(dataout.value).equal(5);
         should(dataout.tag).equal('height');
+    });
+    it("TESTTESTscan(data) returns mapped Observation (function)", () => {
+        var map = (barcode)=>{
+            return {
+                "a0001": {
+                    "tag": "color",
+                    "value": "red"
+                },
+                "a0002": {
+                    "tag": "color",
+                    "value": "blue"
+                }
+            }[barcode];
+        }
+        var scanner = new Scanner({
+            map,
+        });
+
+        // raw data
+        var datain = "hello";
+        var dataout = scanner.scan(datain);
+        should(dataout).instanceOf(Observation);
+        should(Date.now() - dataout.t).above(-1).below(5);
+        should(dataout.value).equal(datain);
+        should(dataout.tag).equal(scanner.tag);
+
+        // mapped data
+        var dataout = scanner.scan("a0001");
+        should(Date.now() - dataout.t).above(-1).below(5);
+        should(dataout.value).equal('red');
+        should(dataout.tag).equal('color');
     });
     it("transform(is,os) transforms input to output stream", (done) => {
         (async function() { try {

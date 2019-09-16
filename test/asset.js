@@ -55,7 +55,7 @@
     var LOCATION = "location";
     var HARVESTED = "harvested";
 
-    it("TESTTESTdefault ctor", function() {
+    it("default ctor", function() {
         // Default ctor
         var asset = new Asset();
         should(asset.type).equal('Asset');
@@ -80,7 +80,7 @@
         // Asset name is generated if not provided
         should.deepEqual(asset.name, `Asset_${asset.guid.substr(0,7)}`); 
     });
-    it("TESTTESTcustom ctor", function() {
+    it("custom ctor", function() {
         var asset = new Asset({
             id: 'A0001',
         });
@@ -120,7 +120,7 @@
         var assetCopy = new Asset(asset);
         should.deepEqual(assetCopy, asset);
     });
-    it("TESTTESTAsset is serializable", function() {
+    it("Asset is serializable", function() {
         var created = new Date();
         var asset = new Asset({
             created,
@@ -159,7 +159,7 @@
         should.deepEqual(asset2, asset);
         should(asset2.name).equal('tomatoA');
     });
-    it("TESTTESTobserve(...) adds observation", function() {
+    it("observe(...) adds observation", function() {
         var asset = new Asset();
 
         // positional arguments
@@ -193,7 +193,7 @@
         should(asset.get(LOCATION,t1)).equal('NYC');
         should(asset.get(LOCATION)).equal('PIT');
     });
-    it("TESTTESTget(valueTag,date) returns temporal value", function() {
+    it("get(valueTag,date) returns temporal value", function() {
         var asset = new Asset();
         asset.observe(DIMENSIONS, {
             size: 'small',
@@ -214,13 +214,13 @@
         asset.observe(HARVESTED, false, t2);
         should.equal(asset.get(HARVESTED, t2), false);
     });
-    it("TESTTESTget(valueTag,date) returns non-temporal value", function() {
+    it("get(valueTag,date) returns non-temporal value", function() {
         var asset = new Asset();
         var t1 = new Date(2018,1,2);
         should(asset.get('guid')).equal(asset.guid);
         should(asset.get('guid', t1)).equal(asset.guid);
     });
-    it("TESTTESTset(valueTag, value, date) sets non-temporal value", function() {
+    it("set(valueTag, value, date) sets non-temporal value", function() {
         var asset = new Asset();
         var t1 = new Date(2018,2,1);
         should(asset.created.toJSON()).not.equal(t1.toJSON());
@@ -235,7 +235,7 @@
             asset.observe("type", "asdf");
         });
     });
-    it("TESTTESTget() returns value for any date", function() {
+    it("get() returns value for any date", function() {
         var asset = new Asset();
         var t0 = new Date(2018,0,1);
         var t1 = new Date(2018,1,1);
@@ -253,7 +253,7 @@
         should(asset.get(LOCATION,new Date(t2.getTime()+1))).equal('LAX');
         should(asset.get(LOCATION,t3)).equal('PIT');
     });
-    it("TESTTESTsnapshot(date) returns asset properties for date", function() {
+    it("snapshot(date) returns asset properties for date", function() {
         var t0 = new Date(2018,0,1);
         var t1 = new Date(2018,1,1);
         var t2 = new Date(2018,1,2);
@@ -297,7 +297,7 @@
             location: 'PIT',
         });
     });
-    it("TESTTESTAsset can be extended", function() {
+    it("Asset can be extended", function() {
         var t0 = new Date(2018,0,1);
         var t1 = new Date(2018,1,1);
         var t2 = new Date(2018,1,2);
@@ -323,7 +323,7 @@
             color: 'red',
         });
     });
-    it("TESTTESTid is a temporal value retroactive to 1/1/1970", function() {
+    it("id is a temporal value retroactive to 1/1/1970", function() {
         var async = function *() {
             var asset = new Asset({
                 id: 'A0001',
@@ -345,7 +345,7 @@
         }();
         async.next();
     });
-    it("TESTTESTupdateSnapshot(...) updates multiple properties", function(done) {
+    it("updateSnapshot(...) updates multiple properties", function(done) {
         var async = function*() {
             var t0 = new Date(2018, 1, 2);
             var asset = new Asset();
@@ -399,7 +399,7 @@
         }();
         async.next();
     });
-    it("TESTTESTupdateSnapshot(...) throws", function() {
+    it("updateSnapshot(...) throws", function() {
         var asset = new Asset();
 
         should.throws(() => { // type is immutable
@@ -413,7 +413,7 @@
             });
         });
     });
-    it("TESTTESTsnapshots map undefined values to assignment date", function(done) {
+    it("snapshots map undefined values to assignment date", function(done) {
         done(); return; // dbg TODO
         var async = function*() {
             // initial state
@@ -482,7 +482,7 @@
         }();
         async.next();
     });
-    it("TESTTESTkeyDisplayValue(key, asset, assetMap, locale)", function() {
+    it("keyDisplayValue(key, asset, assetMap, locale)", function() {
         var asset = new Asset();
         var t1 = new Date(2018,1,1);
         var t2 = new Date(2018,1,2);
@@ -503,7 +503,7 @@
         should.deepEqual(Asset.keyDisplayValue('married' , asset, assetMap), 
             'Sat, Feb 3 (-7 days @ 2 days) \u2666 12:00 AM');
     });
-    it("TESTTESTage(...) returns age since creation", () => {
+    it("age(...) returns age since creation", () => {
         var t1 = new Date(2018, 1, 2);
         var asset = new Asset({
             created: t1,
@@ -530,7 +530,7 @@
         should(asset.age()).equal(days2);
 
     });
-    it("TESTTESTageOfTag(...) returns age of most recent observation", () => {
+    it("ageOfTag(...) returns age of most recent observation", () => {
         var t1 = new Date(2018, 1, 2);
         var asset = new Asset({
             created: t1,
@@ -554,7 +554,7 @@
         // Units
         should(asset.ageOfTag(HARVESTED, Asset.AGE_DAYS)).equal(3);
     });
-    it("TESTTESTageSinceTag(...) returns age since observation", () => {
+    it("ageSinceTag(...) returns age since observation", () => {
         var t1 = new Date(2018, 1, 2);
         var asset = new Asset({
             created: t1,
@@ -579,7 +579,7 @@
         should(asset.ageSinceTag(HARVESTED, Asset.AGE_DAYS))
             .equal((Date.now() - t3) / days1);
     });
-    it("TESTTESTvalueHistory(tag) returns tag observation array", ()=>{
+    it("valueHistory(tag) returns tag observation array", ()=>{
         var asset = new Asset();
         var t1 = new Date(2018,1,1);
         var t2 = new Date(2018,1,2);
@@ -593,7 +593,7 @@
         should.deepEqual(history.map(tv=>tv.tag), ['color','color','color']);
         should.deepEqual(history.map(tv=>tv.text), ['A','B','C']);
     });
-    it("TESTTESTdescribeProperty(name) returns description", ()=>{
+    it("describeProperty(name) returns description", ()=>{
         var asset = new Asset({
             size: 'large',
         });
@@ -639,7 +639,7 @@
         should.deepEqual(asset.describeProperty('color'),
             retroactive('color'));
     });
-    it("TESTTESTmerge(asset1,asset2) two versions of same asset", function() {
+    it("merge(asset1,asset2) two versions of same asset", function() {
         var t = [
             new Date(2018,11,1),
             new Date(2018,11,2),

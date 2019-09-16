@@ -4,5 +4,6 @@ module.exports = {
     GuidStore: require('./src/guid-store'),
     Observation: require('./src/observation'),
     Scanner: require('./src/scanner'),
+    Workspace: require('./src/workspace'),
 
 };

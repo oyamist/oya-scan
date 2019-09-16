@@ -5,7 +5,7 @@
         Observation,
     } = require("../index");
 
-    it("TESTTESTdefault ctor", function() {
+    it("default ctor", function() {
         var obs = new Observation();
         should(obs.t).instanceOf(Date);
         should(Date.now() - obs.t).above(-1).below(5);
@@ -13,7 +13,7 @@
         should(obs.value).equal(obs.t);
         should(obs.text).equal(undefined);
     });
-    it("TESTTESTcustom object ctor", function() {
+    it("custom object ctor", function() {
         var t = new Date(2018, 3, 11);
         var tag = "color";
         var text = "some-annotation";
@@ -31,7 +31,7 @@
             value,
         });
     });
-    it("TESTTESTcustom positional ctor", function() {
+    it("custom positional ctor", function() {
         var t = new Date(2018, 3, 11);
         var tag = "color";
         var text = "some-annotation";
@@ -63,7 +63,7 @@
         var o2 = new Observation(json);
         should.deepEqual(o2, o1);
     });
-    it("TESTTESTcompare_t_tag(a,b) sorts by (t,tag)", function() {
+    it("compare_t_tag(a,b) sorts by (t,tag)", function() {
         var t1 = Observation.RETROACTIVE;
         var t2 = new Date(2018,11,2);
         var o1_color = new Observation('color', 'purple', t1, 'asdf');

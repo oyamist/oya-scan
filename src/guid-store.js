@@ -5,19 +5,33 @@
 
     class GuidStore {
         constructor(opts={}) {
-            if (!fs.existsSync(LOCAL)) {
-                fs.mkdirSync(LOCAL);
-            }
-            this.type = opts.type || 'GuidStore';
+            this.type = opts.type || this.constructor.name;
             this.folderPrefix = opts.folderPrefix || 2;
+            this.storeDir = opts.storeDir || 
+                path.join(__dirname, '../local');
+            if (!fs.existsSync(this.storeDir)) {
+                fs.mkdirSync(this.storeDir);
+            }
 
             this.suffix = opts.suffix || '';
             this.volume = opts.volume || 'common';
-            this.storeName = opts.storeName || 'guid-store';
+            this.storeName = opts.storeName;
+            if (this.storeName == null) {
+                var nameLower = this.type.toLocaleLowerCase();
+                var storeName = '';
+                for (var i = 0; i < nameLower.length; i++) {
+                    var c = nameLower.charAt(i);
+                    if (i && this.type.charAt(i) !== c) {
+                        storeName += '-';
+                    }
+                    storeName += c;
+                }
+                this.storeName = storeName;
+            }
 
             // Unserialized properties
             Object.defineProperty(this, 'storePath', {
-                value: opts.storePath ||  path.join(LOCAL, this.storeName),
+                value: opts.storePath ||  path.join(this.storeDir, this.storeName),
             });
             fs.existsSync(this.storePath) || fs.mkdirSync(this.storePath);
         }
