@@ -36,7 +36,8 @@
 
         // re-scanning barcode returns guid of same asset
         var ob2 = scanner.scan(barcode);
-        should.deepEqual(ob2, ob2);
+        should(ob2.tag).equal(ob1.tag);
+        should(ob2.value).equal(ob1.value);
 
         var guid = ob1.value;
         var asset = ws.assetOfGuid(guid);
