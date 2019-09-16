@@ -76,21 +76,23 @@
         should(dataout.value).equal(5);
         should(dataout.tag).equal('height');
     });
-    it("TESTTESTscan(data) returns mapped Observation (function)", () => {
-        var map = (barcode)=>{
-            return {
-                "a0001": {
-                    "tag": "color",
-                    "value": "red"
-                },
-                "a0002": {
-                    "tag": "color",
-                    "value": "blue"
-                }
-            }[barcode];
-        }
+    it("scan(data) returns mapped Observation (function)", () => {
+        var mapper = {
+            map: (barcode)=>{
+                return {
+                    "a0001": {
+                        "tag": "color",
+                        "value": "red"
+                    },
+                    "a0002": {
+                        "tag": "color",
+                        "value": "blue"
+                    }
+                }[barcode];
+            },
+        };
         var scanner = new Scanner({
-            map,
+            map: mapper,
         });
 
         // raw data

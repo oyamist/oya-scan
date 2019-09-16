@@ -22,9 +22,13 @@
         scan(data) {
             var t = new Date();
             var barcode = data.trim();
-            var m = typeof this.map === 'function' 
-                ? this.map(barcode)
-                : this.map[barcode];
+            var mapper = this.map;
+            var mapperType = typeof mapper.map;
+            if (mapper && (mapperType === 'function')) {
+                var m = mapper.map(barcode);
+            } else {
+                var m = mapper[barcode];
+            }
             var value = data;
             var tag = this.tag;
             if (m) {
