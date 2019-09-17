@@ -13,15 +13,42 @@
         exec,
     } = require('child_process');
     const Observation = require('./observation');
+    const TAG_SCANNED = "scanned";
+    const PAT_NUMBER = '-?[0-9]+(\\.[0-9]+)?';
+
     class Scanner {
         constructor(opts = {}) {
             this.map = opts.map || {};
-            this.tag = opts.tag || "scanned";  // default tag
+            this.tag = opts.tag || TAG_SCANNED;  // default tag
+            var patterns = opts.patterns || [{
+                re: PAT_NUMBER,
+                value: 'number',
+            }];
+            this.patterns = patterns.map(p => ({
+                re: new RegExp(`^${p.re}$`),
+                value: p.value,
+            }));
         }
+
+        static get TAG_NUMBER() { return "number"; }
+        static get TAG_SCANNED() { return TAG_SCANNED; }
 
         scan(data) {
             var t = new Date();
             var barcode = data.trim();
+            for (var i = 0; i < this.patterns.length; i++) {
+                var p = this.patterns[i];
+                if (p.re.test(barcode)) {
+                    if (p.value === 'number') {
+                        return new Observation(p.value, Number(barcode)); 
+                    } else if (typeof p.value === 'string') {
+                        return new Observation(p.value, barcode);
+                    } else {
+                        return p.value;
+                    }
+                }
+            }
+
             var mapper = this.map;
             var mapperType = typeof mapper.map;
             if (mapper && (mapperType === 'function')) {

@@ -4,6 +4,7 @@
     const LOCAL = path.join(__dirname, '../local');
     const GuidStore = require('./guid-store');
     const Scanner = require('./scanner');
+    const Observation = require('./observation');
     const Asset = require('./asset');
     const INDEXFILE = "index.json";
     const VERSION = "1";
@@ -46,27 +47,35 @@
             return new Asset(JSON.parse(json));
         }
 
+        createBarcodeAsset(barcode) {
+            var {
+                scannerMap,
+            } = this.index;
+
+            // create asset for barcode 
+            var asset = new Asset({
+                barcode,
+            });
+            var assetPath = this.guidPath(asset.guid, '.json');
+            fs.writeFileSync(assetPath, JSON.stringify(asset, null, 2));
+
+            // bind barcode to asset
+            var ob = {
+                tag: asset.type,
+                value: asset.guid,
+            };
+            scannerMap[barcode] = ob;
+            this.sync();
+
+            return ob;
+        }
+
         map(barcode) {
             var {
                 scannerMap,
             } = this.index;
             var ob = scannerMap[barcode];
-            if (!ob) { 
-                // create asset for barcode 
-                var asset = new Asset({
-                    barcode,
-                });
-                var assetPath = this.guidPath(asset.guid, '.json');
-                fs.writeFileSync(assetPath, JSON.stringify(asset, null, 2));
-
-                // bind barcode to asset
-                ob = {
-                    tag: asset.type,
-                    value: asset.guid,
-                };
-                scannerMap[barcode] = ob;
-                this.sync();
-            }
+            ob = ob || this.createBarcodeAsset(barcode);
 
             return ob;
         }

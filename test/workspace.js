@@ -11,6 +11,12 @@
         Scanner,
     } = require("../index");
 
+    var storeDir = tmp.tmpNameSync();
+    var wstest = new Workspace({
+        storeDir,
+    });
+    console.log(`test scanning storeDir:`, storeDir);
+
     it("TESTTESTdefault ctor", ()=>{
         var ws = new Workspace();
         should(ws).instanceOf(Workspace);
@@ -21,11 +27,7 @@
         should(ws.scanner).instanceOf(Scanner);
     });
     it("TESTTESTscanning new barcode creates new Asset", ()=>{
-        var storeDir = tmp.tmpNameSync();
-        var ws = new Workspace({
-            storeDir,
-        });
-        console.log(`test scanning storeDir:`, storeDir);
+        var ws = wstest;
         var scanner = ws.scanner;
 
         // new barcode creates new Asset
@@ -47,4 +49,23 @@
             barcode,
         })
     });
+    it("TESTTESTscan number", ()=>{
+        var {
+            scanner,
+        } = wstest;
+
+        var ob1 = scanner.scan("1");
+        should(ob1).properties({
+            tag: 'number',
+            value: 1,
+        });
+
+        var ob1 = scanner.scan("42");
+        should(ob1).properties({
+            tag: 'number',
+            value: 42,
+        });
+
+    });
+
 })

@@ -31,24 +31,81 @@
         },
     };
 
-    it("default ctor", () => {
+    it("TESTTESTdefault ctor", () => {
         var scanner = new Scanner();
         should(scanner).instanceOf(Scanner);
         should.deepEqual(scanner.map, {});
         should(scanner).properties({
-            tag: 'scanned',
+            tag: Scanner.TAG_SCANNED,
         });
+
+        // floating point number
+        should(scanner.scan("1")).properties({
+            tag: 'number',
+            value: 1,
+        });
+        should(scanner.scan("42")).properties({
+            tag: 'number',
+            value: 42,
+        });
+        should(scanner.scan("123.456")).properties({
+            tag: 'number',
+            value: 123.456,
+        });
+        should(scanner.scan("-123.456")).properties({
+            tag: 'number',
+            value: -123.456,
+        });
+
+        // not a number
+        should(scanner.scan("123,456")).properties({
+            tag: 'scanned',
+            value: '123,456',
+        });
+        should(scanner.scan("123.456.789")).properties({
+            tag: 'scanned',
+            value: '123.456.789',
+        });
+        should(scanner.scan("+1")).properties({
+            tag: 'scanned',
+            value: '+1',
+        });
+        should(scanner.scan("1a1")).properties({
+            tag: 'scanned',
+            value: '1a1',
+        });
+
     });
-    it("custom ctor",() => {
+    it("TESTTESTcustom ctor",() => {
         var map = TESTMAP;
-        var tag = 'barcode';
+        var tag = 'barcode'; // new default tag
+        var PAT_INT = '[0-9]+';
+        var patterns = [{
+            re: PAT_INT,
+            value: 'number', // integers
+        }];
         var scanner = new Scanner({
             map,
             tag,
+            patterns,
         });
         should.deepEqual(scanner.map, TESTMAP);
         should(scanner).properties({
             tag,
+            map,
+        });
+        should.deepEqual(scanner.patterns, [{
+            re: new RegExp(`^${PAT_INT}$`),
+            value: 'number',
+        }]);
+
+        should(scanner.scan("123")).properties({
+            tag: 'number',
+            value: 123,
+        });
+        should(scanner.scan("123.456")).properties({
+            tag: 'barcode',
+            value: '123.456',
         });
     });
     it("scan(data) returns mapped Observation (Object)", () => {
@@ -108,6 +165,30 @@
         should(Date.now() - dataout.t).above(-1).below(5);
         should(dataout.value).equal('red');
         should(dataout.tag).equal('color');
+    });
+    it("TESTTESTscan(data) returns number", () => {
+        var scanner = new Scanner();
+        var ob1 = scanner.scan("123.456");
+        should(ob1).instanceOf(Observation);
+        should(ob1).properties({
+            tag: Scanner.TAG_NUMBER,
+            value: 123.456,
+        })
+
+        // custom number
+        var patterns = [{
+            re: '[0-9]+',
+            value: 'number',
+        }];
+        var scanner = new Scanner({
+            patterns,
+        });
+        var ob1 = scanner.scan("123.456");
+        should(ob1).instanceOf(Observation);
+        should(ob1).properties({
+            tag: Scanner.TAG_SCANNED,
+            value: "123.456",
+        })
     });
     it("transform(is,os) transforms input to output stream", (done) => {
         (async function() { try {
