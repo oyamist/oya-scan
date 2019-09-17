@@ -40,41 +40,24 @@
         });
 
         // floating point number
-        should(scanner.scan("1")).properties({
-            tag: 'number',
-            value: 1,
-        });
-        should(scanner.scan("42")).properties({
-            tag: 'number',
-            value: 42,
-        });
-        should(scanner.scan("123.456")).properties({
-            tag: 'number',
-            value: 123.456,
-        });
-        should(scanner.scan("-123.456")).properties({
-            tag: 'number',
-            value: -123.456,
-        });
+        var ob = scanner.scan('1');
+        should.deepEqual(ob, new Observation("number", 1, ob.t));
+        var ob = scanner.scan('42');
+        should.deepEqual(ob, new Observation("number", 42, ob.t));
+        var ob = scanner.scan('123.456');
+        should.deepEqual(ob, new Observation("number", 123.456, ob.t));
+        var ob = scanner.scan('-123.456');
+        should.deepEqual(ob, new Observation("number", -123.456, ob.t));
 
         // not a number
-        should(scanner.scan("123,456")).properties({
-            tag: 'scanned',
-            value: '123,456',
-        });
-        should(scanner.scan("123.456.789")).properties({
-            tag: 'scanned',
-            value: '123.456.789',
-        });
-        should(scanner.scan("+1")).properties({
-            tag: 'scanned',
-            value: '+1',
-        });
-        should(scanner.scan("1a1")).properties({
-            tag: 'scanned',
-            value: '1a1',
-        });
-
+        var ob = scanner.scan('123,456');
+        should.deepEqual(ob, new Observation("scanned", '123,456', ob.t));
+        var ob = scanner.scan('123.456.789');
+        should.deepEqual(ob, new Observation("scanned", '123.456.789', ob.t));
+        var ob = scanner.scan('+1');
+        should.deepEqual(ob, new Observation("scanned", '+1', ob.t));
+        var ob = scanner.scan('1a1');
+        should.deepEqual(ob, new Observation("scanned", '1a1', ob.t));
     });
     it("TESTTESTcustom ctor",() => {
         var map = TESTMAP;
@@ -99,14 +82,10 @@
             value: 'number',
         }]);
 
-        should(scanner.scan("123")).properties({
-            tag: 'number',
-            value: 123,
-        });
-        should(scanner.scan("123.456")).properties({
-            tag: 'barcode',
-            value: '123.456',
-        });
+        var ob = scanner.scan('123');
+        should.deepEqual(ob, new Observation('number', 123, ob.t));
+        var ob = scanner.scan('123.456');
+        should.deepEqual(ob, new Observation('barcode', "123.456", ob.t));
     });
     it("scan(data) returns mapped Observation (Object)", () => {
         var scanner = new Scanner({
@@ -168,27 +147,30 @@
     });
     it("TESTTESTscan(data) returns number", () => {
         var scanner = new Scanner();
-        var ob1 = scanner.scan("123.456");
-        should(ob1).instanceOf(Observation);
-        should(ob1).properties({
-            tag: Scanner.TAG_NUMBER,
-            value: 123.456,
-        })
+
+        // default number pattern
+        var ob = scanner.scan("123.456");
+        should.deepEqual(ob, new Observation("number", 123.456, ob.t));
 
         // custom number
         var patterns = [{
             re: '[0-9]+',
             value: 'number',
+        },{
+            re: /^PI$/,
+            value: new Observation('number', 3.1415926),
         }];
         var scanner = new Scanner({
             patterns,
         });
-        var ob1 = scanner.scan("123.456");
-        should(ob1).instanceOf(Observation);
-        should(ob1).properties({
-            tag: Scanner.TAG_SCANNED,
-            value: "123.456",
-        })
+        var ob = scanner.scan('123'); // string pattern
+        should.deepEqual(ob, new Observation("number", 123, ob.t));
+        var ob = scanner.scan('PI'); // RegExp pattern
+        should.deepEqual(ob, new Observation("number", 3.1415926, ob.t));
+        var ob = scanner.scan('PIT'); // no match
+        should.deepEqual(ob, new Observation("scanned", "PIT", ob.t));
+        var ob = scanner.scan("123.456");  // no match
+        should.deepEqual(ob, new Observation("scanned", "123.456", ob.t));
     });
     it("transform(is,os) transforms input to output stream", (done) => {
         (async function() { try {

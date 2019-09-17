@@ -24,10 +24,14 @@
                 re: PAT_NUMBER,
                 value: 'number',
             }];
-            this.patterns = patterns.map(p => ({
-                re: new RegExp(`^${p.re}$`),
-                value: p.value,
-            }));
+            this.patterns = patterns.map(p => {
+                var re = p.re instanceof RegExp
+                    ? p.re : RegExp(`^${p.re}$`);
+                return {
+                    re,
+                    value: p.value,
+                }
+            });
         }
 
         static get TAG_NUMBER() { return "number"; }
