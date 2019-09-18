@@ -14,7 +14,18 @@
     } = require('child_process');
     const Observation = require('./observation');
     const TAG_SCANNED = "scanned";
-    const PAT_NUMBER = '-?[0-9]+(\\.[0-9]+)?';
+    const TAG_UPCA = "UPC-A";
+    const TAG_EAN13 = "EAN13";
+    const TAG_UPCE_EAN8 = "UPC-E/EAN-8";
+    const PAT_UPCA = '[0-9]{12,12}'; 
+    const PAT_EAN13 = '[0-9]{13,13}'; 
+    const PAT_UPCE_EAN8 = '[0-9]{8,8}'; // UPC-E or EAN-8
+    const PAT_NUMBER = '-?('+[
+        '[0-9]{0,7}', // integer
+        '[0-9]{0,6}\\.[0-9]', // floating point
+        '[0-9]{0,5}\\.[0-9]{0,2}', // floating point
+        '[0-9]{0,4}\\.[0-9]{0,3}', // floating point
+    ].join('|')+')';
 
     class Scanner {
         constructor(opts = {}) {
@@ -23,6 +34,15 @@
             var patterns = opts.patterns || [{
                 re: PAT_NUMBER,
                 value: 'number',
+            },{
+                re: PAT_UPCE_EAN8,
+                value: TAG_UPCE_EAN8,
+            },{
+                re: PAT_EAN13,
+                value: TAG_EAN13,
+            },{
+                re: PAT_UPCA,
+                value: TAG_UPCA,
             }];
             this.patterns = patterns.map(p => {
                 var re = p.re instanceof RegExp
@@ -34,6 +54,9 @@
             });
         }
 
+        static get TAG_EAN13() { return TAG_EAN13; }
+        static get TAG_UPCA() { return TAG_UPCA; }
+        static get TAG_UPCE_EAN8() { return TAG_UPCE_EAN8; }
         static get TAG_NUMBER() { return "number"; }
         static get TAG_SCANNED() { return TAG_SCANNED; }
 

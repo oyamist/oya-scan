@@ -196,6 +196,7 @@
             // output stream has one observation per line
             should(fs.existsSync(ospath));
             var odata = fs.readFileSync(ospath).toString();
+            //console.log(`dbg odata`, odata);
             var ojs = odata.trim().split('\n').map(line => line && JSON.parse(line));
             should(ojs[0]).properties({ // a001
                 tag: 'color',
@@ -216,6 +217,26 @@
             should(ojs.length).equal(4); 
             done();
         } catch(e) {done(e)} })();
+    });
+    it("TESTTESTscan(barcode) recognizes UPC/EAN codes", () => {
+        var scanner = new Scanner();
+
+        var code = "614141000036";
+        var ob = scanner.scan(code);
+        should.deepEqual(ob, new Observation(Scanner.TAG_UPCA, code, ob.t));
+
+        var code = "9501101530003";
+        var ob = scanner.scan(code);
+        should.deepEqual(ob, new Observation(Scanner.TAG_EAN13, code, ob.t));
+
+        var code = "95050003";
+        var ob = scanner.scan(code);
+        should.deepEqual(ob, new Observation(Scanner.TAG_UPCE_EAN8, code, ob.t));
+
+        var code = "06141939";
+        var ob = scanner.scan(code);
+        should.deepEqual(ob, new Observation(Scanner.TAG_UPCE_EAN8, code, ob.t));
+
     });
 
 })

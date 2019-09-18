@@ -34,7 +34,7 @@
         var barcode = "A0001";
         var ob1 = scanner.scan(barcode);
         should(ob1.tag).equal("Asset");
-        should(ob1.value).match(/[0-9a-f]*-[0-9a-f]*-[0-9a-f]*-[0-9a-f]*-[0-9a-f]*/);
+        should(ob1.value).match(/([0-9a-f]+-){4,4}[0-9a-f]+/);
 
         // re-scanning barcode returns guid of same asset
         var ob2 = scanner.scan(barcode);
