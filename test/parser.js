@@ -15,7 +15,7 @@
         STAR,
     } = Parser;
 
-    it("TESTTESTgrammar helpers", ()=>{
+    it("grammar helpers", ()=>{
         should.deepEqual(STAR("+","-"), {
             op: "*",
             args: [ '+', '-'],
@@ -45,8 +45,14 @@
             "root",
         ]);
 
+        // default actions print to console
+        should(typeof parser.reject).equal('function');
+        should(typeof parser.shift).equal('function');
+        should(typeof parser.reduce).equal('function');
+
+        should.deepEqual(parser.state(), [ 'root_0' ]);
     });
-    it("TESTTESTcustom ctor", ()=>{
+    it("custom ctor", ()=>{
         const grammar = {
             root: "term",
             mulOp: ALT("*","/"),
@@ -69,45 +75,61 @@
         var parser = new Parser({
             grammar,
         });
-        should.deepEqual(parser.state(), [ 'root_0' ]);
+        var obs = 'abc'.split('').map(tag=>new Observation(tag));
 
-        var res = parser.observe(new Observation('a'));
+        var res = parser.observe(obs[0]);
         should.deepEqual(parser.state(), [ 'abc_1', 'root_0' ]);
         should(res).equal(true);
 
-        var res = parser.observe(new Observation('b'));
+        var res = parser.observe(obs[1]);
         should.deepEqual(parser.state(), [ 'abc_2', 'root_0' ]);
         should(res).equal(true);
 
-        var res = parser.observe(new Observation('c'));
+        var res = parser.observe(obs[2]);
         should.deepEqual(parser.state(), [ 'root_1' ]);
         should(res).equal(true);
     });
-    it("TESTTESTstep() consumes invalid terminal sequence", ()=>{
-        return; // dbg TODO
+    it("TESTTESTstep() rejects invalid terminal", ()=>{
         const grammar = {
             root: 'abc',
             abc: [ 'a', 'b', 'c' ],
         };
+        var reduced = [];
+        var shifted = [];
+        var rejected = [];
         var parser = new Parser({
             grammar,
+            reduce: (nt, args)=>reduced.push({nt, args}),
+            reject: ob=>rejected.push(ob),
+            shift: ob=>shifted.push(ob),
         });
-        should.deepEqual(parser.state(), [ 'root_0' ]);
+        var obs = 'axbc'.split('').map(tag=>new Observation(tag));
 
-        var res = parser.observe(new Observation('a'));
+        var res = parser.observe(obs[0]);
         should.deepEqual(parser.state(), [ 'abc_1', 'root_0' ]);
         should(res).equal(true);
+        should.deepEqual(shifted, [obs[0]]);
 
-        var res = parser.observe(new Observation('x'));
+        var res = parser.observe(obs[1]);
+        should(res).equal(false); // reject bad input
         should.deepEqual(parser.state(), [ 'abc_1', 'root_0' ]);
-        should(res).equal(false);
+        should.deepEqual(rejected, [obs[1]]);
+        should.deepEqual(shifted, [obs[0]]);
 
-        var res = parser.observe(new Observation('b'));
+        var res = parser.observe(obs[2]);
         should.deepEqual(parser.state(), [ 'abc_2', 'root_0' ]);
         should(res).equal(true);
+        should.deepEqual(shifted, [obs[0], obs[2]]);
 
-        var res = parser.observe(new Observation('c'));
+        should.deepEqual(reduced, []);
+        var res = parser.observe(obs[3]);
         should.deepEqual(parser.state(), [ 'root_1' ]);
         should(res).equal(true);
+        should.deepEqual(reduced, [{
+            nt: 'abc',
+            args: [obs[0], obs[2], obs[3]], // obs[1] was ignored
+        }]);
+        should.deepEqual(shifted, [obs[0], obs[2], obs[3]]);
+        should.deepEqual(rejected, [obs[1]]);
     });
 })

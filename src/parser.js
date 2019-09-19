@@ -46,56 +46,80 @@
                 }
 
             });
-            this.listener = opts.listener || this;
-            this.reduce = opts.reduce || Parser.ON_REDUCE;
-            this.shift = opts.shift || Parser.ON_SHIFT;
-            this.clear();
+
+            // optional callbacks
+            var that = this;
+            var reduce = opts.reduce || ((nt, args) => that.onReduce(nt,args));
+            Object.defineProperty(this, "reduce", {
+                writable: true,
+                value: reduce,
+            });
+            var shift = opts.shift || (ob => that.onShift(ob));
+            Object.defineProperty(this, "shift", {
+                writable: true,
+                value: shift,
+            });
+            var reject = opts.reject || (ob => that.onReject(ob));
+            Object.defineProperty(this, "reject", {
+                writable: true,
+                value: reject,
+            });
             
+            this.clearAll();
         }
 
         static get STAR() { return STAR; } // Grammar helper
         static get ALT() { return ALT; } // Grammar helper
         static get OPT() { return OPT; } // Grammar helper
 
-        onReduce(nt, args) { // listener default
-            console.log(`Parser.onReduce()`,
-                `${nt}(${args.map(a=>a.tag)})`,
+        onReduce(nt, args) { // default handler
+            console.log(`Parser.onReduce(`,
+                `${nt}(${args.map(a=>a.tag)}))`,
                 this.state());
         };
 
-        onShift(ob) { // listener default
-            var value = ob.value;
-            if (value instanceof Date) {
-                value = value.toLocaleDateString();
-            }
-            var text = ob.hasOwnProperty('text') && ob.text || '';
-            console.log(`Parser.onShift()`,
-                `${ob.tag}:${value} ${text}`,
-                this.state());
+        onShift(ob) { // default handler
+            console.log(`Parser.onShift(${ob})`, this.state());
         }
 
-        clear() {
-            this.obsIn = []; // input observations
+        onReject(ob) { // default handler
+            console.log(`Parser.onReject(${ob})`, this.state());
+        }
+
+        clearObservation() {
+            this.lookahead.length && this.lookahead.shift();
+        }
+
+        clearAll() {
+            this.lookahead = []; // input observations
             this.stack = [STATE("root")]; // execution stack
         }
 
         observe(ob) {
-            this.obsIn.push(ob);
-            return this.step();
+            var {
+                lookahead,
+            } = this;
+
+            lookahead.push(ob);
+            var res = this.step();
+            if (!res) {
+                this.reject(ob);
+                this.clearObservation();
+            }
+            return res;
         }
 
         step() {
             var {
                 grammar,
                 stack,
-                obsIn,
-                listener,
+                lookahead,
             } = this;
             if (this.stack.length === 0) {
                 stack.unshift(STATE("root"));
             }
             var tos = stack[0];
-            var sym = obsIn[0] && obsIn[0].tag;
+            var sym = lookahead[0] && lookahead[0].tag;
             var lhs = tos.nonTerminal;
             var rhs = grammar[lhs];
             if (!rhs) {
@@ -110,14 +134,14 @@
                 if (rhsi !== sym) {
                     return false;
                 }
-                var ob = obsIn.shift();
-                listener.onShift(ob);
+                var ob = lookahead.shift();
+                this.shift(ob);
                 tos.args.push(ob);
                 tos.index++;
                 if (tos.index >= rhs.length) {
                     stack.shift();
                     stack.length && stack[0].index++;
-                    listener.onReduce(tos.nonTerminal, tos.args);
+                    this.reduce(tos.nonTerminal, tos.args);
                 }
                 return true;
             }

@@ -31,7 +31,7 @@
         },
     };
 
-    it("TESTTESTdefault ctor", () => {
+    it("default ctor", () => {
         var scanner = new Scanner();
         should(scanner).instanceOf(Scanner);
         should.deepEqual(scanner.map, {});
@@ -59,7 +59,7 @@
         var ob = scanner.scan('1a1');
         should.deepEqual(ob, new Observation("scanned", '1a1', ob.t));
     });
-    it("TESTTESTcustom ctor",() => {
+    it("custom ctor",() => {
         var map = TESTMAP;
         var tag = 'barcode'; // new default tag
         var PAT_INT = '[0-9]+';
@@ -145,7 +145,7 @@
         should(dataout.value).equal('red');
         should(dataout.tag).equal('color');
     });
-    it("TESTTESTscan(data) returns number", () => {
+    it("scan(data) returns number", () => {
         var scanner = new Scanner();
 
         // default number pattern
@@ -218,7 +218,7 @@
             done();
         } catch(e) {done(e)} })();
     });
-    it("TESTTESTscan(barcode) recognizes UPC/EAN codes", () => {
+    it("scan(barcode) recognizes UPC/EAN codes", () => {
         var scanner = new Scanner();
 
         var code = "614141000036";

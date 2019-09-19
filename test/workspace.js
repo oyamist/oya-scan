@@ -17,7 +17,7 @@
     });
     console.log(`test scanning storeDir:`, storeDir);
 
-    it("TESTTESTdefault ctor", ()=>{
+    it("default ctor", ()=>{
         var ws = new Workspace();
         should(ws).instanceOf(Workspace);
         should(ws).properties({
@@ -26,7 +26,7 @@
         });
         should(ws.scanner).instanceOf(Scanner);
     });
-    it("TESTTESTscanning new barcode creates new Asset", ()=>{
+    it("scanning new barcode creates new Asset", ()=>{
         var ws = wstest;
         var scanner = ws.scanner;
 
@@ -49,7 +49,7 @@
             barcode,
         })
     });
-    it("TESTTESTscan number", ()=>{
+    it("scan number", ()=>{
         var {
             scanner,
         } = wstest;

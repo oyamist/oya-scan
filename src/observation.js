@@ -82,11 +82,17 @@
         }
 
         toString() {
-            if (this.hasOwnProperty('text')) {
-                return `${this.t.toJSON()} ${this.tag} ${this.value} ${this.text}`;
-            } else {
-                return `${this.t.toJSON()} ${this.tag} ${this.value}`;
+            var {
+                tag,
+                value,
+                text,
+            } = this;
+            if (value instanceof Date) {
+                value = value.toLocaleDateString();
             }
+            return text 
+                ?  `${tag}:${value} ${text}`
+                :  `${tag}:${value}`;
         }
 
     } // class Observation

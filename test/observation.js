@@ -134,8 +134,8 @@
     });
     it("toString() overrides Object.toString()", function() {
         var t = new Date(Date.UTC(2018,11,2));
-        var tv = new Observation('Test', 123, t, 'abc');
-        should(tv+"").equal("2018-12-02T00:00:00.000Z Test 123 abc");
+        var ob = new Observation('weight', 123, t, 'kg');
+        should(`${ob}`).equal('weight:123 kg');
     });
 
 })
