@@ -61,4 +61,53 @@
         should(JSON.stringify(parser.grammar.mulOp))
             .equal('[{"op":"|","args":["*","/"]}]');
     });
+    it("TESTTESTstep() consumes valid terminal sequence", ()=>{
+        const grammar = {
+            root: 'abc',
+            abc: [ 'a', 'b', 'c' ],
+        };
+        var parser = new Parser({
+            grammar,
+        });
+        should.deepEqual(parser.state(), [ 'root_0' ]);
+
+        var res = parser.observe(new Observation('a'));
+        should.deepEqual(parser.state(), [ 'abc_1', 'root_0' ]);
+        should(res).equal(true);
+
+        var res = parser.observe(new Observation('b'));
+        should.deepEqual(parser.state(), [ 'abc_2', 'root_0' ]);
+        should(res).equal(true);
+
+        var res = parser.observe(new Observation('c'));
+        should.deepEqual(parser.state(), [ 'root_1' ]);
+        should(res).equal(true);
+    });
+    it("TESTTESTstep() consumes invalid terminal sequence", ()=>{
+        return; // dbg TODO
+        const grammar = {
+            root: 'abc',
+            abc: [ 'a', 'b', 'c' ],
+        };
+        var parser = new Parser({
+            grammar,
+        });
+        should.deepEqual(parser.state(), [ 'root_0' ]);
+
+        var res = parser.observe(new Observation('a'));
+        should.deepEqual(parser.state(), [ 'abc_1', 'root_0' ]);
+        should(res).equal(true);
+
+        var res = parser.observe(new Observation('x'));
+        should.deepEqual(parser.state(), [ 'abc_1', 'root_0' ]);
+        should(res).equal(false);
+
+        var res = parser.observe(new Observation('b'));
+        should.deepEqual(parser.state(), [ 'abc_2', 'root_0' ]);
+        should(res).equal(true);
+
+        var res = parser.observe(new Observation('c'));
+        should.deepEqual(parser.state(), [ 'root_1' ]);
+        should(res).equal(true);
+    });
 })

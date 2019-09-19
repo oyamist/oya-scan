@@ -19,6 +19,11 @@
         op: "|", // alternation
         args,
     });
+    const STATE = (nonTerminal, index=0, args=[]) => ({ 
+        nonTerminal, 
+        index, 
+        args,
+    });
 
     const GRAMMAR = {
         root: "expr",
@@ -29,7 +34,6 @@
     class Parser {
         constructor(opts = {}) {
             this.ob = undefined;
-            this.stack = [];
             this.grammar = Object.assign({}, opts.grammar || GRAMMAR);
             this.nonTerminals = Object.keys(this.grammar).sort();
             this.nonTerminals.forEach(nt => {
@@ -37,9 +41,15 @@
                 if (value instanceof Array) {
                     // canonical rule body
                 } else {
-                    this.grammar[nt] = [value]; // make canonical
+                    value = [value];
+                    this.grammar[nt] = value; // make canonical
                 }
+
             });
+            this.listener = opts.listener || this;
+            this.reduce = opts.reduce || Parser.ON_REDUCE;
+            this.shift = opts.shift || Parser.ON_SHIFT;
+            this.clear();
             
         }
 
@@ -47,12 +57,81 @@
         static get ALT() { return ALT; } // Grammar helper
         static get OPT() { return OPT; } // Grammar helper
 
-        observe(obs) {
-            this.stack = this.stack.concat(obs);
+        onReduce(nt, args) { // listener default
+            console.log(`Parser.onReduce()`,
+                `${nt}(${args.map(a=>a.tag)})`,
+                this.state());
+        };
+
+        onShift(ob) { // listener default
+            var value = ob.value;
+            if (value instanceof Date) {
+                value = value.toLocaleDateString();
+            }
+            var text = ob.hasOwnProperty('text') && ob.text || '';
+            console.log(`Parser.onShift()`,
+                `${ob.tag}:${value} ${text}`,
+                this.state());
         }
 
-        observeNext() {
-            this.ob
+        clear() {
+            this.obsIn = []; // input observations
+            this.stack = [STATE("root")]; // execution stack
+        }
+
+        observe(ob) {
+            this.obsIn.push(ob);
+            return this.step();
+        }
+
+        step() {
+            var {
+                grammar,
+                stack,
+                obsIn,
+                listener,
+            } = this;
+            if (this.stack.length === 0) {
+                stack.unshift(STATE("root"));
+            }
+            var tos = stack[0];
+            var sym = obsIn[0] && obsIn[0].tag;
+            var lhs = tos.nonTerminal;
+            var rhs = grammar[lhs];
+            if (!rhs) {
+                return false;
+            }
+            var rhsi = rhs[tos.index];
+            if (grammar.hasOwnProperty(rhsi)) { // non-terminal
+                stack.unshift(STATE(rhsi));
+                return this.step();
+            } 
+            if (typeof rhsi === 'string') { // terminal
+                if (rhsi !== sym) {
+                    return false;
+                }
+                var ob = obsIn.shift();
+                listener.onShift(ob);
+                tos.args.push(ob);
+                tos.index++;
+                if (tos.index >= rhs.length) {
+                    stack.shift();
+                    stack.length && stack[0].index++;
+                    listener.onReduce(tos.nonTerminal, tos.args);
+                }
+                return true;
+            }
+            if (rhsi.op === "?") {
+            }
+            if (rhsi.op === "|") {
+            }
+            if (rhsi.op === "*") {
+            }
+
+        }
+
+        state() {
+            return this.stack.map(s => `${s.nonTerminal}_${s.index}`);
         }
 
         peek(tag) {
