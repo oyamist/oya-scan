@@ -97,6 +97,20 @@
                         `${lhs}: rhs must be Array ${rhs}`);
                 } 
             });
+
+            // Rewrite grammar for EBNF rules
+            nts.forEach(lhs => {
+                var rhs = grammar[lhs];
+                for (var i=0; i < rhs.length; i++) {
+                    var rhsi = rhs[i];
+                    if (rhsi.ebnf === '*') {
+                        var lhsNew = `${lhs}@${i}`;
+                        grammar[lhsNew] = rhsi.args;
+                        rhs[i] = lhsNew;
+                        console.log(`dbg lhsNew`, lhsNew, rhs);
+                    }
+                }
+            });
             return grammar;
         }
 
