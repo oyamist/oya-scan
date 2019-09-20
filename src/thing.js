@@ -6,13 +6,13 @@
     const ISODATE = /^\d\d\d\d-\d\d-\d\d/;
     const JSON_DATE = /^\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d/;
     
-    // Assets have different kinds of properties:
+    // Things have different kinds of properties:
     // * immutable non-temporal properties (e.g., guid) 
     // * mutable non-temporal properties (e.g., cultivar) 
     // * standard temporal properties (e.g., pollinated) are undefined till set
     // * retroactive temporal properties (e.g., id) have values that predate their creation
 
-    class Asset {
+    class Thing {
         constructor(opts = {}) {
             // core properties
             this.guid = opts.guid || this.guid || uuidv4();
@@ -36,24 +36,24 @@
                 this[key] = opts[key];
             });
 
-            // Asset id is retroactive temporal value initializable with ctor options
+            // Thing id is retroactive temporal value initializable with ctor options
             if (opts.hasOwnProperty('id')) {
-                this.observe(Asset.T_ID, opts.id, Observation.RETROACTIVE);
+                this.observe(Thing.T_ID, opts.id, Observation.RETROACTIVE);
             } else if (opts.obs) {
                 // id is in the obs
             } else {
-                this.observe(Asset.T_ID, 
+                this.observe(Thing.T_ID, 
                     this.guid.substr(0,SHORT_GUID_DIGITS), Observation.RETROACTIVE);
             }
 
-            // Asset name is retroactive temporal value initializable with ctor options
+            // Thing name is retroactive temporal value initializable with ctor options
             if (opts.hasOwnProperty('name')) {
-                this.observe(Asset.T_NAME, opts.name, Observation.RETROACTIVE);
+                this.observe(Thing.T_NAME, opts.name, Observation.RETROACTIVE);
             } else if (opts.obs) {
                 // name is in obs
             } else {
                 var name = `${this.namePrefix(opts)}${this.id}`;
-                this.observe(Asset.T_NAME, name, Observation.RETROACTIVE);
+                this.observe(Thing.T_NAME, name, Observation.RETROACTIVE);
             }
             if (opts.created) {
                 this.created = opts.created instanceof Date ? opts.created : new Date(opts.created);
@@ -64,7 +64,7 @@
         }
 
         static get JSON_DATE() { return JSON_DATE; }
-        static get T_ASSET() { return "asset"; }
+        static get T_ASSET() { return "thing"; }
         static get T_ID() { return "id"; }
         static get T_NAME() { return "name"; }
         static get AGE_MS() { return 1; }
@@ -125,11 +125,11 @@
             return `${this.type}_`;
         }
 
-        get id() { return this.get(Asset.T_ID); }
-        set id(value) { this.observe(Asset.T_ID, value); return value; }
+        get id() { return this.get(Thing.T_ID); }
+        set id(value) { this.observe(Thing.T_ID, value); return value; }
 
-        get name() { return this.get(Asset.T_NAME); }
-        set name(value) { this.observe(Asset.T_NAME, value); return value; }
+        get name() { return this.get(Thing.T_NAME); }
+        set name(value) { this.observe(Thing.T_NAME, value); return value; }
 
         observe(...args) {
             if (typeof args[0] === 'string') { // set(tag,value,date)
@@ -150,7 +150,7 @@
                 var ob = args[0];
             }
             if (ob == null) {
-                throw new Error('Asset.observe(ob) Observation is required');
+                throw new Error('Thing.observe(ob) Observation is required');
             }
             if (!(ob instanceof Observation)) {
                 ob = new Observation(ob);
@@ -185,7 +185,7 @@
             this.ended = t;
         }
 
-        age(t, units = Asset.AGE_MS) {
+        age(t, units = Thing.AGE_MS) {
             if (this.created == null) {
                 throw new Error(`${this.name} has no created date`);
             }
@@ -194,7 +194,7 @@
             return elapsed / units;
         }
 
-        ageOfTag(tag, units = Asset.AGE_MS) {
+        ageOfTag(tag, units = Thing.AGE_MS) {
             this.validateTag(tag);
             if (!(this.created instanceof Date)) {
                 throw new Error(`Expected Date for ${this.name}.created`);
@@ -210,7 +210,7 @@
             return elapsed / units;
         }
 
-        ageSinceTag(tag, units = Asset.AGE_MS) {
+        ageSinceTag(tag, units = Thing.AGE_MS) {
             this.validateTag(tag);
             if (!(this.created instanceof Date)) {
                 throw new Error(`Expected Date for ${this.name}.created`);
@@ -267,7 +267,7 @@
                 var oldValue = snapBase[key];
                 if (key === 'guid' || key === 'type') {
                     if (newValue !== oldValue) {
-                        throw new Error(`Asset ${key} cannot be changed`);
+                        throw new Error(`Thing ${key} cannot be changed`);
                     }
                 } else if (newValue !== oldValue) {
                     if (`${newValue}`.match(ISODATE)) {
@@ -281,36 +281,36 @@
             return undefined; // TBD
         }
 
-        static merge(asset1, asset2) {
-            if (asset1.guid !== asset2.guid) {
-                throw new Error(`Cannot merge Assets with different guids:`,
-                    `asset1:${asset1.guid} asset2:${asset2.guid}`);
+        static merge(thing1, thing2) {
+            if (thing1.guid !== thing2.guid) {
+                throw new Error(`Cannot merge Things with different guids:`,
+                    `thing1:${thing1.guid} thing2:${thing2.guid}`);
             }
-            if (asset1.obs.length < asset2.obs.length) {
-                [asset1, asset2] = [asset2, asset1]; // asset1 is primary asset
+            if (thing1.obs.length < thing2.obs.length) {
+                [thing1, thing2] = [thing2, thing1]; // thing1 is primary thing
             }
-            var merged = new Asset(asset1);
+            var merged = new Thing(thing1);
             merged.obs = Observation.mergeObservations(
-                asset1.obs, asset2.obs);
+                thing1.obs, thing2.obs);
             return merged;
         }
 
-        static keyDisplayValue(key, asset, assetMap={}, language='en-us') {
-            var value = asset[key];
+        static keyDisplayValue(key, thing, thingMap={}, language='en-us') {
+            var value = thing[key];
             if (key === 'guid') {
                 return value;
             } 
             if (typeof value !== 'string') {
                 return value;
             } 
-            var valueAsset = assetMap[value]; // if value is a guid, show referenced asset summary
-            if (valueAsset && valueAsset !== asset) {
-                return `${valueAsset.name} \u2666 ${valueAsset.id} \u2666 ${valueAsset.type}`;
+            var valueThing = thingMap[value]; // if value is a guid, show referenced thing summary
+            if (valueThing && valueThing !== thing) {
+                return `${valueThing.name} \u2666 ${valueThing.id} \u2666 ${valueThing.type}`;
             }
 
             if (value.match(JSON_DATE)) {
                 var date = new Date(value);
-                var ended = asset.ended || Date.now();
+                var ended = thing.ended || Date.now();
                 var msElapsed = ended - date;
                 var days = (Math.round(msElapsed / (24*3600*1000))).toFixed(0);
                 if (days < 14) {
@@ -335,8 +335,8 @@
                     hour: '2-digit',
                     minute: '2-digit',
                 });
-                if (key !== 'created' && asset.created) {
-                    var created = new Date(asset.created);
+                if (key !== 'created' && thing.created) {
+                    var created = new Date(thing.created);
                     var age = Math.trunc((date - created)/(24*3600*1000));
                     return `${dateStr} (${-days} days @ ${age} days) \u2666 ${timeStr}`;
                 } else {
@@ -346,8 +346,8 @@
             return value;
         }
 
-    } //// class Asset
+    } //// class Thing
 
-    module.exports = exports.Asset = Asset;
+    module.exports = exports.Thing = Thing;
 })(typeof exports === "object" ? exports : (exports = {}));
 

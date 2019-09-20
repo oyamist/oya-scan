@@ -5,7 +5,7 @@
     const GuidStore = require('./guid-store');
     const Scanner = require('./scanner');
     const Observation = require('./observation');
-    const Asset = require('./asset');
+    const Thing = require('./thing');
     const INDEXFILE = "index.json";
     const VERSION = "1";
 
@@ -38,31 +38,31 @@
                 JSON.stringify(this.index, null, 2));
         }
 
-        assetOfGuid(guid) {
-            var assetPath = this.guidPath(guid, '.json');
-            if (!fs.existsSync(assetPath)) {
+        thingOfGuid(guid) {
+            var thingPath = this.guidPath(guid, '.json');
+            if (!fs.existsSync(thingPath)) {
                 return null;
             }
-            var json = fs.readFileSync(assetPath);
-            return new Asset(JSON.parse(json));
+            var json = fs.readFileSync(thingPath);
+            return new Thing(JSON.parse(json));
         }
 
-        createBarcodeAsset(barcode) {
+        createBarcodeThing(barcode) {
             var {
                 scannerMap,
             } = this.index;
 
-            // create asset for barcode 
-            var asset = new Asset({
+            // create thing for barcode 
+            var thing = new Thing({
                 barcode,
             });
-            var assetPath = this.guidPath(asset.guid, '.json');
-            fs.writeFileSync(assetPath, JSON.stringify(asset, null, 2));
+            var thingPath = this.guidPath(thing.guid, '.json');
+            fs.writeFileSync(thingPath, JSON.stringify(thing, null, 2));
 
-            // bind barcode to asset
+            // bind barcode to thing
             var ob = {
-                tag: asset.type,
-                value: asset.guid,
+                tag: thing.type,
+                value: thing.guid,
             };
             scannerMap[barcode] = ob;
             this.sync();
@@ -75,7 +75,7 @@
                 scannerMap,
             } = this.index;
             var ob = scannerMap[barcode];
-            ob = ob || this.createBarcodeAsset(barcode);
+            ob = ob || this.createBarcodeThing(barcode);
 
             return ob;
         }
