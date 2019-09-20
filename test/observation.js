@@ -128,9 +128,10 @@
             new Observation({t:t[2],text:'two'}),
             new Observation({t:t[0],text:'two'}), // conflict with oa1[0]
         ];
-        should.deepEqual(Observation.mergeObservations(oa1_random, oa2_random), [
-            oa1[0], oa1[1], oa2[1], oa1[2], oa1[3],
-        ]);
+        should.deepEqual(
+            Observation.mergeObservations(oa1_random, oa2_random), 
+            [ oa1[0], oa1[1], oa2[1], oa1[2], oa1[3] ]
+        );
     });
     it("toString() overrides Object.toString()", function() {
         var t = new Date(Date.UTC(2018,11,2));

@@ -19,10 +19,10 @@
         op: "|", // alternation
         args,
     });
-    const STATE = (nonTerminal, index=0, args=[]) => ({ 
+    const STATE = (nonTerminal, index=0, rhs=[]) => ({ 
         nonTerminal, 
         index, 
-        args,
+        rhs,
     });
 
     const GRAMMAR = {
@@ -49,7 +49,7 @@
 
             // optional callbacks
             var that = this;
-            var reduce = opts.reduce || ((nt, args) => that.onReduce(nt,args));
+            var reduce = opts.reduce || ((nt, rhs) => that.onReduce(nt,rhs));
             Object.defineProperty(this, "reduce", {
                 writable: true,
                 value: reduce,
@@ -72,11 +72,12 @@
         static get ALT() { return ALT; } // Grammar helper
         static get OPT() { return OPT; } // Grammar helper
 
-        onReduce(nt, args) { // default handler
+        onReduce(lhs, rhs) { // default handler
             console.log(`Parser.onReduce(`,
-                `${nt}(${args.map(a=>a.tag)}))`,
+                `${lhs}(${rhs.map(a=>a.tag)}))`,
                 this.state());
-        };
+            return `${lhs}-some-result`;
+        }
 
         onShift(ob) { // default handler
             console.log(`Parser.onShift(${ob})`, this.state());
@@ -92,15 +93,19 @@
 
         clearAll() {
             this.lookahead = []; // input observations
-            this.stack = [STATE("root")]; // execution stack
+            this.stack = []; // execution stack
         }
 
         observe(ob) {
             var {
                 lookahead,
+                stack,
             } = this;
 
             lookahead.push(ob);
+            if (stack.length === 0) {
+                stack[0] = STATE("root");
+            }
             var res = this.step();
             if (!res) {
                 this.reject(ob);
@@ -120,12 +125,11 @@
             }
             var tos = stack[0];
             var sym = lookahead[0] && lookahead[0].tag;
-            var lhs = tos.nonTerminal;
-            var rhs = grammar[lhs];
+            var rhs = grammar[stack[0].nonTerminal];
             if (!rhs) {
                 return false;
             }
-            var rhsi = rhs[tos.index];
+            var rhsi = rhs[stack[0].index];
             if (grammar.hasOwnProperty(rhsi)) { // non-terminal
                 stack.unshift(STATE(rhsi));
                 return this.step();
@@ -136,12 +140,17 @@
                 }
                 var ob = lookahead.shift();
                 this.shift(ob);
-                tos.args.push(ob);
-                tos.index++;
-                if (tos.index >= rhs.length) {
+                stack[0].rhs.push(ob);
+                stack[0].index++;
+                while (stack[0] && stack[0].index >= rhs.length) {
+                    var resReduce = this.reduce(
+                        stack[0].nonTerminal, stack[0].rhs);
                     stack.shift();
-                    stack.length && stack[0].index++;
-                    this.reduce(tos.nonTerminal, tos.args);
+                    if (stack[0]) {
+                        rhs = grammar[stack[0].nonTerminal];
+                        stack[0].index++;
+                        stack[0].rhs.push(resReduce);
+                    }
                 }
                 return true;
             }
