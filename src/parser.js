@@ -45,7 +45,7 @@
             var that = this;
             Object.defineProperty(this, "onReduce", {
                 writable: true,
-                value: opts.reduce || ((lhs, rhs) => { 
+                value: opts.onReduce || ((lhs, rhs) => { 
                     console.log(`Parser.onReduce(`,
                         `${lhs}(${rhs.map(a=>a.tag)}))`,
                         this.state());
@@ -54,31 +54,15 @@
             });
             Object.defineProperty(this, "onShift", {
                 writable: true,
-                value: opts.reduce || (ob => { 
+                value: opts.onShift || (ob => { 
                     console.log(`Parser.onShift(${ob})`, this.state());
                 }),
             });
             Object.defineProperty(this, "onReject", {
                 writable: true,
-                value: opts.reduce || (ob => { 
+                value: opts.onReject || (ob => { 
                     console.log(`Parser.onReject(${ob})`, this.state());
                 }),
-            });
-
-            var reduce = opts.reduce || ((nt, rhs) => that.onReduce(nt,rhs));
-            Object.defineProperty(this, "reduce", {
-                writable: true,
-                value: reduce,
-            });
-            var shift = opts.shift || (ob => that.onShift(ob));
-            Object.defineProperty(this, "shift", {
-                writable: true,
-                value: shift,
-            });
-            var reject = opts.reject || (ob => that.onReject(ob));
-            Object.defineProperty(this, "reject", {
-                writable: true,
-                value: reject,
             });
             
             this.clearAll();
@@ -134,6 +118,18 @@
                 }
             });
             return grammar;
+        }
+
+        reduce(lhs, rhs) {
+            return this.onReduce(lhs, rhs);
+        }
+
+        shift(ob) {
+            this.onShift(ob);
+        }
+
+        reject(ob) {
+            this.onReject(ob);
         }
 
         clearObservation() {

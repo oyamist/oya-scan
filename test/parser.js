@@ -56,10 +56,10 @@
             "root",
         ].sort());
 
-        // default actions print to console
-        should(typeof parser.reject).equal('function');
-        should(typeof parser.shift).equal('function');
-        should(typeof parser.reduce).equal('function');
+        // customizable actions print to console by default
+        should(typeof parser.onReject).equal('function');
+        should(typeof parser.onShift).equal('function');
+        should(typeof parser.onReduce).equal('function');
 
         should.deepEqual(parser.state(), [ ]);
     });
@@ -103,13 +103,13 @@
         var rejected = [];
         var parser = new Parser({
             grammar,
-            reduce: (lhs, rhs)=> {
+            onReduce: (lhs, rhs)=> {
                 reduced.push({lhs, rhs});
                 console.log(`test reduce(${lhs},[${rhs}]`);
                 return `${lhs}-result`;
             },
-            reject: ob=>rejected.push(ob),
-            shift: ob=>shifted.push(ob),
+            onReject: ob=>rejected.push(ob),
+            onShift: ob=>shifted.push(ob),
         });
         var obs = 'abc'.split('').map((tag,i)=>new Observation(tag,i));
 
@@ -143,12 +143,12 @@
         var rejected = [];
         var parser = new Parser({
             grammar,
-            reduce: (lhs, rhs)=>{
+            onReduce: (lhs, rhs)=>{
                 reduced.push({lhs, rhs});
                 return `${lhs}-result`;
             },
-            reject: ob=>rejected.push(ob),
-            shift: ob=>shifted.push(ob),
+            onReject: ob=>rejected.push(ob),
+            onShift: ob=>shifted.push(ob),
         });
         var obs = 'axbc'.split('').map(tag=>new Observation(tag));
 
@@ -193,12 +193,12 @@
         var rejected = [];
         var parser = new Parser({
             grammar,
-            reduce: (lhs, rhs)=>{
+            onReduce: (lhs, rhs)=>{
                 reduced.push({lhs, rhs});
                 return `${lhs}-result${reduced.length}`;
             },
-            reject: ob=>rejected.push(ob),
-            shift: ob=>shifted.push(ob),
+            onReject: ob=>rejected.push(ob),
+            onShift: ob=>shifted.push(ob),
         });
         var obs = 'abab'.split('').map(tag=>new Observation(tag));
 
@@ -253,7 +253,7 @@
         var rejected = [];
         var parser = new Parser({
             grammar,
-            reduce: (lhs, rhs)=>{
+            onReduce: (lhs, rhs)=>{
                 reduced.push({lhs, rhs});
                 console.log(`dbg reduce ${lhs} => [${rhs}]`);
                 if (lhs === 'ab') {
@@ -264,8 +264,8 @@
                 }
                 return rhs[0];
             },
-            reject: ob=>rejected.push(ob),
-            shift: ob=>shifted.push(ob),
+            onReject: ob=>rejected.push(ob),
+            onShift: ob=>shifted.push(ob),
         });
         var obs = 'abb'.split('').map((tag,i)=>new Observation(tag,i));
         var i = 0;
