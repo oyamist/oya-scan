@@ -5,6 +5,7 @@
     const tmp = require('tmp');
     const { logger } = require('rest-bundle');
     const {
+        Grammar,
         Observation,
         Parser,
         Scanner,
@@ -14,47 +15,15 @@
         OPT,
         STAR,
         PLUS,
-    } = Parser;
+    } = Grammar;
 
-    it("grammar helpers", ()=>{
-        should.deepEqual(STAR("+","-"), {
-            ebnf: "*",
-            args: [ '+', '-'],
-        });
-        should.deepEqual(ALT("+","-"), {
-            ebnf: "|",
-            args: [ '+', '-'],
-        });
-        should.deepEqual(PLUS("+","-"), {
-            ebnf: "+",
-            args: [ '+', '-'],
-        });
-        should.deepEqual(OPT("+","-"), {
-            ebnf: "?",
-            args: [ '+', '-'],
-        });
-    });
     it("default ctor", ()=>{
         var parser = new Parser();
         should(parser).instanceOf(Parser);
 
         // default grammar
         var g = parser.grammar;
-        should.deepEqual(g.root, ["expr"]);
-        should.deepEqual(g.addOp, [ALT("+","-")]);
-        should.deepEqual(g.expr, [ 
-            OPT("addOp"), 
-            "term", 
-            STAR("expr@2"), // generated
-        ]);
-        should.deepEqual(g[`expr@2`], // generated
-            [ "addOp", "term" ]); 
-        should.deepEqual(Object.keys(parser.grammar).sort(), [
-            "addOp",
-            "expr",
-            "expr@2", // generated for STAR("addOp", "term")
-            "root",
-        ].sort());
+        should(g).instanceOf(Grammar);
 
         // customizable actions print to console by default
         should(typeof parser.onReject).equal('function');
@@ -63,35 +32,25 @@
 
         should.deepEqual(parser.state(), [ ]);
     });
-    it("custom ctor", ()=>{
-        const grammar = {
+    it("TESTTESTcustom ctor", ()=>{
+        const gdef = {
             root: "term",
             mulOp: ALT("*","/"),
             term: [ OPT("-"), "factor", STAR("mulOp", "factor")],
         }
+
+        // Parser creates grammar copy
+        const grammar = new Grammar(gdef);
+        var parser = new Parser({
+            grammar: gdef, // custom grammar JSON
+        });
+        should.deepEqual(parser.grammar, grammar);
         var parser = new Parser({
             grammar,
         });
-        should(parser).instanceOf(Parser);
-        should.deepEqual(parser.grammar.root, [grammar.root]); // canonical
-        should.deepEqual(parser.grammar.expr, grammar.expr);
-        should(JSON.stringify(parser.grammar.mulOp))
-            .equal('[{"ebnf":"|","args":["*","/"]}]');
-    });
-    it("grammar with STAR is expanded", ()=>{
-        const grammar = {
-            root: 'ab',
-            ab: ['a', STAR('b','c')], // a { b c }
-        };
-        var parser = new Parser({grammar});
+        should.deepEqual(parser.grammar, grammar);
+        should(parser.grammar).not.equal(grammar); 
 
-        // rewrite grammar for monadic STAR 
-        var g = parser.grammar;
-        should.deepEqual(g['root'], ["ab"]);
-        should.deepEqual(g['ab'], ['a', STAR('ab@1')]);
-        should.deepEqual(g['ab@1'], ['b', 'c']);
-        should.deepEqual(Object.keys(parser.grammar).sort(), 
-            [ "root", "ab", "ab@1", ].sort());
     });
     it("step() consumes valid terminal sequence", ()=>{
         const grammar = {

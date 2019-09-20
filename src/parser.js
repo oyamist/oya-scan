@@ -5,41 +5,24 @@
         logger,
     } = require('rest-bundle');
     const Observation = require('./observation');
-
-    // Grammar helpers
-    const STAR = (...args) => ({
-        ebnf: "*", // zero or more
-        args,
-    });
-    const PLUS = (...args) => ({
-        ebnf: "+", // one or more
-        args,
-    });
-    const OPT = (...args) => ({
-        ebnf: "?", // zero or one (optional)
-        args,
-    });
-    const ALT = (...args) => ({
-        ebnf: "|", // alternation
-        args,
-    });
+    const Grammar = require('./grammar');
     const STATE = (lhs, index=0, rhsData=[]) => ({ 
         lhs, 
         index, 
         rhsData,
     });
 
-    const GRAMMAR = {
-        root: "expr",
-        addOp: ALT("+", "-"),
-        expr: [ OPT("addOp"), "term", STAR("addOp", "term")],
-    }
+    const {
+        ALT,
+        PLUS,
+        OPT,
+        STAR,
+    } = Grammar;
 
     class Parser {
         constructor(opts = {}) {
             this.ob = undefined;
-            var grammar = opts.grammar || GRAMMAR;
-            this.grammar = Parser.validateGrammar(grammar);
+            this.grammar = new Grammar(opts.grammar);
 
             // optional callbacks
             var that = this;
@@ -66,58 +49,6 @@
             });
             
             this.clearAll();
-        }
-
-        static get STAR() { return STAR; } // Grammar helper zero or more
-        static get PLUS() { return PLUS; } // Grammar helper one or more
-        static get ALT() { return ALT; } // Grammar helper alternation
-        static get OPT() { return OPT; } // Grammar helper zero or one
-
-        static validateGrammar(grammar) {
-            if (grammar == null) {
-                throw new Error(`Grammar cannot be empty`);
-            }
-            grammar = Object.assign({}, grammar);
-            var nts = Object.keys(grammar).sort();
-            nts.forEach(nt => {
-                var value = grammar[nt];
-                if (value instanceof Array) {
-                    // canonical rule body
-                } else {
-                    value = [value];
-                    grammar[nt] = value; // make canonical
-                }
-            });
-            var nts = Object.keys(grammar);
-            if (nts.length === 0) {
-                throw new Error(`Grammar has no rules`);
-            }
-            nts.forEach(lhs => {
-                var rhs = grammar[lhs];
-                if (!rhs) {
-                    throw new Error(`Grammar has no rule for:"${lhs}"`);
-                }
-                var rhs = grammar[lhs];
-                if (!(rhs instanceof Array)) {
-                    throw new Error(
-                        `${lhs}: rhs must be Array ${rhs}`);
-                } 
-            });
-
-            // Rewrite grammar for EBNF rules
-            nts.forEach(lhs => {
-                var rhs = grammar[lhs];
-                for (var i=0; i < rhs.length; i++) {
-                    var rhsi = rhs[i];
-                    if (rhsi.ebnf === '*' && rhsi.args.length > 1) {
-                        var lhsNew = `${lhs}@${i}`;
-                        var rhsNew = rhsi.args;
-                        grammar[lhsNew] = rhsNew;
-                        rhsi.args = [ lhsNew ];
-                    }
-                }
-            });
-            return grammar;
         }
 
         reduce() {
