@@ -6,17 +6,21 @@
     } = require('rest-bundle');
     const Observation = require('./observation');
 
-    // Grammer helpers
+    // Grammar helpers
     const STAR = (...args) => ({
-        op: "*", // zero or more
+        ebnf: "*", // zero or more
+        args,
+    });
+    const PLUS = (...args) => ({
+        ebnf: "+", // one or more
         args,
     });
     const OPT = (...args) => ({
-        op: "?", // zero or one (optional)
+        ebnf: "?", // zero or one (optional)
         args,
     });
     const ALT = (...args) => ({
-        op: "|", // alternation
+        ebnf: "|", // alternation
         args,
     });
     const STATE = (nonTerminal, index=0, rhs=[]) => ({ 
@@ -68,9 +72,10 @@
             this.clearAll();
         }
 
-        static get STAR() { return STAR; } // Grammar helper
-        static get ALT() { return ALT; } // Grammar helper
-        static get OPT() { return OPT; } // Grammar helper
+        static get STAR() { return STAR; } // Grammar helper zero or more
+        static get PLUS() { return PLUS; } // Grammar helper one or more
+        static get ALT() { return ALT; } // Grammar helper alternation
+        static get OPT() { return OPT; } // Grammar helper zero or one
 
         onReduce(lhs, rhs) { // default handler
             console.log(`Parser.onReduce(`,
@@ -154,11 +159,11 @@
                 }
                 return true;
             }
-            if (rhsi.op === "?") {
+            if (rhsi.ebnf === "?") {
             }
-            if (rhsi.op === "|") {
+            if (rhsi.ebnf === "|") {
             }
-            if (rhsi.op === "*") {
+            if (rhsi.ebnf === "*") {
             }
 
         }

@@ -13,19 +13,24 @@
         ALT,
         OPT,
         STAR,
+        PLUS,
     } = Parser;
 
     it("grammar helpers", ()=>{
         should.deepEqual(STAR("+","-"), {
-            op: "*",
+            ebnf: "*",
             args: [ '+', '-'],
         });
         should.deepEqual(ALT("+","-"), {
-            op: "|",
+            ebnf: "|",
+            args: [ '+', '-'],
+        });
+        should.deepEqual(PLUS("+","-"), {
+            ebnf: "+",
             args: [ '+', '-'],
         });
         should.deepEqual(OPT("+","-"), {
-            op: "?",
+            ebnf: "?",
             args: [ '+', '-'],
         });
     });
@@ -65,7 +70,7 @@
         should.deepEqual(parser.grammar.root, [grammar.root]); // canonical
         should.deepEqual(parser.grammar.expr, grammar.expr);
         should(JSON.stringify(parser.grammar.mulOp))
-            .equal('[{"op":"|","args":["*","/"]}]');
+            .equal('[{"ebnf":"|","args":["*","/"]}]');
     });
     it("TESTTESTstep() consumes valid terminal sequence", ()=>{
         const grammar = {
