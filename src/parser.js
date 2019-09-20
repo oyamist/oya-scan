@@ -23,8 +23,8 @@
         ebnf: "|", // alternation
         args,
     });
-    const STATE = (nonterminal, index=0, rhs=[]) => ({ 
-        nonterminal, 
+    const STATE = (lhs, index=0, rhs=[]) => ({ 
+        lhs, 
         index, 
         rhs,
     });
@@ -125,7 +125,7 @@
                 stack,
             } = this;
             var resReduce = this.onReduce(
-                stack[0].nonterminal, // lhs
+                stack[0].lhs, // lhs
                 stack[0].rhs);
             stack.shift();
             if (stack[0]) {
@@ -177,7 +177,7 @@
                 stack,
             } = this;
             while (stack[0] && stack[0].index >= 
-                grammar[stack[0].nonterminal].length) 
+                grammar[stack[0].lhs].length) 
             {
                 this.reduce();
             }
@@ -190,7 +190,7 @@
                 lookahead,
             } = this;
             var sym = lookahead[0] && lookahead[0].tag;
-            var rhs = grammar[stack[0].nonterminal];
+            var rhs = grammar[stack[0].lhs];
             var rhsi = rhs[stack[0].index];
             if (rhsi !== sym) {
                 return false;
@@ -209,7 +209,7 @@
                 stack,
                 lookahead,
             } = this;
-            var lhs = stack[0].nonterminal;
+            var lhs = stack[0].lhs;
             var index = stack[0].index;
             var rhs = grammar[lhs];
             var rhsi = rhs[index];
@@ -234,8 +234,8 @@
                 grammar,
                 stack,
             } = this;
-            var nonterminal = stack[0].nonterminal;
-            var rhs = grammar[nonterminal];
+            var lhs = stack[0].lhs;
+            var rhs = grammar[lhs];
             var rhsi = rhs[stack[0].index];
             if (grammar.hasOwnProperty(rhsi)) { // non-terminal
                 stack.unshift(STATE(rhsi));
@@ -252,12 +252,12 @@
             //if (rhsi.ebnf === "?") { }
             //if (rhsi.ebnf === "|") { }
 
-            throw new Error(`${nonTerminal} Invalid rhs`);
+            throw new Error(`${lhs} Invalid rhs`);
 
         }
 
         state() {
-            return this.stack.map(s => `${s.nonterminal}_${s.index}`);
+            return this.stack.map(s => `${s.lhs}_${s.index}`);
         }
 
         peek(tag) {
