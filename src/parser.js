@@ -23,10 +23,10 @@
         ebnf: "|", // alternation
         args,
     });
-    const STATE = (lhs, index=0, rhs=[]) => ({ 
+    const STATE = (lhs, index=0, rhsData=[]) => ({ 
         lhs, 
         index, 
-        rhs,
+        rhsData,
     });
 
     const GRAMMAR = {
@@ -45,9 +45,9 @@
             var that = this;
             Object.defineProperty(this, "onReduce", {
                 writable: true,
-                value: opts.onReduce || ((lhs, rhs) => { 
+                value: opts.onReduce || ((lhs, rhsData) => { 
                     console.log(`Parser.onReduce(`,
-                        `${lhs}(${rhs.map(a=>a.tag)}))`,
+                        `${lhs}(${rhsData.map(d=>JSON.stringify(d))}))`,
                         this.state());
                     return `${lhs}-some-result`;
                 }),
@@ -126,11 +126,11 @@
             } = this;
             var resReduce = this.onReduce(
                 stack[0].lhs, // lhs
-                stack[0].rhs);
+                stack[0].rhsData);
             stack.shift();
             if (stack[0]) {
                 stack[0].index++;
-                stack[0].rhs.push(resReduce);
+                stack[0].rhsData.push(resReduce);
             }
 
             return resReduce;
@@ -197,7 +197,7 @@
             }
             var ob = lookahead.shift();
             this.shift(ob);
-            stack[0].rhs.push(ob);
+            stack[0].rhsData.push(ob);
             stack[0].index++;
             this.reduceMaybe();
             return true;
