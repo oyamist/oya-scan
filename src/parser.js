@@ -23,8 +23,8 @@
         ebnf: "|", // alternation
         args,
     });
-    const STATE = (nonTerminal, index=0, rhs=[]) => ({ 
-        nonTerminal, 
+    const STATE = (nonterminal, index=0, rhs=[]) => ({ 
+        nonterminal, 
         index, 
         rhs,
     });
@@ -39,8 +39,8 @@
         constructor(opts = {}) {
             this.ob = undefined;
             this.grammar = Object.assign({}, opts.grammar || GRAMMAR);
-            this.nonTerminals = Object.keys(this.grammar).sort();
-            this.nonTerminals.forEach(nt => {
+            this.nonterminals = Object.keys(this.grammar).sort();
+            this.nonterminals.forEach(nt => {
                 var value = this.grammar[nt];
                 if (value instanceof Array) {
                     // canonical rule body
@@ -130,7 +130,7 @@
             }
             var tos = stack[0];
             var sym = lookahead[0] && lookahead[0].tag;
-            var rhs = grammar[stack[0].nonTerminal];
+            var rhs = grammar[stack[0].nonterminal];
             if (!rhs) {
                 return false;
             }
@@ -149,10 +149,10 @@
                 stack[0].index++;
                 while (stack[0] && stack[0].index >= rhs.length) {
                     var resReduce = this.reduce(
-                        stack[0].nonTerminal, stack[0].rhs);
+                        stack[0].nonterminal, stack[0].rhs);
                     stack.shift();
                     if (stack[0]) {
-                        rhs = grammar[stack[0].nonTerminal];
+                        rhs = grammar[stack[0].nonterminal];
                         stack[0].index++;
                         stack[0].rhs.push(resReduce);
                     }
@@ -169,7 +169,7 @@
         }
 
         state() {
-            return this.stack.map(s => `${s.nonTerminal}_${s.index}`);
+            return this.stack.map(s => `${s.nonterminal}_${s.index}`);
         }
 
         peek(tag) {

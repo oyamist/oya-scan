@@ -44,7 +44,7 @@
         should.deepEqual(g.addOp, [ALT("+","-")]);
         should.deepEqual(g.expr, [
             OPT("addOp"), "term", STAR("addOp", "term"), ]);
-        should.deepEqual(parser.nonTerminals, [
+        should.deepEqual(parser.nonterminals, [
             "addOp",
             "expr",
             "root",
@@ -213,7 +213,7 @@
             lhs: 'ab', // second reduce
             rhs: [obs[2], obs[3]],
         },{
-            lhs: 'abab', // nonTerminal reduce
+            lhs: 'abab', // nonterminal reduce
             rhs: ['ab-result1', 'ab-result2'],
         },{
             lhs: 'root', // final reduce
