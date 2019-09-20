@@ -119,6 +119,35 @@
             return res;
         }
 
+        stepTerminal() {
+            var {
+                grammar,
+                stack,
+                lookahead,
+            } = this;
+            var sym = lookahead[0] && lookahead[0].tag;
+            var rhs = grammar[stack[0].nonterminal];
+            var rhsi = rhs[stack[0].index];
+            if (rhsi !== sym) {
+                return false;
+            }
+            var ob = lookahead.shift();
+            this.shift(ob);
+            stack[0].rhs.push(ob);
+            stack[0].index++;
+            while (stack[0] && stack[0].index >= rhs.length) {
+                var resReduce = this.reduce(
+                    stack[0].nonterminal, stack[0].rhs);
+                stack.shift();
+                if (stack[0]) {
+                    rhs = grammar[stack[0].nonterminal];
+                    stack[0].index++;
+                    stack[0].rhs.push(resReduce);
+                }
+            }
+            return true;
+        }
+
         step() {
             var {
                 grammar,
@@ -128,11 +157,10 @@
             if (this.stack.length === 0) {
                 stack.unshift(STATE("root"));
             }
-            var tos = stack[0];
-            var sym = lookahead[0] && lookahead[0].tag;
-            var rhs = grammar[stack[0].nonterminal];
+            var nonterminal = stack[0].nonterminal;
+            var rhs = grammar[nonterminal];
             if (!rhs) {
-                return false;
+                throw new Error(`Grammar has no rule for:`, nonterminal);
             }
             var rhsi = rhs[stack[0].index];
             if (grammar.hasOwnProperty(rhsi)) { // non-terminal
@@ -140,24 +168,9 @@
                 return this.step();
             } 
             if (typeof rhsi === 'string') { // terminal
-                if (rhsi !== sym) {
-                    return false;
-                }
-                var ob = lookahead.shift();
-                this.shift(ob);
-                stack[0].rhs.push(ob);
-                stack[0].index++;
-                while (stack[0] && stack[0].index >= rhs.length) {
-                    var resReduce = this.reduce(
-                        stack[0].nonterminal, stack[0].rhs);
-                    stack.shift();
-                    if (stack[0]) {
-                        rhs = grammar[stack[0].nonterminal];
-                        stack[0].index++;
-                        stack[0].rhs.push(resReduce);
-                    }
-                }
-                return true;
+                return this.stepTerminal();
+            }
+            if (rhsi.ebnf === "+") {
             }
             if (rhsi.ebnf === "?") {
             }
