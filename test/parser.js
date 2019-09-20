@@ -42,9 +42,13 @@
         var g = parser.grammar;
         should.deepEqual(g.root, ["expr"]);
         should.deepEqual(g.addOp, [ALT("+","-")]);
-        should.deepEqual(g.expr, [ OPT("addOp"), "term", "expr@2" ]);
-            //OPT("addOp"), "term", STAR("addOp", "term"), ]);
-        should.deepEqual(g[`expr@2`], [ "addOp", "term" ]); // generated
+        should.deepEqual(g.expr, [ 
+            OPT("addOp"), 
+            "term", 
+            STAR("expr@2"), // generated
+        ]);
+        should.deepEqual(g[`expr@2`], // generated
+            [ "addOp", "term" ]); 
         should.deepEqual(Object.keys(parser.grammar).sort(), [
             "addOp",
             "expr",
@@ -74,31 +78,22 @@
         should(JSON.stringify(parser.grammar.mulOp))
             .equal('[{"ebnf":"|","args":["*","/"]}]');
     });
-    it("TESTTESTgrammar with STAR is expanded", ()=>{
-        return; // TODO dbg
-        var parser = new Parser();
-        should(parser).instanceOf(Parser);
+    it("grammar with STAR is expanded", ()=>{
+        const grammar = {
+            root: 'ab',
+            ab: ['a', STAR('b','c')], // a { b c }
+        };
+        var parser = new Parser({grammar});
 
-        // default grammar
+        // rewrite grammar for monadic STAR 
         var g = parser.grammar;
-        should.deepEqual(g.root, ["expr"]);
-        should.deepEqual(g.addOp, [ALT("+","-")]);
-        should.deepEqual(g.expr, [
-            OPT("addOp"), "term", STAR("addOp", "term"), ]);
-        should.deepEqual(Object.keys(parser.grammar).sort(), [
-            "addOp",
-            "expr",
-            "root",
-        ].sort());
-
-        // default actions print to console
-        should(typeof parser.reject).equal('function');
-        should(typeof parser.shift).equal('function');
-        should(typeof parser.reduce).equal('function');
-
-        should.deepEqual(parser.state(), [ ]);
+        should.deepEqual(g['root'], ["ab"]);
+        should.deepEqual(g['ab'], ['a', STAR('ab@1')]);
+        should.deepEqual(g['ab@1'], ['b', 'c']);
+        should.deepEqual(Object.keys(parser.grammar).sort(), 
+            [ "root", "ab", "ab@1", ].sort());
     });
-    it("TESTTESTstep() consumes valid terminal sequence", ()=>{
+    it("step() consumes valid terminal sequence", ()=>{
         const grammar = {
             root: 'abc',
             abc: [ 'a', 'b', 'c' ],
@@ -138,7 +133,7 @@
         }]);
         should(res).equal(true);
     });
-    it("TESTTESTstep() rejects invalid terminal", ()=>{
+    it("step() rejects invalid terminal", ()=>{
         const grammar = {
             root: 'abc',
             abc: [ 'a', 'b', 'c' ],
@@ -187,7 +182,7 @@
         should.deepEqual(shifted, [obs[0], obs[2], obs[3]]);
         should.deepEqual(rejected, [obs[1]]);
     });
-    it("TESTTESTstep() consumes non-terminal sequence", ()=>{
+    it("step() consumes non-terminal sequence", ()=>{
         const grammar = {
             root: 'abab',
             abab: ['ab', 'ab'],
@@ -247,10 +242,11 @@
         }]);
     });
     it("TESTTESTstep() consumes STAR sequence", ()=>{
-        return; // TODO dbg
+        //return; // TODO dbg
         const grammar = {
-            root: 'ab',
-            ab: ['a', STAR('b')], // ab*
+            root: 'abb',
+            abb: ['ab',  STAR('b')], // ab{b}
+            ab: ['a', 'b'], 
         };
         var reduced = [];
         var shifted = [];
@@ -259,21 +255,25 @@
             grammar,
             reduce: (lhs, rhs)=>{
                 reduced.push({lhs, rhs});
+                console.log(`dbg reduce ${lhs} => [${rhs}]`);
                 return `${lhs}-result${reduced.length}`;
             },
             reject: ob=>rejected.push(ob),
             shift: ob=>shifted.push(ob),
         });
-        var obs = 'abb'.split('').map(tag=>new Observation(tag));
-
+        var obs = 'abb'.split('').map((tag,i)=>new Observation(tag,i));
         var i = 0;
+
         var res = parser.observe(obs[i++]);
-        should.deepEqual(parser.state(), [ 'ab_1', 'root_0' ]);
+        should.deepEqual(parser.state(), [ 'ab_1', 'abb_0', 'root_0' ]);
         should(res).equal(true);
 
-        var i = 0;
         var res = parser.observe(obs[i++]);
-        should.deepEqual(parser.state(), [ 'ab_1', 'root_0' ]);
+        should.deepEqual(parser.state(), [ 'abb_1', 'root_0' ]);
+        should(res).equal(true);
+
+        var res = parser.observe(obs[i++]);
+        should.deepEqual(parser.state(), [ 'abb_2', 'root_0' ]);
         should(res).equal(true);
     });
 

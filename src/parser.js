@@ -103,11 +103,11 @@
                 var rhs = grammar[lhs];
                 for (var i=0; i < rhs.length; i++) {
                     var rhsi = rhs[i];
-                    if (rhsi.ebnf === '*') {
+                    if (rhsi.ebnf === '*' && rhsi.args.length > 1) {
                         var lhsNew = `${lhs}@${i}`;
-                        grammar[lhsNew] = rhsi.args;
-                        rhs[i] = lhsNew;
-                        console.log(`dbg lhsNew`, lhsNew, rhs);
+                        var rhsNew = rhsi.args;
+                        grammar[lhsNew] = rhsNew;
+                        rhsi.args = [ lhsNew ];
                     }
                 }
             });
@@ -156,6 +156,24 @@
             return res;
         }
 
+        reduceMaybe() {
+            var {
+                grammar,
+                stack,
+            } = this;
+            var rhs = grammar[stack[0].nonterminal];
+            while (stack[0] && stack[0].index >= rhs.length) {
+                var resReduce = this.reduce(
+                    stack[0].nonterminal, stack[0].rhs);
+                stack.shift();
+                if (stack[0]) {
+                    rhs = grammar[stack[0].nonterminal];
+                    stack[0].index++;
+                    stack[0].rhs.push(resReduce);
+                }
+            }
+        }
+
         stepTerminal() {
             var {
                 grammar,
@@ -172,6 +190,8 @@
             this.shift(ob);
             stack[0].rhs.push(ob);
             stack[0].index++;
+            this.reduceMaybe();
+            /*
             while (stack[0] && stack[0].index >= rhs.length) {
                 var resReduce = this.reduce(
                     stack[0].nonterminal, stack[0].rhs);
@@ -182,6 +202,7 @@
                     stack[0].rhs.push(resReduce);
                 }
             }
+            */
             return true;
         }
 
@@ -189,13 +210,24 @@
             var {
                 grammar,
                 stack,
+                lookahead,
             } = this;
-            var nonterminal = stack[0].nonterminal;
-            var rhs = grammar[nonterminal];
-            var rhsi = rhs[stack[0].index];
-            var args = rhsi.args;
-
-            console.log(`dbg args`, args);
+            var lhs = stack[0].nonterminal;
+            var index = stack[0].index;
+            var rhs = grammar[lhs];
+            var rhsi = rhs[index];
+            var arg = rhsi.args[0]; // STAR is monadic
+            var sym = lookahead[0] && lookahead[0].tag;
+            console.log(`dbg stepStar`,
+                `${lhs}_${index}`, // current rule and index
+                `${JSON.stringify(rhs)}`);
+            if (grammar.hasOwnProperty(arg)) {
+                throw new Error(`TBD ${arg}`);
+            } else if (arg === sym) { // matches current symbol
+                var ob = lookahead.shift();
+                this.shift(ob);
+                stack[0].index++;
+            }
             return true;
         }
 
