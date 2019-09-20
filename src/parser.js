@@ -38,18 +38,8 @@
     class Parser {
         constructor(opts = {}) {
             this.ob = undefined;
-            this.grammar = Object.assign({}, opts.grammar || GRAMMAR);
-            this.nonterminals = Object.keys(this.grammar).sort();
-            this.nonterminals.forEach(nt => {
-                var value = this.grammar[nt];
-                if (value instanceof Array) {
-                    // canonical rule body
-                } else {
-                    value = [value];
-                    this.grammar[nt] = value; // make canonical
-                }
-
-            });
+            var grammar = opts.grammar || GRAMMAR;
+            this.grammar = Parser.validateGrammar(grammar);
 
             // optional callbacks
             var that = this;
@@ -76,6 +66,39 @@
         static get PLUS() { return PLUS; } // Grammar helper one or more
         static get ALT() { return ALT; } // Grammar helper alternation
         static get OPT() { return OPT; } // Grammar helper zero or one
+
+        static validateGrammar(grammar) {
+            if (grammar == null) {
+                throw new Error(`Grammar cannot be empty`);
+            }
+            grammar = Object.assign({}, grammar);
+            var nts = Object.keys(grammar).sort();
+            nts.forEach(nt => {
+                var value = grammar[nt];
+                if (value instanceof Array) {
+                    // canonical rule body
+                } else {
+                    value = [value];
+                    grammar[nt] = value; // make canonical
+                }
+            });
+            var nts = Object.keys(grammar);
+            if (nts.length === 0) {
+                throw new Error(`Grammar has no rules`);
+            }
+            nts.forEach(lhs => {
+                var rhs = grammar[lhs];
+                if (!rhs) {
+                    throw new Error(`Grammar has no rule for:"${lhs}"`);
+                }
+                var rhs = grammar[lhs];
+                if (!(rhs instanceof Array)) {
+                    throw new Error(
+                        `${lhs}: rhs must be Array ${rhs}`);
+                } 
+            });
+            return grammar;
+        }
 
         onReduce(lhs, rhs) { // default handler
             console.log(`Parser.onReduce(`,
@@ -148,20 +171,27 @@
             return true;
         }
 
+        stepStar() { // zero or more
+            var {
+                grammar,
+                stack,
+            } = this;
+            var nonterminal = stack[0].nonterminal;
+            var rhs = grammar[nonterminal];
+            var rhsi = rhs[stack[0].index];
+            var args = rhsi.args;
+
+            console.log(`dbg args`, args);
+            return true;
+        }
+
         step() {
             var {
                 grammar,
                 stack,
-                lookahead,
             } = this;
-            if (this.stack.length === 0) {
-                stack.unshift(STATE("root"));
-            }
             var nonterminal = stack[0].nonterminal;
             var rhs = grammar[nonterminal];
-            if (!rhs) {
-                throw new Error(`Grammar has no rule for:`, nonterminal);
-            }
             var rhsi = rhs[stack[0].index];
             if (grammar.hasOwnProperty(rhsi)) { // non-terminal
                 stack.unshift(STATE(rhsi));
@@ -170,14 +200,15 @@
             if (typeof rhsi === 'string') { // terminal
                 return this.stepTerminal();
             }
-            if (rhsi.ebnf === "+") {
-            }
-            if (rhsi.ebnf === "?") {
-            }
-            if (rhsi.ebnf === "|") {
-            }
             if (rhsi.ebnf === "*") {
+                return this.stepStar();
             }
+
+            //if (rhsi.ebnf === "+") { }
+            //if (rhsi.ebnf === "?") { }
+            //if (rhsi.ebnf === "|") { }
+
+            throw new Error(`${nonTerminal} Invalid rhs`);
 
         }
 

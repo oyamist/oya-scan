@@ -44,11 +44,11 @@
         should.deepEqual(g.addOp, [ALT("+","-")]);
         should.deepEqual(g.expr, [
             OPT("addOp"), "term", STAR("addOp", "term"), ]);
-        should.deepEqual(parser.nonterminals, [
+        should.deepEqual(Object.keys(parser.grammar).sort(), [
             "addOp",
             "expr",
             "root",
-        ]);
+        ].sort());
 
         // default actions print to console
         should(typeof parser.reject).equal('function');
@@ -71,6 +71,29 @@
         should.deepEqual(parser.grammar.expr, grammar.expr);
         should(JSON.stringify(parser.grammar.mulOp))
             .equal('[{"ebnf":"|","args":["*","/"]}]');
+    });
+    it("TESTTESTgrammar with STAR is expanded", ()=>{
+        var parser = new Parser();
+        should(parser).instanceOf(Parser);
+
+        // default grammar
+        var g = parser.grammar;
+        should.deepEqual(g.root, ["expr"]);
+        should.deepEqual(g.addOp, [ALT("+","-")]);
+        should.deepEqual(g.expr, [
+            OPT("addOp"), "term", STAR("addOp", "term"), ]);
+        should.deepEqual(Object.keys(parser.grammar).sort(), [
+            "addOp",
+            "expr",
+            "root",
+        ].sort());
+
+        // default actions print to console
+        should(typeof parser.reject).equal('function');
+        should(typeof parser.shift).equal('function');
+        should(typeof parser.reduce).equal('function');
+
+        should.deepEqual(parser.state(), [ ]);
     });
     it("TESTTESTstep() consumes valid terminal sequence", ()=>{
         const grammar = {
@@ -220,4 +243,34 @@
             rhs: ['abab-result3'],
         }]);
     });
+    it("TESTTESTstep() consumes STAR sequence", ()=>{
+        const grammar = {
+            root: 'ab',
+            ab: ['a', STAR('b')], // ab*
+        };
+        var reduced = [];
+        var shifted = [];
+        var rejected = [];
+        var parser = new Parser({
+            grammar,
+            reduce: (lhs, rhs)=>{
+                reduced.push({lhs, rhs});
+                return `${lhs}-result${reduced.length}`;
+            },
+            reject: ob=>rejected.push(ob),
+            shift: ob=>shifted.push(ob),
+        });
+        var obs = 'abb'.split('').map(tag=>new Observation(tag));
+
+        var i = 0;
+        var res = parser.observe(obs[i++]);
+        should.deepEqual(parser.state(), [ 'ab_1', 'root_0' ]);
+        should(res).equal(true);
+
+        var i = 0;
+        var res = parser.observe(obs[i++]);
+        should.deepEqual(parser.state(), [ 'ab_1', 'root_0' ]);
+        should(res).equal(true);
+    });
+
 })
