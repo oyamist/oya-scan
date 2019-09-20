@@ -120,8 +120,20 @@
             return grammar;
         }
 
-        reduce(lhs, rhs) {
-            return this.onReduce(lhs, rhs);
+        reduce() {
+            var {
+                stack,
+            } = this;
+            var resReduce = this.onReduce(
+                stack[0].nonterminal, // lhs
+                stack[0].rhs);
+            stack.shift();
+            if (stack[0]) {
+                stack[0].index++;
+                stack[0].rhs.push(resReduce);
+            }
+
+            return resReduce;
         }
 
         shift(ob) {
@@ -164,16 +176,10 @@
                 grammar,
                 stack,
             } = this;
-            var rhs = grammar[stack[0].nonterminal];
-            while (stack[0] && stack[0].index >= rhs.length) {
-                var resReduce = this.reduce(
-                    stack[0].nonterminal, stack[0].rhs);
-                stack.shift();
-                if (stack[0]) {
-                    rhs = grammar[stack[0].nonterminal];
-                    stack[0].index++;
-                    stack[0].rhs.push(resReduce);
-                }
+            while (stack[0] && stack[0].index >= 
+                grammar[stack[0].nonterminal].length) 
+            {
+                this.reduce();
             }
         }
 
