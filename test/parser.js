@@ -34,7 +34,7 @@
             args: [ '+', '-'],
         });
     });
-    it("TESTTESTdefault ctor", ()=>{
+    it("default ctor", ()=>{
         var parser = new Parser();
         should(parser).instanceOf(Parser);
 
@@ -256,7 +256,13 @@
             reduce: (lhs, rhs)=>{
                 reduced.push({lhs, rhs});
                 console.log(`dbg reduce ${lhs} => [${rhs}]`);
-                return `${lhs}-result${reduced.length}`;
+                if (lhs === 'ab') {
+                    return rhs[0];
+                }
+                if (lhs === 'abb') {
+                    return `now what`;
+                }
+                return rhs[0];
             },
             reject: ob=>rejected.push(ob),
             shift: ob=>shifted.push(ob),
@@ -271,10 +277,22 @@
         var res = parser.observe(obs[i++]);
         should.deepEqual(parser.state(), [ 'abb_1', 'root_0' ]);
         should(res).equal(true);
+        should.deepEqual(reduced, [{
+            lhs: 'ab', // first reduce
+            rhs: [ obs[0], obs[1] ],
+        }]);
 
+        return; // TODO dbg
         var res = parser.observe(obs[i++]);
-        should.deepEqual(parser.state(), [ 'abb_2', 'root_0' ]);
+        should.deepEqual(parser.state(), [ ]);
         should(res).equal(true);
+        should.deepEqual(reduced, [{
+            lhs: 'ab',
+            rhs: [ obs[0], obs[1] ],
+        },{
+            lhs: 'abb',
+            rhs: [ obs[0] ],
+        }]);
     });
 
 })

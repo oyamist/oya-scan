@@ -43,6 +43,28 @@
 
             // optional callbacks
             var that = this;
+            Object.defineProperty(this, "onReduce", {
+                writable: true,
+                value: opts.reduce || ((lhs, rhs) => { 
+                    console.log(`Parser.onReduce(`,
+                        `${lhs}(${rhs.map(a=>a.tag)}))`,
+                        this.state());
+                    return `${lhs}-some-result`;
+                }),
+            });
+            Object.defineProperty(this, "onShift", {
+                writable: true,
+                value: opts.reduce || (ob => { 
+                    console.log(`Parser.onShift(${ob})`, this.state());
+                }),
+            });
+            Object.defineProperty(this, "onReject", {
+                writable: true,
+                value: opts.reduce || (ob => { 
+                    console.log(`Parser.onReject(${ob})`, this.state());
+                }),
+            });
+
             var reduce = opts.reduce || ((nt, rhs) => that.onReduce(nt,rhs));
             Object.defineProperty(this, "reduce", {
                 writable: true,
@@ -114,21 +136,6 @@
             return grammar;
         }
 
-        onReduce(lhs, rhs) { // default handler
-            console.log(`Parser.onReduce(`,
-                `${lhs}(${rhs.map(a=>a.tag)}))`,
-                this.state());
-            return `${lhs}-some-result`;
-        }
-
-        onShift(ob) { // default handler
-            console.log(`Parser.onShift(${ob})`, this.state());
-        }
-
-        onReject(ob) { // default handler
-            console.log(`Parser.onReject(${ob})`, this.state());
-        }
-
         clearObservation() {
             this.lookahead.length && this.lookahead.shift();
         }
@@ -191,18 +198,6 @@
             stack[0].rhs.push(ob);
             stack[0].index++;
             this.reduceMaybe();
-            /*
-            while (stack[0] && stack[0].index >= rhs.length) {
-                var resReduce = this.reduce(
-                    stack[0].nonterminal, stack[0].rhs);
-                stack.shift();
-                if (stack[0]) {
-                    rhs = grammar[stack[0].nonterminal];
-                    stack[0].index++;
-                    stack[0].rhs.push(resReduce);
-                }
-            }
-            */
             return true;
         }
 
@@ -227,6 +222,7 @@
                 var ob = lookahead.shift();
                 this.shift(ob);
                 stack[0].index++;
+                this.reduceMaybe();
             }
             return true;
         }
