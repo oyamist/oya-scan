@@ -58,7 +58,7 @@
 
         should.deepEqual(parser.state(), [ ]);
     });
-    it("TESTTESTcustom ctor", ()=>{
+    it("custom ctor", ()=>{
         const gdef = {
             root: "term",
             mulOp: ALT("*","/"),
@@ -78,7 +78,7 @@
         should(parser.grammar).not.equal(grammar); 
 
     });
-    it("TESTTESTstep() consumes valid terminal sequence", ()=>{
+    it("step() consumes valid terminal sequence", ()=>{
         const grammar = {
             root: 'abc',
             abc: [ 'a', 'b', 'c' ],
@@ -199,7 +199,6 @@
         }]);
     });
     it("TESTTESTstep() consumes STAR sequence", ()=>{
-        return; // TODO dbg
         const grammar = {
             root: 'abb',
             abb: ['ab',  STAR('b')], // ab{b}
@@ -224,7 +223,7 @@
             rhs: [ obs[0], obs[1] ],
         }]);
 
-//        return; // TODO dbg
+        return; // TODO dbg
         var res = tp.observe(obs[i++]); // b
         should.deepEqual(tp.state(), [ 'root_1' ]);
         should(res).equal(true);

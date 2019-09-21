@@ -32,7 +32,7 @@
             args: [ '+', '-'],
         });
     });
-    it("TESTTESTdefault ctor", ()=>{
+    it("default ctor", ()=>{
         var g = new Grammar();
         should(g).instanceOf(Grammar);
         should.deepEqual(g.root, ["expr"]);
@@ -51,7 +51,7 @@
             "root",
         ].sort());
     });
-    it("TESTTESTcustom ctor", ()=>{
+    it("custom ctor", ()=>{
         const gdef = {
             root: "term",
             mulOp: ALT("*","/"),
@@ -63,7 +63,7 @@
         should(JSON.stringify(g.mulOp))
             .equal('[{"ebnf":"|","args":["*","/"]}]');
     });
-    it("TESTTSETgrammar with STAR is expanded", ()=>{
+    it("grammar with STAR is expanded", ()=>{
         const gdef = {
             root: 'ab',
             ab: ['a', STAR('b','c')], // a { b c }
