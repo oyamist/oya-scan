@@ -140,18 +140,19 @@
             var rhsi = rhs[index];
             var arg = rhsi.args[0]; // STAR is monadic
             var sym = lookahead[0] && lookahead[0].tag;
-            console.log(`dbg stepStar`,
-                `${lhs}_${index}`, // current rule and index
-                `${JSON.stringify(rhs)}`);
             if (grammar.hasOwnProperty(arg)) {
                 throw new Error(`TBD ${arg}`);
             } else if (arg === sym) { // matches current symbol
-                var ob = lookahead.shift();
-                this.shift(ob);
-                stack[0].index++;
-                this.reduce();
+                do {
+                    var ob = lookahead.shift();
+                    stack[0].rhsData.push(ob);
+                    this.shift(ob);
+                    sym = lookahead[0] && lookahead[0].tag;
+                } while (arg === sym);
+                return true;
             }
-            return false;
+            stack[0].index++;
+            return this.step();
         }
 
         step() {

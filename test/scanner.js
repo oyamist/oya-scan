@@ -108,7 +108,7 @@
 
         // mapped keys are trimmed
         var dataout = scanner.scan(" a0003\n  \n");
-        should(dataout.t - Date.now()).above(-1).below(5);
+        should(Date.now() - dataout.t).above(-1).below(5);
         should(dataout.value).equal(5);
         should(dataout.tag).equal('height');
     });
