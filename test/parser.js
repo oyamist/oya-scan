@@ -107,7 +107,7 @@
             rhs: ['abc(a:0,b:1,c:2)'],
         }]);
     });
-    it("TESTTESTobserve() rejects invalid terminal", ()=>{
+    it("observe() rejects invalid terminal", ()=>{
         const grammar = {
             root: 'abc',
             abc: [ 'a', 'b', 'c' ],
@@ -212,10 +212,10 @@
         should.deepEqual(tp.state(), []);
         should.deepEqual(tp.reduced, [{
             lhs: 'abc',
-            rhs: [ obs[0], obs[1], ],
+            rhs: [ obs[0], [], obs[1], ],
         },{
             lhs: 'root',
-            rhs: ['abc(a:0,c:1)'],
+            rhs: ['abc(a:0,,c:1)'],
         }]);
     });
     it("TESTTESTobserve() consumes STAR terminals ", ()=>{
@@ -243,7 +243,7 @@
         should.deepEqual(tp.state(), []);
         should.deepEqual(tp.reduced, [{
             lhs: 'abc',
-            rhs: [ obs[0], obs[1], obs[2], obs[3] ],
+            rhs: [ obs[0], [obs[1], obs[2]], obs[3] ],
         },{
             lhs: 'root',
             rhs: ['abc(a:0,b:1,b:2,c:3)'],

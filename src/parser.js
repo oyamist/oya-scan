@@ -140,12 +140,14 @@
             var rhsi = rhs[index];
             var arg = rhsi.args[0]; // STAR is monadic
             var sym = lookahead[0] && lookahead[0].tag;
+            var matched = stack[0].rhsData[index] || [];
+            stack[0].rhsData[index] = matched;
             if (grammar.hasOwnProperty(arg)) {
                 throw new Error(`TBD ${arg}`);
             } else if (arg === sym) { // matches current symbol
                 do {
                     var ob = lookahead.shift();
-                    stack[0].rhsData.push(ob);
+                    matched.push(ob);
                     this.shift(ob);
                     sym = lookahead[0] && lookahead[0].tag;
                 } while (arg === sym);
