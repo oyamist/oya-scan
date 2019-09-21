@@ -273,5 +273,31 @@
         should.deepEqual(tp.reduced, []);
         should.deepEqual(tp.shifted, [obs[0],obs[1],obs[2]]);
     });
+    it("TESTTESTobserve() consumes empty STAR nonterminal", ()=>{
+        var tp = new TestParser({
+            grammar: {
+                root: 'abc',
+                abc: ['a', STAR('B'), 'c'], 
+                B: 'b',
+            },
+            //logLevel: 'info',
+        });
+        var obs = 'ac'.split('').map((tag,i)=>new Observation(tag,i));
+        var i = 0;
+
+        should(tp.observe(obs[i++])).equal(true); // a
+        should.deepEqual(tp.state(), [ 'abc_1', 'root_0' ]);
+        should.deepEqual(tp.reduced, []);
+
+        should(tp.observe(obs[i++])).equal(true); // c
+        should.deepEqual(tp.state(), []);
+        should.deepEqual(tp.reduced, [{
+            lhs: 'abc',
+            rhs: [ obs[0], [], obs[1], ],
+        },{
+            lhs: 'root',
+            rhs: ['abc(a:0,,c:1)'],
+        }]);
+    });
 
 })

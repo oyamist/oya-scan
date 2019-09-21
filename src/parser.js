@@ -124,7 +124,6 @@
             this.shift(ob);
             stack[0].rhsData.push(ob);
             stack[0].index++;
-            this.reduce();
             return true;
         }
 
@@ -143,7 +142,24 @@
             var matched = stack[0].rhsData[index] || [];
             stack[0].rhsData[index] = matched;
             if (grammar.hasOwnProperty(arg)) {
-                throw new Error(`TBD ${arg}`);
+                stack.unshift(STATE(arg)); // depth first guess
+                console.log(`dbg stepStar 1 guessing: [${this.state()}]`);
+                var ok = this.step();
+                if (ok) {
+                    var tos = stack.shift();
+                    matched.push(tos.rhsData);
+                    console.log(`dbg stepStar 2 matched:`, matched, 
+                        `${tos}`);
+                    return true;
+                } else {
+                    console.log(`dbg stepStar 3 !ok matched:`, matched);
+                } 
+                if (matched.length) {
+                    console.log(`dbg stepStar 4 star matched:`, matched);
+                } else {
+                    var tos = stack.shift(); // discard guess
+                    console.log(`dbg stepStar 5 pop:`+JSON.stringify(tos));
+                }
             } else if (arg === sym) { // matches current symbol
                 do {
                     var ob = lookahead.shift();
