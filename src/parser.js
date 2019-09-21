@@ -52,19 +52,21 @@
         }
 
         reduce() {
-            var {
-                stack,
-            } = this;
+            var s = this.stack;
+            var g = this.grammar;
+            if (!s[0] || s[0].index < g[s[0].lhs].length) {
+                return false;
+            }
             var resReduce = this.onReduce(
-                stack[0].lhs, // lhs
-                stack[0].rhsData);
-            stack.shift();
-            if (stack[0]) {
-                stack[0].index++;
-                stack[0].rhsData.push(resReduce);
+                s[0].lhs, // lhs
+                s[0].rhsData);
+            s.shift();
+            if (s[0]) {
+                s[0].index++;
+                s[0].rhsData.push(resReduce);
             }
 
-            return resReduce;
+            return true;
         }
 
         shift(ob) {
@@ -95,23 +97,13 @@
                 stack[0] = STATE("root");
             }
             var res = this.step();
-            if (!res) {
+            if (res) {
+                while (this.reduce()) {}
+            } else {
                 this.reject(ob);
                 this.clearObservation();
             }
             return res;
-        }
-
-        reduceMaybe() {
-            var {
-                grammar,
-                stack,
-            } = this;
-            while (stack[0] && stack[0].index >= 
-                grammar[stack[0].lhs].length) 
-            {
-                this.reduce();
-            }
         }
 
         stepTerminal() {
@@ -130,7 +122,7 @@
             this.shift(ob);
             stack[0].rhsData.push(ob);
             stack[0].index++;
-            this.reduceMaybe();
+            this.reduce();
             return true;
         }
 
@@ -155,7 +147,7 @@
                 var ob = lookahead.shift();
                 this.shift(ob);
                 stack[0].index++;
-                this.reduceMaybe();
+                this.reduce();
             }
             return true;
         }
