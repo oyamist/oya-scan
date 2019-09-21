@@ -23,32 +23,34 @@
         constructor(opts = {}) {
             this.ob = undefined;
             this.grammar = new Grammar(opts.grammar);
-
-            // optional callbacks
-            var that = this;
-            Object.defineProperty(this, "onReduce", {
-                writable: true,
-                value: opts.onReduce || ((lhs, rhsData) => { 
-                    console.log(`Parser.onReduce(`,
-                        `${lhs}(${rhsData.map(d=>JSON.stringify(d))}))`,
-                        this.state());
-                    return `${lhs}-some-result`;
-                }),
-            });
-            Object.defineProperty(this, "onShift", {
-                writable: true,
-                value: opts.onShift || (ob => { 
-                    console.log(`Parser.onShift(${ob})`, this.state());
-                }),
-            });
-            Object.defineProperty(this, "onReject", {
-                writable: true,
-                value: opts.onReject || (ob => { 
-                    console.log(`Parser.onReject(${ob})`, this.state());
-                }),
-            });
-            
             this.clearAll();
+            this.logLevel = opts.logLevel; // error, warn, info, debug
+        }
+
+        onReduce(lhs, rhsData) { 
+            if (this.logLevel) {
+                var name = this.constructor.name;
+                var msg = `${lhs}(${rhsData.map(d=>""+d)})`;
+                logger[this.logLevel](
+                    `${name}.reduce ${msg} [${this.state()}]`);
+            }
+            return `${lhs}-result`; // arbitrary client data
+        }
+
+        onShift(ob) {
+            if (this.logLevel) {
+                var name = this.constructor.name;
+                logger[this.logLevel](
+                    `${name}.shift ${ob} [${this.state()}]`);
+            }
+        }
+
+        onReject(ob) {
+            if (this.logLevel) {
+                var name = this.constructor.name;
+                logger[this.logLevel](
+                    `${name}.reject ${ob} [${this.state()}]`);
+            }
         }
 
         reduce() {
@@ -57,7 +59,7 @@
             if (!s[0] || s[0].index < g[s[0].lhs].length) {
                 return false;
             }
-            var resReduce = this.onReduce(
+            var resReduce = this.onReduce.call(this,
                 s[0].lhs, // lhs
                 s[0].rhsData);
             s.shift();
@@ -149,7 +151,7 @@
                 stack[0].index++;
                 this.reduce();
             }
-            return true;
+            return false;
         }
 
         step() {

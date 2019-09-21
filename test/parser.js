@@ -17,6 +17,32 @@
         PLUS,
     } = Grammar;
 
+    class TestParser extends Parser {
+        constructor(opts) {
+            super(opts);
+            this.reduced = [];
+            this.shifted = [];
+            this.rejected = [];
+        }
+
+        onReduce(lhs, rhsData) {
+            var msg = `${lhs}(${rhsData.map(d=>""+d)})`;
+            this.reduced.push({lhs, rhs:rhsData});
+            super.onReduce(lhs, rhsData);
+            return msg;
+        }
+
+        onShift(ob) {
+            this.shifted.push(ob);
+            return super.onShift(ob);
+        }
+
+        onReject(ob) {
+            this.rejected.push(ob);
+            return super.onReject(ob);
+        }
+    };
+
     it("default ctor", ()=>{
         var parser = new Parser();
         should(parser).instanceOf(Parser);
@@ -52,43 +78,33 @@
         should(parser.grammar).not.equal(grammar); 
 
     });
-    it("step() consumes valid terminal sequence", ()=>{
+    it("TESTTESTstep() consumes valid terminal sequence", ()=>{
         const grammar = {
             root: 'abc',
             abc: [ 'a', 'b', 'c' ],
         };
-        var reduced = [];
-        var shifted = [];
-        var rejected = [];
-        var parser = new Parser({
+        var tp = new TestParser({
             grammar,
-            onReduce: (lhs, rhs)=> {
-                reduced.push({lhs, rhs});
-                console.log(`test reduce(${lhs},[${rhs}]`);
-                return `${lhs}-result`;
-            },
-            onReject: ob=>rejected.push(ob),
-            onShift: ob=>shifted.push(ob),
         });
         var obs = 'abc'.split('').map((tag,i)=>new Observation(tag,i));
 
-        var res = parser.observe(obs[0]);
-        should.deepEqual(parser.state(), [ 'abc_1', 'root_0' ]);
+        var res = tp.observe(obs[0]);
+        should.deepEqual(tp.state(), [ 'abc_1', 'root_0' ]);
         should(res).equal(true);
 
-        var res = parser.observe(obs[1]);
-        should.deepEqual(parser.state(), [ 'abc_2', 'root_0' ]);
-        should.deepEqual(reduced, []);
+        var res = tp.observe(obs[1]);
+        should.deepEqual(tp.state(), [ 'abc_2', 'root_0' ]);
+        should.deepEqual(tp.reduced, []);
         should(res).equal(true);
 
-        var res = parser.observe(obs[2]);
-        should.deepEqual(parser.state(), []);
-        should.deepEqual(reduced, [{
+        var res = tp.observe(obs[2]);
+        should.deepEqual(tp.state(), []);
+        should.deepEqual(tp.reduced, [{
             lhs: 'abc', // first reduce
             rhs: [obs[0], obs[1], obs[2]],
         },{
             lhs: 'root', // final reduce
-            rhs: ['abc-result'],
+            rhs: ['abc(a:0,b:1,c:2)'],
         }]);
         should(res).equal(true);
     });
@@ -97,49 +113,40 @@
             root: 'abc',
             abc: [ 'a', 'b', 'c' ],
         };
-        var reduced = [];
-        var shifted = [];
-        var rejected = [];
-        var parser = new Parser({
+        var tp = new TestParser({
             grammar,
-            onReduce: (lhs, rhs)=>{
-                reduced.push({lhs, rhs});
-                return `${lhs}-result`;
-            },
-            onReject: ob=>rejected.push(ob),
-            onShift: ob=>shifted.push(ob),
         });
-        var obs = 'axbc'.split('').map(tag=>new Observation(tag));
+        var obs = 'axbc'.split('').map((tag,i)=>new Observation(tag,i));
 
-        var res = parser.observe(obs[0]);
-        should.deepEqual(parser.state(), [ 'abc_1', 'root_0' ]);
+        var res = tp.observe(obs[0]);
+        should.deepEqual(tp.state(), [ 'abc_1', 'root_0' ]);
         should(res).equal(true);
-        should.deepEqual(shifted, [obs[0]]);
+        should.deepEqual(tp.shifted, [obs[0]]);
 
-        var res = parser.observe(obs[1]);
+        var res = tp.observe(obs[1]);
         should(res).equal(false); // reject bad input
-        should.deepEqual(parser.state(), [ 'abc_1', 'root_0' ]);
-        should.deepEqual(rejected, [obs[1]]);
-        should.deepEqual(shifted, [obs[0]]);
+        should.deepEqual(tp.state(), [ 'abc_1', 'root_0' ]);
+        should.deepEqual(tp.rejected, [obs[1]]);
+        should.deepEqual(tp.shifted, [obs[0]]);
 
-        var res = parser.observe(obs[2]);
-        should.deepEqual(parser.state(), [ 'abc_2', 'root_0' ]);
+        var res = tp.observe(obs[2]);
+        should.deepEqual(tp.state(), [ 'abc_2', 'root_0' ]);
         should(res).equal(true);
-        should.deepEqual(shifted, [obs[0], obs[2]]);
+        should.deepEqual(tp.shifted, [obs[0], obs[2]]);
 
-        should.deepEqual(reduced, []);
-        var res = parser.observe(obs[3]);
-        should.deepEqual(parser.state(), []);
+        should.deepEqual(tp.reduced, []);
+        var res = tp.observe(obs[3]);
+        should.deepEqual(tp.state(), []);
         should(res).equal(true);
-        should.deepEqual(reduced, [{
+        should.deepEqual(tp.reduced, [{
             lhs: 'abc', // first reduce
             rhs: [obs[0], obs[2], obs[3]],
         },{
             lhs: 'root', // final reduce
-            rhs: ['abc-result'],
+            rhs: ['abc(a:0,b:2,c:3)'],
         }]);
-        should.deepEqual(shifted, [obs[0], obs[2], obs[3]]);
-        should.deepEqual(rejected, [obs[1]]);
+        should.deepEqual(tp.shifted, [obs[0], obs[2], obs[3]]);
+        should.deepEqual(tp.rejected, [obs[1]]);
     });
     it("step() consumes non-terminal sequence", ()=>{
         const grammar = {
@@ -147,46 +154,37 @@
             abab: ['ab', 'ab'],
             ab: [ 'a', 'b' ],
         };
-        var reduced = [];
-        var shifted = [];
-        var rejected = [];
-        var parser = new Parser({
+        var tp = new TestParser({
             grammar,
-            onReduce: (lhs, rhs)=>{
-                reduced.push({lhs, rhs});
-                return `${lhs}-result${reduced.length}`;
-            },
-            onReject: ob=>rejected.push(ob),
-            onShift: ob=>shifted.push(ob),
         });
-        var obs = 'abab'.split('').map(tag=>new Observation(tag));
+        var obs = 'abab'.split('').map((tag,i)=>new Observation(tag,i));
 
         var i = 0;
-        var res = parser.observe(obs[i++]);
-        should.deepEqual(parser.state(), [ 'ab_1', 'abab_0', 'root_0' ]);
+        var res = tp.observe(obs[i++]);
+        should.deepEqual(tp.state(), [ 'ab_1', 'abab_0', 'root_0' ]);
         should(res).equal(true);
 
-        var res = parser.observe(obs[i++]);
-        should.deepEqual(parser.state(), [ 'abab_1', 'root_0' ]);
+        var res = tp.observe(obs[i++]);
+        should.deepEqual(tp.state(), [ 'abab_1', 'root_0' ]);
         should(res).equal(true);
-        should.deepEqual(reduced, [{
+        should.deepEqual(tp.reduced, [{
             lhs: 'ab', // first reduce
             rhs: [obs[0], obs[1]],
         }]);
 
-        var res = parser.observe(obs[i++]);
-        should.deepEqual(parser.state(), [ 'ab_1', 'abab_1', 'root_0' ]);
-        should.deepEqual(reduced, [{
+        var res = tp.observe(obs[i++]);
+        should.deepEqual(tp.state(), [ 'ab_1', 'abab_1', 'root_0' ]);
+        should.deepEqual(tp.reduced, [{
             lhs: 'ab', // first reduce
             rhs: [obs[0], obs[1]],
         }]);
         should(res).equal(true);
 
-        var res = parser.observe(obs[i++]);
-        should.deepEqual(parser.state(), []);
-        console.log(`dbg parser.stack`, parser.stack);
+        var res = tp.observe(obs[i++]);
+        should.deepEqual(tp.state(), []);
+        console.log(`dbg stack`, tp.stack);
         should(res).equal(true);
-        should.deepEqual(reduced, [{
+        should.deepEqual(tp.reduced, [{
             lhs: 'ab', // first reduce
             rhs: [obs[0], obs[1]],
         },{
@@ -194,56 +192,41 @@
             rhs: [obs[2], obs[3]],
         },{
             lhs: 'abab', // nonterminal reduce
-            rhs: ['ab-result1', 'ab-result2'],
+            rhs: ['ab(a:0,b:1)', 'ab(a:2,b:3)'],
         },{
             lhs: 'root', // final reduce
-            rhs: ['abab-result3'],
+            rhs: ['abab(ab(a:0,b:1),ab(a:2,b:3))'],
         }]);
     });
     it("TESTTESTstep() consumes STAR sequence", ()=>{
-        //return; // TODO dbg
+        return; // TODO dbg
         const grammar = {
             root: 'abb',
             abb: ['ab',  STAR('b')], // ab{b}
             ab: ['a', 'b'], 
         };
-        var reduced = [];
-        var shifted = [];
-        var rejected = [];
-        var parser = new Parser({
+        var tp = new TestParser({
             grammar,
-            onReduce: (lhs, rhs)=>{
-                reduced.push({lhs, rhs});
-                console.log(`dbg reduce ${lhs} => [${rhs}]`);
-                if (lhs === 'ab') {
-                    return rhs[0];
-                }
-                if (lhs === 'abb') {
-                    return `now what`;
-                }
-                return rhs[0];
-            },
-            onReject: ob=>rejected.push(ob),
-            onShift: ob=>shifted.push(ob),
+            logLevel: 'info',
         });
         var obs = 'abb'.split('').map((tag,i)=>new Observation(tag,i));
         var i = 0;
 
-        var res = parser.observe(obs[i++]);
-        should.deepEqual(parser.state(), [ 'ab_1', 'abb_0', 'root_0' ]);
+        var res = tp.observe(obs[i++]); // a
+        should.deepEqual(tp.state(), [ 'ab_1', 'abb_0', 'root_0' ]);
         should(res).equal(true);
 
-        var res = parser.observe(obs[i++]);
-        should.deepEqual(parser.state(), [ 'abb_1', 'root_0' ]);
+        var res = tp.observe(obs[i++]); // b
+        should.deepEqual(tp.state(), [ 'abb_1', 'root_0' ]);
         should(res).equal(true);
-        should.deepEqual(reduced, [{
+        should.deepEqual(tp.reduced, [{
             lhs: 'ab', // first reduce
             rhs: [ obs[0], obs[1] ],
         }]);
 
-        return; // TODO dbg
-        var res = parser.observe(obs[i++]);
-        should.deepEqual(parser.state(), [ ]);
+//        return; // TODO dbg
+        var res = tp.observe(obs[i++]); // b
+        should.deepEqual(tp.state(), [ 'root_1' ]);
         should(res).equal(true);
         should.deepEqual(reduced, [{
             lhs: 'ab',
