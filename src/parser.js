@@ -34,7 +34,6 @@
                 logger[this.logLevel](
                     `${name}.reduce ${msg} [${this.state()}]`);
             }
-            return `${lhs}-result`; // arbitrary client data
         }
 
         onShift(ob) {
@@ -65,13 +64,12 @@
                 rhsData,
             } = s[0];
 
-            var resReduce = this.onReduce.call(this, lhs, rhsData);
+            this.onReduce.call(this, lhs, rhsData);
             s.shift();
             if (s[0]) {
                 index = s[0].index;
                 s[0].index++;
-                s[0].rhsData[index] = resReduce;
-                //s[0].rhsData[index] = rhsData;
+                s[0].rhsData[index] = rhsData;
             }
 
             return true;

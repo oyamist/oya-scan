@@ -78,7 +78,7 @@
         should(parser.grammar).not.equal(grammar); 
 
     });
-    it("observe() consumes valid terminal sequence", ()=>{
+    it("TESTTESTobserve() consumes valid terminal sequence", ()=>{
         const grammar = {
             root: 'abc',
             abc: [ 'a', 'b', 'c' ],
@@ -104,10 +104,10 @@
             rhsData: [obs[0], obs[1], obs[2]],
         },{
             lhs: 'root', // final reduce
-            rhsData: ['abc(a:0,b:1,c:2)'],
+            rhsData: [[obs[0], obs[1], obs[2]]],
         }]);
     });
-    it("observe() rejects invalid terminal", ()=>{
+    it("TESTTESTobserve() rejects invalid terminal", ()=>{
         const grammar = {
             root: 'abc',
             abc: [ 'a', 'b', 'c' ],
@@ -141,12 +141,12 @@
             rhsData: [obs[0], obs[2], obs[3]],
         },{
             lhs: 'root', // final reduce
-            rhsData: ['abc(a:0,b:2,c:3)'],
+            rhsData: [[obs[0], obs[2], obs[3]]],
         }]);
         should.deepEqual(tp.shifted, [obs[0], obs[2], obs[3]]);
         should.deepEqual(tp.rejected, [obs[1]]);
     });
-    it("observe() consumes non-terminal sequence", ()=>{
+    it("TESTTESTobserve() consumes non-terminal sequence", ()=>{
         const grammar = {
             root: 'abab',
             abab: ['ab', 'ab'],
@@ -187,13 +187,13 @@
             rhsData: [obs[2], obs[3]],
         },{
             lhs: 'abab', // nonterminal reduce
-            rhsData: ['ab(a:0,b:1)', 'ab(a:2,b:3)'],
+            rhsData: [[obs[0], obs[1]], [obs[2], obs[3]]],
         },{
             lhs: 'root', // final reduce
-            rhsData: ['abab(ab(a:0,b:1),ab(a:2,b:3))'],
+            rhsData: [[[obs[0], obs[1]], [obs[2], obs[3]]]],
         }]);
     });
-    it("observe() consumes empty STAR terminal", ()=>{
+    it("TESTTESTobserve() consumes empty STAR terminal", ()=>{
         var tp = new TestParser({
             grammar: {
                 root: 'abc',
@@ -215,10 +215,10 @@
             rhsData: [ obs[0], [], obs[1], ],
         },{
             lhs: 'root',
-            rhsData: ['abc(a:0,,c:1)'],
+            rhsData: [[ obs[0], [], obs[1], ]],
         }]);
     });
-    it("observe() consumes STAR terminals ", ()=>{
+    it("TESTTESTobserve() consumes STAR terminals ", ()=>{
         var tp = new TestParser({
             grammar: {
                 root: 'abc',
@@ -246,10 +246,10 @@
             rhsData: [ obs[0], [obs[1], obs[2]], obs[3] ],
         },{
             lhs: 'root',
-            rhsData: ['abc(a:0,b:1,b:2,c:3)'],
+            rhsData: [[ obs[0], [obs[1], obs[2]], obs[3] ]],
         }]);
     });
-    it("observe() consumes trailing STAR terminals ", ()=>{
+    it("TESTTESTobserve() consumes trailing STAR terminals ", ()=>{
         var tp = new TestParser({
             grammar: {
                 root: 'abc',
@@ -273,7 +273,7 @@
         should.deepEqual(tp.reduced, []);
         should.deepEqual(tp.shifted, [obs[0],obs[1],obs[2]]);
     });
-    it("observe() consumes empty STAR nonterminal", ()=>{
+    it("TESTTESTobserve() consumes empty STAR nonterminal", ()=>{
         var tp = new TestParser({
             grammar: {
                 root: 'abc',
@@ -296,7 +296,7 @@
             rhsData: [ obs[0], [], obs[1], ],
         },{
             lhs: 'root',
-            rhsData: ['abc(a:0,,c:1)'],
+            rhsData: [[ obs[0], [], obs[1], ]],
         }]);
     });
     it("TESTTESTobserve() consumes STAR nonterminals ", ()=>{
