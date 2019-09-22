@@ -147,7 +147,7 @@
             return true;
         }
 
-        stepStar() { // zero or more
+        stepStar(min1=false, max1=false) { 
             var {
                 grammar,
                 stack,
@@ -165,28 +165,17 @@
             var s1 = STATE(arg);
             if (grammar.hasOwnProperty(arg)) {
                 stack.unshift(s1); // depth first guess
-                console.log(`dbg stepStar 1 guessing: [${this.state()}]`);
                 var ok = this.step();
                 if (ok) {
                     this.reduce(false);
                     matched.push(s1.rhsData);
-                    console.log(`dbg stepStar 2 step:true`,
-                        `matched:${lhs}_${index}(${matched})`, 
-                        `popped:${s1.lhs}_${s1.index}(${s1.rhsData})`,
-                        '');
                     return true;
                 } 
                 // not matched
-                if (matched.length) {
-                    stack.shift(); // discard guess
-                    console.log(`dbg stepStar 3 step:false matched:`, 
-                        `${lhs}_${index}:[${matched}]`,
-                        `${lhs}_${index}:[${s0.rhsData[index]}]`,
-                        ''); 
-                } else {
-                    stack.shift(); // discard guess
-                    console.log(`dbg stepStar 4 pop:`+JSON.stringify(s1));
-                }
+                stack.shift(); // discard guess
+                if (min1 && matched.length === 0) {
+                    return false;
+                } 
             } else if (arg === sym) { // matches current symbol
                 do {
                     var ob = lookahead.shift();
@@ -195,8 +184,9 @@
                     sym = lookahead[0] && lookahead[0].tag;
                 } while (arg === sym);
                 return true;
+            } else if (min1 && matched.length === 0) {
+                return false;
             }
-            console.log(`dbg s0===stack[0]`, s0===stack[0]);
             stack[0].index++;
             return this.step();
         }
@@ -222,10 +212,11 @@
                 return this.stepTerminal();
             }
             if (rhsi.ebnf === "*") {
-                return this.stepStar();
+                return this.stepStar(false, false);
             }
-
-            //if (rhsi.ebnf === "+") { }
+            if (rhsi.ebnf === "+") { 
+                return this.stepStar(true, false);
+            }
             //if (rhsi.ebnf === "?") { }
             //if (rhsi.ebnf === "|") { }
 

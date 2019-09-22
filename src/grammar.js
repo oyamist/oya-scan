@@ -73,7 +73,7 @@
                 var rhs = this[lhs];
                 for (var i=0; i < rhs.length; i++) {
                     var rhsi = rhs[i];
-                    if (rhsi.ebnf === '*' && rhsi.args.length > 1) {
+                    if (/[*?+]/.test(rhsi.ebnf) && rhsi.args.length > 1) {
                         var lhsNew = `${lhs}@${i}`;
                         var rhsNew = rhsi.args;
                         this[lhsNew] = rhsNew;
