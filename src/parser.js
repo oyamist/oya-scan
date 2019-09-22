@@ -59,11 +59,18 @@
             if (!s[0] || s[0].index < g[s[0].lhs].length) {
                 return false;
             }
-            var resReduce = this.onReduce.call(this,
-                s[0].lhs, // lhs
-                s[0].rhsData);
+            var {
+                index,
+                lhs, 
+                rhsData,
+            } = s[0];
+            console.log(`dbg REDUCE ${lhs}_${index}`, 
+                `[${rhsData}]`);
+
+            var resReduce = this.onReduce.call(this, lhs, rhsData);
             s.shift();
             if (s[0]) {
+                //s[0].rhsData[s[0].index] = rhsData;
                 s[0].index++;
                 s[0].rhsData.push(resReduce);
             }
@@ -91,8 +98,14 @@
         observe(ob) {
             var {
                 lookahead,
+                logLevel,
                 stack,
             } = this;
+
+            if (logLevel) {
+                var name = this.constructor.name;
+                logger[logLevel](`${name}.observe(${ob})`);
+            }
 
             lookahead.push(ob);
             if (stack.length === 0) {
@@ -147,18 +160,17 @@
                 var ok = this.step();
                 if (ok) {
                     var tos = stack.shift();
-                    matched.push(tos.rhsData);
-                    console.log(`dbg stepStar 2 matched:`, matched, 
-                        `${tos}`);
+                    1 && matched.push(tos.rhsData);
+                    console.log(`dbg stepStar 2 step:true matched:`, 
+                        `[${matched}]`, 
+                        `${tos.lhs}_${tos.index} [${tos.rhsData}]`);
                     return true;
-                } else {
-                    console.log(`dbg stepStar 3 !ok matched:`, matched);
                 } 
-                if (matched.length) {
-                    console.log(`dbg stepStar 4 star matched:`, matched);
-                } else {
+                console.log(`dbg stepStar 3 step:false matched:`, 
+                    `[${matched}]`); 
+                if (!matched.length) {
                     var tos = stack.shift(); // discard guess
-                    console.log(`dbg stepStar 5 pop:`+JSON.stringify(tos));
+                    console.log(`dbg stepStar 4 pop:`+JSON.stringify(tos));
                 }
             } else if (arg === sym) { // matches current symbol
                 do {
@@ -178,9 +190,14 @@
                 grammar,
                 stack,
             } = this;
+            while (this.reduce()) {}
             var lhs = stack[0].lhs;
             var rhs = grammar[lhs];
-            var rhsi = rhs[stack[0].index];
+            var index = stack[0].index;
+            var rhsi = rhs[index];
+            if (rhsi == null) {
+                throw new Error(`Parse error: ${lhs}_${index} does not exist`);
+            }
             if (grammar.hasOwnProperty(rhsi)) { // non-terminal
                 stack.unshift(STATE(rhsi));
                 return this.step();
