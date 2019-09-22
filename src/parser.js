@@ -27,10 +27,18 @@
             this.logLevel = opts.logLevel; // error, warn, info, debug
         }
 
+        dumpList(list) {
+            return list.map((d,i)=> d instanceof Array 
+                ? `[${this.dumpList(d)}]` 
+                : ""+d
+            );
+        }
+
         onReduce(lhs, rhsData) { 
             if (this.logLevel) {
                 var name = this.constructor.name;
-                var msg = `${lhs}(${rhsData.map(d=>""+d)})`;
+                var rhsText = this.dumpList(rhsData);
+                var msg = `${lhs}(${rhsText})`;
                 logger[this.logLevel](
                     `${name}.reduce ${msg} [${this.state()}]`);
             }
@@ -52,7 +60,7 @@
             }
         }
 
-        reduce() {
+        reduce(advance=true) {
             var s = this.stack;
             var g = this.grammar;
             if (!s[0] || s[0].index < g[s[0].lhs].length) {
@@ -66,7 +74,7 @@
 
             this.onReduce.call(this, lhs, rhsData);
             s.shift();
-            if (s[0]) {
+            if (s[0] && advance) {
                 index = s[0].index;
                 s[0].index++;
                 s[0].rhsData[index] = rhsData;
@@ -143,33 +151,39 @@
                 stack,
                 lookahead,
             } = this;
-            var lhs = stack[0].lhs;
-            var index = stack[0].index;
+            var s0 = stack[0];
+            var lhs = s0.lhs;
+            var index = s0.index;
             var rhs = grammar[lhs];
             var rhsi = rhs[index];
             var arg = rhsi.args[0]; // STAR is monadic
             var sym = lookahead[0] && lookahead[0].tag;
-            var matched = stack[0].rhsData[index] || [];
-            stack[0].rhsData[index] = matched;
+            var matched = s0.rhsData[index] || [];
+            s0.rhsData[index] = matched;
+            var s1 = STATE(arg);
             if (grammar.hasOwnProperty(arg)) {
-                stack.unshift(STATE(arg)); // depth first guess
+                stack.unshift(s1); // depth first guess
                 console.log(`dbg stepStar 1 guessing: [${this.state()}]`);
                 var ok = this.step();
                 if (ok) {
-                    var tos = stack.shift();
-                    1 && matched.push(tos.rhsData);
+                    this.reduce(false);
+                    matched.push(s1.rhsData);
                     console.log(`dbg stepStar 2 step:true`,
                         `matched:${lhs}_${index}(${matched})`, 
-                        `popped:${tos.lhs}_${tos.index}(${tos.rhsData})`);
+                        `popped:${s1.lhs}_${s1.index}(${s1.rhsData})`,
+                        '');
                     return true;
                 } 
                 // not matched
                 if (matched.length) {
+                    stack.shift(); // discard guess
                     console.log(`dbg stepStar 3 step:false matched:`, 
-                        `${lhs}_${index}:[${matched}]`); 
+                        `${lhs}_${index}:[${matched}]`,
+                        `${lhs}_${index}:[${s0.rhsData[index]}]`,
+                        ''); 
                 } else {
-                    var tos = stack.shift(); // discard guess
-                    console.log(`dbg stepStar 4 pop:`+JSON.stringify(tos));
+                    stack.shift(); // discard guess
+                    console.log(`dbg stepStar 4 pop:`+JSON.stringify(s1));
                 }
             } else if (arg === sym) { // matches current symbol
                 do {
@@ -180,6 +194,7 @@
                 } while (arg === sym);
                 return true;
             }
+            console.log(`dbg s0===stack[0]`, s0===stack[0]);
             stack[0].index++;
             return this.step();
         }

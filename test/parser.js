@@ -317,23 +317,32 @@
 
         should(tp.observe(obs[i++])).equal(true); // b
         should.deepEqual(tp.state(), [ 'aBc_1', 'root_0' ]);
-        should.deepEqual(tp.reduced, []);
+        should.deepEqual(tp.reduced, [{
+            lhs:'B',
+            rhsData: [obs[1]],
+        },{
+            lhs:'B',
+            rhsData: [obs[2]],
+        }]);
 
         should(tp.observe(obs[i++])).equal(true); // c
         should.deepEqual(tp.state(), []);
-        return; // TODO dbg
-        should.deepEqual(tp.reduced[0], [{
+        should.deepEqual(tp.reduced[0], {
             lhs: 'B',
             rhsData: [ obs[1] ],
-        }]);
-        should.deepEqual(tp.reduced[0], [{
+        });
+        should.deepEqual(tp.reduced[1], {
+            lhs: 'B',
+            rhsData: [ obs[2] ],
+        });
+        should.deepEqual(tp.reduced[2], {
             lhs: 'aBc',
-            rhsData: [ obs[0], [obs[1], obs[2]], obs[3] ],
-        }]);
-        should.deepEqual(tp.reduced[1], [{
+            rhsData: [ obs[0], [[obs[1]], [obs[2]]], obs[3] ],
+        });
+        should.deepEqual(tp.reduced[3], {
             lhs: 'root',
-            rhsData: ['aBc(a:0,b:1,b:2,c:3)'],
-        }]);
+            rhsData: [[ obs[0], [[obs[1]], [obs[2]]], obs[3] ]],
+        });
     });
 
 })
