@@ -68,9 +68,10 @@
             var resReduce = this.onReduce.call(this, lhs, rhsData);
             s.shift();
             if (s[0]) {
-                //s[0].rhsData[s[0].index] = rhsData;
+                index = s[0].index;
                 s[0].index++;
-                s[0].rhsData.push(resReduce);
+                s[0].rhsData[index] = resReduce;
+                //s[0].rhsData[index] = rhsData;
             }
 
             return true;
@@ -159,14 +160,16 @@
                 if (ok) {
                     var tos = stack.shift();
                     1 && matched.push(tos.rhsData);
-                    console.log(`dbg stepStar 2 step:true matched:`, 
-                        `[${matched}]`, 
-                        `${tos.lhs}_${tos.index} [${tos.rhsData}]`);
+                    console.log(`dbg stepStar 2 step:true`,
+                        `matched:${lhs}_${index}(${matched})`, 
+                        `popped:${tos.lhs}_${tos.index}(${tos.rhsData})`);
                     return true;
                 } 
-                console.log(`dbg stepStar 3 step:false matched:`, 
-                    `[${matched}]`); 
-                if (!matched.length) {
+                // not matched
+                if (matched.length) {
+                    console.log(`dbg stepStar 3 step:false matched:`, 
+                        `${lhs}_${index}:[${matched}]`); 
+                } else {
                     var tos = stack.shift(); // discard guess
                     console.log(`dbg stepStar 4 pop:`+JSON.stringify(tos));
                 }
