@@ -25,9 +25,12 @@
             this.rejected = [];
         }
 
-        onReduce(lhs, rhsData) {
-            this.reduced.push({lhs, rhsData});
-            super.onReduce(lhs, rhsData);
+        onReduce(tos) {
+            this.reduced.push({
+                lhs: tos.lhs,
+                rhsData: tos.rhsData,
+            });
+            super.onReduce(tos);
         }
 
         onShift(ob) {

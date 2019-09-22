@@ -34,8 +34,12 @@
             );
         }
 
-        onReduce(lhs, rhsData) { 
+        onReduce(tos) { 
             if (this.logLevel) {
+                var {
+                    lhs,
+                    rhsData,
+                } = tos;
                 var name = this.constructor.name;
                 var rhsText = this.dumpList(rhsData);
                 var msg = `${lhs}(${rhsText})`;
@@ -61,23 +65,21 @@
         }
 
         reduce(advance=true) {
-            var s = this.stack;
-            var g = this.grammar;
-            if (!s[0] || s[0].index < g[s[0].lhs].length) {
-                return false;
-            }
             var {
-                index,
-                lhs, 
-                rhsData,
-            } = s[0];
+                stack,
+                grammar,
+            } = this;
+            var s0 = stack[0];
+            var s1 = stack[1];
+            if (!s0 || s0.index < grammar[s0.lhs].length) {
+                return false; // not at end of rule
+            }
 
-            this.onReduce.call(this, lhs, rhsData);
-            s.shift();
-            if (s[0] && advance) {
-                index = s[0].index;
-                s[0].index++;
-                s[0].rhsData[index] = rhsData;
+            this.onReduce.call(this, s0);
+            stack.shift();
+            if (s1 && advance) {
+                s1.rhsData[s1.index] = s0.rhsData;
+                s1.index++;
             }
 
             return true;
