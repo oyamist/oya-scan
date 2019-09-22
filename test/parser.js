@@ -251,6 +251,8 @@
         }]);
     });
     it("TESTTESTobserve() consumes trailing STAR terminals ", ()=>{
+        // Rules with trailing STARs should be avoided since
+        // they have no termination
         var tp = new TestParser({
             grammar: {
                 root: 'abc',
@@ -307,7 +309,7 @@
                 aBc: ['a', STAR('B'), 'c'], 
                 B: 'b',
             },
-            logLevel: 'info',
+            //logLevel: 'info',
         });
         var obs = 'abbc'.split('').map((tag,i)=>new Observation(tag,i));
         var i = 0;
@@ -346,6 +348,42 @@
             lhs: 'root',
             rhsData: [[ obs[0], [[obs[1]], [obs[2]]], obs[3] ]],
         });
+    });
+    it("TESTTESTobserve() consumes trailing STAR nonterminals ", ()=>{
+        // Rules with trailing STARs should be avoided since
+        // they have no termination
+        var tp = new TestParser({
+            grammar: {
+                root: 'aBc',
+                aBc: ['a', STAR('B')], 
+                B: 'b',
+            },
+            logLevel: 'info',
+        });
+        var obs = 'abb'.split('').map((tag,i)=>new Observation(tag,i));
+        var i = 0;
+
+        should(tp.observe(obs[i++])).equal(true); // a
+        should.deepEqual(tp.state(), [ 'aBc_1', 'root_0' ]);
+        should.deepEqual(tp.shifted, [obs[0]]);
+
+        should(tp.observe(obs[i++])).equal(true); // b
+        should.deepEqual(tp.state(), [ 'aBc_1', 'root_0' ]);
+        should.deepEqual(tp.shifted, [obs[0],obs[1]]);
+        should.deepEqual(tp.reduced[0], {
+            lhs: 'B',
+            rhsData: [ obs[1] ],
+        });
+        should(tp.reduced.length).equal(1);
+
+        should(tp.observe(obs[i++])).equal(true); // b
+        should.deepEqual(tp.state(), [ 'aBc_1', 'root_0' ]);
+        should.deepEqual(tp.reduced[1], {
+            lhs: 'B',
+            rhsData: [ obs[2] ],
+        });
+        should(tp.reduced.length).equal(2);
+        should.deepEqual(tp.shifted, [obs[0],obs[1],obs[2]]);
     });
 
 })
