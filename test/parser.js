@@ -26,10 +26,8 @@
         }
 
         onReduce(lhs, rhsData) {
-            var msg = `${lhs}(${rhsData.map(d=>""+d)})`;
             this.reduced.push({lhs, rhsData});
             super.onReduce(lhs, rhsData);
-            return msg;
         }
 
         onShift(ob) {
