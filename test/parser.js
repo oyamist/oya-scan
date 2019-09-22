@@ -27,7 +27,7 @@
 
         onReduce(lhs, rhsData) {
             var msg = `${lhs}(${rhsData.map(d=>""+d)})`;
-            this.reduced.push({lhs, rhs:rhsData});
+            this.reduced.push({lhs, rhsData});
             super.onReduce(lhs, rhsData);
             return msg;
         }
@@ -101,10 +101,10 @@
         should.deepEqual(tp.state(), []);
         should.deepEqual(tp.reduced, [{
             lhs: 'abc', // first reduce
-            rhs: [obs[0], obs[1], obs[2]],
+            rhsData: [obs[0], obs[1], obs[2]],
         },{
             lhs: 'root', // final reduce
-            rhs: ['abc(a:0,b:1,c:2)'],
+            rhsData: ['abc(a:0,b:1,c:2)'],
         }]);
     });
     it("observe() rejects invalid terminal", ()=>{
@@ -138,10 +138,10 @@
         should.deepEqual(tp.state(), []);
         should.deepEqual(tp.reduced, [{
             lhs: 'abc', // first reduce
-            rhs: [obs[0], obs[2], obs[3]],
+            rhsData: [obs[0], obs[2], obs[3]],
         },{
             lhs: 'root', // final reduce
-            rhs: ['abc(a:0,b:2,c:3)'],
+            rhsData: ['abc(a:0,b:2,c:3)'],
         }]);
         should.deepEqual(tp.shifted, [obs[0], obs[2], obs[3]]);
         should.deepEqual(tp.rejected, [obs[1]]);
@@ -166,14 +166,14 @@
         should.deepEqual(tp.state(), [ 'abab_1', 'root_0' ]);
         should.deepEqual(tp.reduced, [{
             lhs: 'ab', // first reduce
-            rhs: [obs[0], obs[1]],
+            rhsData: [obs[0], obs[1]],
         }]);
 
         should(tp.observe(obs[i++])).equal(true); // a
         should.deepEqual(tp.state(), [ 'ab_1', 'abab_1', 'root_0' ]);
         should.deepEqual(tp.reduced, [{
             lhs: 'ab', // first reduce
-            rhs: [obs[0], obs[1]],
+            rhsData: [obs[0], obs[1]],
         }]);
 
         should(tp.observe(obs[i++])).equal(true); // b
@@ -181,16 +181,16 @@
         console.log(`dbg stack`, tp.stack);
         should.deepEqual(tp.reduced, [{
             lhs: 'ab', // first reduce
-            rhs: [obs[0], obs[1]],
+            rhsData: [obs[0], obs[1]],
         },{
             lhs: 'ab', // second reduce
-            rhs: [obs[2], obs[3]],
+            rhsData: [obs[2], obs[3]],
         },{
             lhs: 'abab', // nonterminal reduce
-            rhs: ['ab(a:0,b:1)', 'ab(a:2,b:3)'],
+            rhsData: ['ab(a:0,b:1)', 'ab(a:2,b:3)'],
         },{
             lhs: 'root', // final reduce
-            rhs: ['abab(ab(a:0,b:1),ab(a:2,b:3))'],
+            rhsData: ['abab(ab(a:0,b:1),ab(a:2,b:3))'],
         }]);
     });
     it("observe() consumes empty STAR terminal", ()=>{
@@ -212,10 +212,10 @@
         should.deepEqual(tp.state(), []);
         should.deepEqual(tp.reduced, [{
             lhs: 'abc',
-            rhs: [ obs[0], [], obs[1], ],
+            rhsData: [ obs[0], [], obs[1], ],
         },{
             lhs: 'root',
-            rhs: ['abc(a:0,,c:1)'],
+            rhsData: ['abc(a:0,,c:1)'],
         }]);
     });
     it("observe() consumes STAR terminals ", ()=>{
@@ -243,10 +243,10 @@
         should.deepEqual(tp.state(), []);
         should.deepEqual(tp.reduced, [{
             lhs: 'abc',
-            rhs: [ obs[0], [obs[1], obs[2]], obs[3] ],
+            rhsData: [ obs[0], [obs[1], obs[2]], obs[3] ],
         },{
             lhs: 'root',
-            rhs: ['abc(a:0,b:1,b:2,c:3)'],
+            rhsData: ['abc(a:0,b:1,b:2,c:3)'],
         }]);
     });
     it("observe() consumes trailing STAR terminals ", ()=>{
@@ -293,17 +293,17 @@
         should.deepEqual(tp.state(), []);
         should.deepEqual(tp.reduced, [{
             lhs: 'abc',
-            rhs: [ obs[0], [], obs[1], ],
+            rhsData: [ obs[0], [], obs[1], ],
         },{
             lhs: 'root',
-            rhs: ['abc(a:0,,c:1)'],
+            rhsData: ['abc(a:0,,c:1)'],
         }]);
     });
     it("TESTTESTobserve() consumes STAR nonterminals ", ()=>{
         var tp = new TestParser({
             grammar: {
-                root: 'abc',
-                abc: ['a', STAR('B'), 'c'], 
+                root: 'aBc',
+                aBc: ['a', STAR('B'), 'c'], 
                 B: 'b',
             },
             logLevel: 'info',
@@ -312,13 +312,13 @@
         var i = 0;
 
         should(tp.observe(obs[i++])).equal(true); // a
-        should.deepEqual(tp.state(), [ 'abc_1', 'root_0' ]);
+        should.deepEqual(tp.state(), [ 'aBc_1', 'root_0' ]);
 
         should(tp.observe(obs[i++])).equal(true); // b
-        should.deepEqual(tp.state(), [ 'abc_1', 'root_0' ]);
+        should.deepEqual(tp.state(), [ 'aBc_1', 'root_0' ]);
 
         should(tp.observe(obs[i++])).equal(true); // b
-        should.deepEqual(tp.state(), [ 'abc_1', 'root_0' ]);
+        should.deepEqual(tp.state(), [ 'aBc_1', 'root_0' ]);
         should.deepEqual(tp.reduced, []);
 
         should(tp.observe(obs[i++])).equal(true); // c
@@ -326,15 +326,15 @@
         return; // TODO dbg
         should.deepEqual(tp.reduced[0], [{
             lhs: 'B',
-            rhs: [ obs[1] ],
+            rhsData: [ obs[1] ],
         }]);
         should.deepEqual(tp.reduced[0], [{
-            lhs: 'abc',
-            rhs: [ obs[0], [obs[1], obs[2]], obs[3] ],
+            lhs: 'aBc',
+            rhsData: [ obs[0], [obs[1], obs[2]], obs[3] ],
         }]);
         should.deepEqual(tp.reduced[1], [{
             lhs: 'root',
-            rhs: ['abc(a:0,b:1,b:2,c:3)'],
+            rhsData: ['aBc(a:0,b:1,b:2,c:3)'],
         }]);
     });
 

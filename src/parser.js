@@ -64,8 +64,6 @@
                 lhs, 
                 rhsData,
             } = s[0];
-            console.log(`dbg REDUCE ${lhs}_${index}`, 
-                `[${rhsData}]`);
 
             var resReduce = this.onReduce.call(this, lhs, rhsData);
             s.shift();
