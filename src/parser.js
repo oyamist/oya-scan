@@ -162,14 +162,16 @@
             var sym = lookahead[0] && lookahead[0].tag;
             var matched = s0.rhsData[index] || [];
             s0.rhsData[index] = matched;
-            var s1 = STATE(arg);
             if (grammar.hasOwnProperty(arg)) {
+                var s1 = STATE(arg);
                 stack.unshift(s1); // depth first guess
                 var ok = this.step();
                 if (ok) {
                     this.reduce(false);
-                    matched.push(s1.rhsData);
-                    return true;
+                    if (!max1 || matched.length === 0) {
+                        matched.push(s1.rhsData);
+                    }
+                    return !max1 || max1 && matched.length <= 1;
                 } 
                 // not matched
                 stack.shift(); // discard guess
@@ -179,8 +181,15 @@
             } else if (arg === sym) { // matches current symbol
                 do {
                     var ob = lookahead.shift();
+                    if (max1 && matched.length > 0) {
+                        return false;
+                    }
                     matched.push(ob);
                     this.shift(ob);
+                    if (max1) {
+                        s0.index++;
+                        return true;
+                    }
                     sym = lookahead[0] && lookahead[0].tag;
                 } while (arg === sym);
                 return true;
@@ -217,7 +226,10 @@
             if (rhsi.ebnf === "+") { 
                 return this.stepStar(true, false);
             }
-            //if (rhsi.ebnf === "?") { }
+            if (rhsi.ebnf === "?") { 
+                return this.stepStar(false, true);
+            }
+
             //if (rhsi.ebnf === "|") { }
 
             throw new Error(`${lhs} Invalid rhs`);

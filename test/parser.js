@@ -384,7 +384,7 @@
         should(tp.reduced.length).equal(2);
         should.deepEqual(tp.shifted, [obs[0],obs[1],obs[2]]);
     });
-    it("TESTTESTobserve() rejects empty PLUS terminal", ()=>{
+    it("observe() rejects empty PLUS terminal", ()=>{
         var tp = new TestParser({
             grammar: {
                 root: 'abc',
@@ -403,7 +403,7 @@
         should.deepEqual(tp.state(), ['abc_1', 'root_0']);
         should.deepEqual(tp.reduced, []);
     });
-    it("TESTTESTobserve() consumes PLUS terminals ", ()=>{
+    it("observe() consumes PLUS terminals ", ()=>{
         var tp = new TestParser({
             grammar: {
                 root: 'abc',
@@ -434,7 +434,7 @@
             rhsData: [[ obs[0], [obs[1], obs[2]], obs[3] ]],
         }]);
     });
-    it("TESTTESTobserve() consumes trailing PLUS terminals ", ()=>{
+    it("observe() consumes trailing PLUS terminals ", ()=>{
         // Rules with trailing PLUS should be avoided since
         // they have no termination
         var tp = new TestParser({
@@ -460,7 +460,7 @@
         should.deepEqual(tp.reduced, []);
         should.deepEqual(tp.shifted, [obs[0],obs[1],obs[2]]);
     });
-    it("TESTTESTobserve() consumes empty PLUS nonterminal", ()=>{
+    it("observe() consumes empty PLUS nonterminal", ()=>{
         var tp = new TestParser({
             grammar: {
                 root: 'abc',
@@ -480,7 +480,7 @@
         should.deepEqual(tp.state(), [ 'abc_1', 'root_0' ]);
         should.deepEqual(tp.reduced, []);
     });
-    it("TESTTESTobserve() consumes PLUS nonterminals ", ()=>{
+    it("observe() consumes PLUS nonterminals ", ()=>{
         var tp = new TestParser({
             grammar: {
                 root: 'aBc',
@@ -527,7 +527,7 @@
             rhsData: [[ obs[0], [[obs[1]], [obs[2]]], obs[3] ]],
         });
     });
-    it("TESTTESTobserve() consumes trailing PLUS nonterminals ", ()=>{
+    it("observe() consumes trailing PLUS nonterminals ", ()=>{
         // Rules with trailing STARs should be avoided since
         // they have no termination
         var tp = new TestParser({
@@ -563,5 +563,256 @@
         should(tp.reduced.length).equal(2);
         should.deepEqual(tp.shifted, [obs[0],obs[1],obs[2]]);
     });
+    it("observe() consumes empty OPT terminal", ()=>{
+        var tp = new TestParser({
+            grammar: {
+                root: 'abc',
+                abc: ['a', OPT('b'), 'c'], 
+            },
+            //logLevel: 'info',
+        });
+        var obs = 'ac'.split('').map((tag,i)=>new Observation(tag,i));
+        var i = 0;
+
+        should(tp.observe(obs[i++])).equal(true); // a
+        should.deepEqual(tp.state(), [ 'abc_1', 'root_0' ]);
+        should.deepEqual(tp.reduced, []);
+
+        should(tp.observe(obs[i++])).equal(true); // c
+        should.deepEqual(tp.state(), []);
+        should.deepEqual(tp.reduced, [{
+            lhs: 'abc',
+            rhsData: [ obs[0], [], obs[1], ],
+        },{
+            lhs: 'root',
+            rhsData: [[ obs[0], [], obs[1], ]],
+        }]);
+    });
+    it("TESTTESTobserve() consumes OPT terminals ", ()=>{
+        var tp = new TestParser({
+            grammar: {
+                root: 'abc',
+                abc: ['a', OPT('b'), 'c'], 
+            },
+            //logLevel: 'info',
+        });
+        var obs = 'abc'.split('').map((tag,i)=>new Observation(tag,i));
+        var i = 0;
+
+        should(tp.observe(obs[i++])).equal(true); // a
+        should.deepEqual(tp.state(), [ 'abc_1', 'root_0' ]);
+
+        should(tp.observe(obs[i++])).equal(true); // b
+        should.deepEqual(tp.state(), [ 'abc_2', 'root_0' ]);
+        should.deepEqual(tp.reduced, []);
+
+        should(tp.observe(obs[i++])).equal(true); // c
+        should.deepEqual(tp.state(), []);
+        should.deepEqual(tp.reduced, [{
+            lhs: 'abc',
+            rhsData: [ obs[0], [obs[1]], obs[2] ],
+        },{
+            lhs: 'root',
+            rhsData: [[ obs[0], [obs[1]], obs[2] ]],
+        }]);
+    });
+    it("TESTTESTobserve() rejects excessive OPT terminals ", ()=>{
+        var tp = new TestParser({
+            grammar: {
+                root: 'abc',
+                abc: ['a', OPT('b'), 'c'], 
+            },
+            //logLevel: 'info',
+        });
+        var obs = 'abbc'.split('').map((tag,i)=>new Observation(tag,i));
+        var i = 0;
+
+        should(tp.observe(obs[i++])).equal(true); // a
+        should.deepEqual(tp.state(), [ 'abc_1', 'root_0' ]);
+
+        should(tp.observe(obs[i++])).equal(true); // b
+        should.deepEqual(tp.state(), [ 'abc_2', 'root_0' ]);
+
+        should(tp.observe(obs[i++])).equal(false); // b
+        should.deepEqual(tp.state(), [ 'abc_2', 'root_0' ]);
+        should.deepEqual(tp.reduced, []);
+
+        should(tp.observe(obs[i++])).equal(true); // c
+        should.deepEqual(tp.state(), []);
+        should.deepEqual(tp.reduced[0], {
+            lhs: 'abc',
+            rhsData: [ obs[0], [obs[1]], obs[3] ],
+        });
+        should.deepEqual(tp.reduced[1], {
+            lhs: 'root',
+            rhsData: [[ obs[0], [obs[1]], obs[3] ]],
+        });
+    });
+    it("TESTTESTobserve() consumes trailing OPT terminals ", ()=>{
+        // Rules with trailing OPT should be avoided since
+        // they have no termination
+        var tp = new TestParser({
+            grammar: {
+                root: 'ab',
+                ab: ['a', OPT('b')], 
+            },
+            //logLevel: 'info',
+        });
+        var obs = 'ab'.split('').map((tag,i)=>new Observation(tag,i));
+        var i = 0;
+
+        should(tp.observe(obs[i++])).equal(true); // a
+        should.deepEqual(tp.state(), [ 'ab_1', 'root_0' ]);
+        should.deepEqual(tp.shifted, [obs[0]]);
+
+        should(tp.observe(obs[i++])).equal(true); // b
+        should.deepEqual(tp.state(), [ ]);
+        should.deepEqual(tp.reduced[0], {
+            lhs: 'ab',
+            rhsData: [obs[0], [obs[1]] ],
+        });
+        should.deepEqual(tp.reduced[1], {
+            lhs: 'root',
+            rhsData: [[obs[0], [obs[1]] ]],
+        });
+        should.deepEqual(tp.shifted, [obs[0],obs[1]]);
+    });
+    /*
+    it("observe() rejects excessive trailing OPT terminals ", ()=>{
+        // Rules with trailing OPT should be avoided since
+        // they have no termination
+        var tp = new TestParser({
+            grammar: {
+                root: 'abc',
+                abc: ['a', OPT('b')], 
+            },
+            //logLevel: 'info',
+        });
+        var obs = 'abb'.split('').map((tag,i)=>new Observation(tag,i));
+        var i = 0;
+
+        should(tp.observe(obs[i++])).equal(true); // a
+        should.deepEqual(tp.state(), [ 'abc_1', 'root_0' ]);
+        should.deepEqual(tp.shifted, [obs[0]]);
+
+        should(tp.observe(obs[i++])).equal(true); // b
+        should.deepEqual(tp.state(), [ 'abc_1', 'root_0' ]);
+        should.deepEqual(tp.shifted, [obs[0],obs[1]]);
+
+        should(tp.observe(obs[i++])).equal(false); // b
+        should.deepEqual(tp.state(), [ 'abc_1', 'root_0' ]);
+        should.deepEqual(tp.reduced, []);
+        should.deepEqual(tp.shifted, [obs[0],obs[1]]);
+    });
+    it("observe() consumes empty STAR nonterminal", ()=>{
+        var tp = new TestParser({
+            grammar: {
+                root: 'abc',
+                abc: ['a', STAR('B'), 'c'], 
+                B: 'b',
+            },
+            //logLevel: 'info',
+        });
+        var obs = 'ac'.split('').map((tag,i)=>new Observation(tag,i));
+        var i = 0;
+
+        should(tp.observe(obs[i++])).equal(true); // a
+        should.deepEqual(tp.state(), [ 'abc_1', 'root_0' ]);
+        should.deepEqual(tp.reduced, []);
+
+        should(tp.observe(obs[i++])).equal(true); // c
+        should.deepEqual(tp.state(), []);
+        should.deepEqual(tp.reduced, [{
+            lhs: 'abc',
+            rhsData: [ obs[0], [], obs[1], ],
+        },{
+            lhs: 'root',
+            rhsData: [[ obs[0], [], obs[1], ]],
+        }]);
+    });
+    it("observe() consumes STAR nonterminals ", ()=>{
+        var tp = new TestParser({
+            grammar: {
+                root: 'aBc',
+                aBc: ['a', STAR('B'), 'c'], 
+                B: 'b',
+            },
+            //logLevel: 'info',
+        });
+        var obs = 'abbc'.split('').map((tag,i)=>new Observation(tag,i));
+        var i = 0;
+
+        should(tp.observe(obs[i++])).equal(true); // a
+        should.deepEqual(tp.state(), [ 'aBc_1', 'root_0' ]);
+
+        should(tp.observe(obs[i++])).equal(true); // b
+        should.deepEqual(tp.state(), [ 'aBc_1', 'root_0' ]);
+
+        should(tp.observe(obs[i++])).equal(true); // b
+        should.deepEqual(tp.state(), [ 'aBc_1', 'root_0' ]);
+        should.deepEqual(tp.reduced, [{
+            lhs:'B',
+            rhsData: [obs[1]],
+        },{
+            lhs:'B',
+            rhsData: [obs[2]],
+        }]);
+
+        should(tp.observe(obs[i++])).equal(true); // c
+        should.deepEqual(tp.state(), []);
+        should.deepEqual(tp.reduced[0], {
+            lhs: 'B',
+            rhsData: [ obs[1] ],
+        });
+        should.deepEqual(tp.reduced[1], {
+            lhs: 'B',
+            rhsData: [ obs[2] ],
+        });
+        should.deepEqual(tp.reduced[2], {
+            lhs: 'aBc',
+            rhsData: [ obs[0], [[obs[1]], [obs[2]]], obs[3] ],
+        });
+        should.deepEqual(tp.reduced[3], {
+            lhs: 'root',
+            rhsData: [[ obs[0], [[obs[1]], [obs[2]]], obs[3] ]],
+        });
+    });
+    it("observe() consumes trailing STAR nonterminals ", ()=>{
+        // Rules with trailing STARs should be avoided since
+        // they have no termination
+        var tp = new TestParser({
+            grammar: {
+                root: 'aBc',
+                aBc: ['a', STAR('B')], 
+                B: 'b',
+            },
+            //logLevel: 'info',
+        });
+        var obs = 'abb'.split('').map((tag,i)=>new Observation(tag,i));
+        var i = 0;
+
+        should(tp.observe(obs[i++])).equal(true); // a
+        should.deepEqual(tp.state(), [ 'aBc_1', 'root_0' ]);
+        should.deepEqual(tp.shifted, [obs[0]]);
+
+        should(tp.observe(obs[i++])).equal(true); // b
+        should.deepEqual(tp.state(), [ 'aBc_1', 'root_0' ]);
+        should.deepEqual(tp.shifted, [obs[0],obs[1]]);
+        should.deepEqual(tp.reduced[0], {
+            lhs: 'B',
+            rhsData: [ obs[1] ],
+        });
+        should(tp.reduced.length).equal(1);
+
+        should(tp.observe(obs[i++])).equal(true); // b
+        should.deepEqual(tp.state(), [ 'aBc_1', 'root_0' ]);
+        should.deepEqual(tp.reduced[1], {
+            lhs: 'B',
+            rhsData: [ obs[2] ],
+        });
+        should(tp.reduced.length).equal(2);
+        should.deepEqual(tp.shifted, [obs[0],obs[1],obs[2]]);
+    });
+    */
 
 })
