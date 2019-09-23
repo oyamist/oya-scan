@@ -168,10 +168,11 @@
                 var ok = this.step();
                 if (ok) {
                     this.reduce(false);
-                    if (!max1 || matched.length === 0) {
-                        matched.push(s1.rhsData);
+                    matched.push(s1.rhsData);
+                    if (max1) {
+                        s0.index++;
                     }
-                    return !max1 || max1 && matched.length <= 1;
+                    return true;
                 } 
                 // not matched
                 stack.shift(); // discard guess
@@ -181,9 +182,6 @@
             } else if (arg === sym) { // matches current symbol
                 do {
                     var ob = lookahead.shift();
-                    if (max1 && matched.length > 0) {
-                        return false;
-                    }
                     matched.push(ob);
                     this.shift(ob);
                     if (max1) {

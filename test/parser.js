@@ -16,6 +16,7 @@
         STAR,
         PLUS,
     } = Grammar;
+    const logLevel = false;
 
     class TestParser extends Parser {
         constructor(opts) {
@@ -86,7 +87,7 @@
         };
         var tp = new TestParser({
             grammar,
-            //logLevel: 'info',
+            logLevel,
         });
         var obs = 'abc'.split('').map((tag,i)=>new Observation(tag,i));
         var i = 0;
@@ -115,7 +116,7 @@
         };
         var tp = new TestParser({
             grammar,
-            //logLevel: 'info',
+            logLevel,
         });
         var obs = 'axbc'.split('').map((tag,i)=>new Observation(tag,i));
         var i = 0;
@@ -155,7 +156,7 @@
         };
         var tp = new TestParser({
             grammar,
-            //logLevel: 'info',
+            logLevel,
         });
         var obs = 'abab'.split('').map((tag,i)=>new Observation(tag,i));
 
@@ -199,7 +200,7 @@
                 root: 'abc',
                 abc: ['a', STAR('b'), 'c'], 
             },
-            //logLevel: 'info',
+            logLevel,
         });
         var obs = 'ac'.split('').map((tag,i)=>new Observation(tag,i));
         var i = 0;
@@ -224,7 +225,7 @@
                 root: 'abc',
                 abc: ['a', STAR('b'), 'c'], 
             },
-            //logLevel: 'info',
+            logLevel,
         });
         var obs = 'abbc'.split('').map((tag,i)=>new Observation(tag,i));
         var i = 0;
@@ -257,7 +258,7 @@
                 root: 'abc',
                 abc: ['a', STAR('b')], 
             },
-            //logLevel: 'info',
+            logLevel,
         });
         var obs = 'abb'.split('').map((tag,i)=>new Observation(tag,i));
         var i = 0;
@@ -282,7 +283,7 @@
                 abc: ['a', STAR('B'), 'c'], 
                 B: 'b',
             },
-            //logLevel: 'info',
+            logLevel,
         });
         var obs = 'ac'.split('').map((tag,i)=>new Observation(tag,i));
         var i = 0;
@@ -308,7 +309,7 @@
                 aBc: ['a', STAR('B'), 'c'], 
                 B: 'b',
             },
-            //logLevel: 'info',
+            logLevel,
         });
         var obs = 'abbc'.split('').map((tag,i)=>new Observation(tag,i));
         var i = 0;
@@ -357,7 +358,7 @@
                 aBc: ['a', STAR('B')], 
                 B: 'b',
             },
-            //logLevel: 'info',
+            logLevel,
         });
         var obs = 'abb'.split('').map((tag,i)=>new Observation(tag,i));
         var i = 0;
@@ -390,7 +391,7 @@
                 root: 'abc',
                 abc: ['a', PLUS('b'), 'c'], 
             },
-            //logLevel: 'info',
+            logLevel,
         });
         var obs = 'ac'.split('').map((tag,i)=>new Observation(tag,i));
         var i = 0;
@@ -409,7 +410,7 @@
                 root: 'abc',
                 abc: ['a', PLUS('b'), 'c'], 
             },
-            //logLevel: 'info',
+            logLevel,
         });
         var obs = 'abbc'.split('').map((tag,i)=>new Observation(tag,i));
         var i = 0;
@@ -442,7 +443,7 @@
                 root: 'abc',
                 abc: ['a', PLUS('b')], 
             },
-            //logLevel: 'info',
+            logLevel,
         });
         var obs = 'abb'.split('').map((tag,i)=>new Observation(tag,i));
         var i = 0;
@@ -467,7 +468,7 @@
                 abc: ['a', PLUS('B'), 'c'], 
                 B: 'b',
             },
-            //logLevel: 'info',
+            logLevel,
         });
         var obs = 'ac'.split('').map((tag,i)=>new Observation(tag,i));
         var i = 0;
@@ -487,7 +488,7 @@
                 aBc: ['a', PLUS('B'), 'c'], 
                 B: 'b',
             },
-            //logLevel: 'info',
+            logLevel,
         });
         var obs = 'abbc'.split('').map((tag,i)=>new Observation(tag,i));
         var i = 0;
@@ -536,7 +537,7 @@
                 aBc: ['a', STAR('B')], 
                 B: 'b',
             },
-            //logLevel: 'info',
+            logLevel,
         });
         var obs = 'abb'.split('').map((tag,i)=>new Observation(tag,i));
         var i = 0;
@@ -569,7 +570,7 @@
                 root: 'abc',
                 abc: ['a', OPT('b'), 'c'], 
             },
-            //logLevel: 'info',
+            logLevel,
         });
         var obs = 'ac'.split('').map((tag,i)=>new Observation(tag,i));
         var i = 0;
@@ -594,7 +595,7 @@
                 root: 'abc',
                 abc: ['a', OPT('b'), 'c'], 
             },
-            //logLevel: 'info',
+            logLevel,
         });
         var obs = 'abc'.split('').map((tag,i)=>new Observation(tag,i));
         var i = 0;
@@ -622,7 +623,7 @@
                 root: 'abc',
                 abc: ['a', OPT('b'), 'c'], 
             },
-            //logLevel: 'info',
+            logLevel,
         });
         var obs = 'abbc'.split('').map((tag,i)=>new Observation(tag,i));
         var i = 0;
@@ -656,7 +657,7 @@
                 root: 'ab',
                 ab: ['a', OPT('b')], 
             },
-            //logLevel: 'info',
+            logLevel,
         });
         var obs = 'ab'.split('').map((tag,i)=>new Observation(tag,i));
         var i = 0;
@@ -677,41 +678,47 @@
         });
         should.deepEqual(tp.shifted, [obs[0],obs[1]]);
     });
-    /*
-    it("observe() rejects excessive trailing OPT terminals ", ()=>{
+    it("TESTTESTobserve() rejects excessive trailing OPT terminals ", ()=>{
         // Rules with trailing OPT should be avoided since
         // they have no termination
         var tp = new TestParser({
             grammar: {
-                root: 'abc',
-                abc: ['a', OPT('b')], 
+                root: 'ab',
+                ab: ['a', OPT('b')], 
             },
-            //logLevel: 'info',
+            logLevel,
         });
         var obs = 'abb'.split('').map((tag,i)=>new Observation(tag,i));
         var i = 0;
 
         should(tp.observe(obs[i++])).equal(true); // a
-        should.deepEqual(tp.state(), [ 'abc_1', 'root_0' ]);
+        should.deepEqual(tp.state(), [ 'ab_1', 'root_0' ]);
         should.deepEqual(tp.shifted, [obs[0]]);
 
         should(tp.observe(obs[i++])).equal(true); // b
-        should.deepEqual(tp.state(), [ 'abc_1', 'root_0' ]);
+        should.deepEqual(tp.state(), [ ]);
         should.deepEqual(tp.shifted, [obs[0],obs[1]]);
+        should.deepEqual(tp.reduced[0], {
+            lhs: 'ab',
+            rhsData: [ obs[0], [obs[1]] ],
+        });
+        should.deepEqual(tp.reduced[1], {
+            lhs: 'root',
+            rhsData: [[ obs[0], [obs[1]] ]],
+        });
 
         should(tp.observe(obs[i++])).equal(false); // b
-        should.deepEqual(tp.state(), [ 'abc_1', 'root_0' ]);
-        should.deepEqual(tp.reduced, []);
+        should.deepEqual(tp.state(), [ 'ab_0', 'root_0' ]);
         should.deepEqual(tp.shifted, [obs[0],obs[1]]);
     });
-    it("observe() consumes empty STAR nonterminal", ()=>{
+    it("TESTTESTobserve() consumes empty OPT nonterminal", ()=>{
         var tp = new TestParser({
             grammar: {
                 root: 'abc',
-                abc: ['a', STAR('B'), 'c'], 
+                abc: ['a', OPT('B'), 'c'], 
                 B: 'b',
             },
-            //logLevel: 'info',
+            logLevel,
         });
         var obs = 'ac'.split('').map((tag,i)=>new Observation(tag,i));
         var i = 0;
@@ -730,14 +737,50 @@
             rhsData: [[ obs[0], [], obs[1], ]],
         }]);
     });
-    it("observe() consumes STAR nonterminals ", ()=>{
+    it("TESTTESTobserve() consumes OPT nonterminals ", ()=>{
         var tp = new TestParser({
             grammar: {
                 root: 'aBc',
-                aBc: ['a', STAR('B'), 'c'], 
+                aBc: ['a', OPT('B'), 'c'], 
                 B: 'b',
             },
-            //logLevel: 'info',
+            logLevel,
+        });
+        var obs = 'abc'.split('').map((tag,i)=>new Observation(tag,i));
+        var i = 0;
+
+        should(tp.observe(obs[i++])).equal(true); // a
+        should.deepEqual(tp.state(), [ 'aBc_1', 'root_0' ]);
+        should.deepEqual(tp.reduced, []);
+
+        should(tp.observe(obs[i++])).equal(true); // b
+        should.deepEqual(tp.state(), [ 'aBc_2', 'root_0' ]);
+        should.deepEqual(tp.reduced, [{
+            lhs:'B',
+            rhsData: [obs[1]],
+        }]);
+
+        should(tp.observe(obs[i++])).equal(true); // c
+        should.deepEqual(tp.state(), []);
+        should.deepEqual(tp.reduced, [{
+            lhs: 'B',
+            rhsData: [ obs[1] ],
+        },{
+            lhs: 'aBc',
+            rhsData: [ obs[0], [[ obs[1] ]], obs[2] ],
+        },{
+            lhs: 'root',
+            rhsData: [[ obs[0], [[ obs[1] ]], obs[2] ]],
+        }]);
+    });
+    it("TESTTESTobserve() rejects excessive OPT nonterminals ", ()=>{
+        var tp = new TestParser({
+            grammar: {
+                root: 'aBc',
+                aBc: ['a', OPT('B'), 'c'], 
+                B: 'b',
+            },
+            logLevel,
         });
         var obs = 'abbc'.split('').map((tag,i)=>new Observation(tag,i));
         var i = 0;
@@ -746,16 +789,13 @@
         should.deepEqual(tp.state(), [ 'aBc_1', 'root_0' ]);
 
         should(tp.observe(obs[i++])).equal(true); // b
-        should.deepEqual(tp.state(), [ 'aBc_1', 'root_0' ]);
+        should.deepEqual(tp.state(), [ 'aBc_2', 'root_0' ]);
 
-        should(tp.observe(obs[i++])).equal(true); // b
-        should.deepEqual(tp.state(), [ 'aBc_1', 'root_0' ]);
+        should(tp.observe(obs[i++])).equal(false); // b
+        should.deepEqual(tp.state(), [ 'aBc_2', 'root_0' ]);
         should.deepEqual(tp.reduced, [{
             lhs:'B',
             rhsData: [obs[1]],
-        },{
-            lhs:'B',
-            rhsData: [obs[2]],
         }]);
 
         should(tp.observe(obs[i++])).equal(true); // c
@@ -765,54 +805,51 @@
             rhsData: [ obs[1] ],
         });
         should.deepEqual(tp.reduced[1], {
-            lhs: 'B',
-            rhsData: [ obs[2] ],
+            lhs: 'aBc',
+            rhsData: [ obs[0], [[ obs[1] ]], obs[3] ],
         });
         should.deepEqual(tp.reduced[2], {
-            lhs: 'aBc',
-            rhsData: [ obs[0], [[obs[1]], [obs[2]]], obs[3] ],
-        });
-        should.deepEqual(tp.reduced[3], {
             lhs: 'root',
-            rhsData: [[ obs[0], [[obs[1]], [obs[2]]], obs[3] ]],
+            rhsData: [[ obs[0], [[ obs[1] ]], obs[3] ]],
         });
     });
-    it("observe() consumes trailing STAR nonterminals ", ()=>{
-        // Rules with trailing STARs should be avoided since
-        // they have no termination
+    it("TESTTESTobserve() consumes trailing OPT nonterminals ", ()=>{
         var tp = new TestParser({
             grammar: {
-                root: 'aBc',
-                aBc: ['a', STAR('B')], 
+                root: 'aB',
+                aB: ['a', OPT('B')], 
                 B: 'b',
             },
-            //logLevel: 'info',
+            logLevel,
         });
         var obs = 'abb'.split('').map((tag,i)=>new Observation(tag,i));
         var i = 0;
 
         should(tp.observe(obs[i++])).equal(true); // a
-        should.deepEqual(tp.state(), [ 'aBc_1', 'root_0' ]);
+        should.deepEqual(tp.state(), [ 'aB_1', 'root_0' ]);
         should.deepEqual(tp.shifted, [obs[0]]);
 
         should(tp.observe(obs[i++])).equal(true); // b
-        should.deepEqual(tp.state(), [ 'aBc_1', 'root_0' ]);
+        should.deepEqual(tp.state(), [ ]);
         should.deepEqual(tp.shifted, [obs[0],obs[1]]);
         should.deepEqual(tp.reduced[0], {
             lhs: 'B',
             rhsData: [ obs[1] ],
         });
-        should(tp.reduced.length).equal(1);
-
-        should(tp.observe(obs[i++])).equal(true); // b
-        should.deepEqual(tp.state(), [ 'aBc_1', 'root_0' ]);
         should.deepEqual(tp.reduced[1], {
-            lhs: 'B',
-            rhsData: [ obs[2] ],
+            lhs: 'aB',
+            rhsData: [ obs[0], [[ obs[1] ]] ],
         });
-        should(tp.reduced.length).equal(2);
-        should.deepEqual(tp.shifted, [obs[0],obs[1],obs[2]]);
+        should.deepEqual(tp.reduced[2], {
+            lhs: 'root',
+            rhsData: [[ obs[0], [[ obs[1] ]] ]],
+        });
+        should(tp.reduced.length).equal(3);
+
+        should(tp.observe(obs[i++])).equal(false); // b
+        should.deepEqual(tp.state(), [ 'aB_0', 'root_0' ]);
+        should(tp.reduced.length).equal(3);
+        should.deepEqual(tp.shifted, [obs[0],obs[1]]);
     });
-    */
 
 })
