@@ -84,6 +84,23 @@
         should(parser.grammar).not.equal(grammar); 
 
     });
+    it("TESTTESTisParsing() false at empty state", ()=> {
+        const grammar = {
+            root: 'ab',
+            ab: [ 'a', 'b' ],
+        };
+        var tp = new TestParser({
+            grammar,
+            logLevel,
+        });
+        var obs = 'ab'.split('').map((tag,i)=>new Observation(tag,i));
+        var i = 0;
+        should(tp.isParsing).equal(false);
+        should(tp.observe(obs[i++])).equal(true); // a
+        should(tp.isParsing).equal(true);
+        should(tp.observe(obs[i++])).equal(true); // b
+        should(tp.isParsing).equal(false);
+    });
     it("observe() consumes valid terminal sequence", ()=>{
         const grammar = {
             root: 'abc',
@@ -898,7 +915,7 @@
                 root: 'aBCd',
                 aBCd: ['a', ALT('b','c'), 'd'], 
             },
-            logLevel: 'info',
+            logLevel,
         });
         var test = (text) => {
             var obs = text.split('').map((tag,i)=>new Observation(tag,i));
@@ -1020,6 +1037,42 @@
 
         test('axbd', 'B');
         test('axcd', 'C');
+    });
+    it("TESTTESTobserve() repeated error is accepted", ()=>{
+        var tp = new TestParser({
+            grammar: {
+                root: 'ab',
+                ab: ['a', 'b'],
+            },
+            logLevel,
+        });
+        var obs = [
+            new Observation('a','1','g'),  // mistaken input
+            new Observation('a','1','oz'), // intended input (rejected)
+            new Observation('a','1','oz'), // intended input (again)
+            new Observation('b','1','oz'), // intended input
+        ];
+        var i = 0;
+
+        should(tp.observe(obs[i++])).equal(true); // a
+        should.deepEqual(tp.state(), [ 'ab_1', 'root_0' ]);
+        should(tp.isParsing).equal(true);
+
+        // first error is discarded awaiting correct input
+        should(tp.observe(obs[i++])).equal(false); // reject
+        should(tp.obError).equal(obs[1]);
+        should(tp.isParsing).equal(true);
+
+        // repeated error clears parser 
+        should(tp.observe(obs[i++])).equal(true); // accept
+        should.deepEqual(tp.state(), [ 'ab_1', 'root_0' ]);
+        should(tp.obError).equal(undefined);
+        should(tp.isParsing).equal(true);
+
+        // parsing resumes
+        should(tp.observe(obs[i++])).equal(true); // b
+        should.deepEqual(tp.state(), [ ]);
+        should(tp.isParsing).equal(false);
     });
 
 })

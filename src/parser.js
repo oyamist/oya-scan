@@ -21,10 +21,20 @@
 
     class Parser {
         constructor(opts = {}) {
-            this.ob = undefined;
+            this.logLevel = opts.logLevel; // error, warn, info, debug
             this.grammar = new Grammar(opts.grammar);
             this.clearAll();
-            this.logLevel = opts.logLevel; // error, warn, info, debug
+        }
+
+        get isParsing() {
+            var {
+                stack,
+                lookahead,
+            } = this;
+            if (stack.length===0 && lookahead.length===0) {
+                return false;
+            }
+            return true;
         }
 
         dumpList(list) {
@@ -32,6 +42,14 @@
                 ? `[${this.dumpList(d)}]` 
                 : ""+d
             );
+        }
+
+        onReady() {
+            if (this.logLevel) {
+                var name = this.constructor.name;
+                var msg = `${name} awaiting input`;
+                logger[this.logLevel](msg);
+            }
         }
 
         onReduce(tos) { 
@@ -100,9 +118,15 @@
         clearAll() {
             this.lookahead = []; // input observations
             this.stack = []; // execution stack
+            this.obError = undefined;
+            this.onReady();
         }
 
         observe(ob) {
+            var obError = this.obError;
+            if (obError && ob.toString() === obError.toString()) {
+                this.clearAll();
+            }
             var {
                 lookahead,
                 logLevel,
@@ -120,9 +144,14 @@
             }
             var res = this.step();
             if (res) {
+                this.obError = undefined;
                 while (this.reduce()) {}
+                if (!this.isParsing) {
+                    this.onReady();
+                }
             } else {
                 this.reject(ob);
+                this.obError = ob;
                 this.clearObservation();
             }
             return res;
@@ -275,45 +304,13 @@
                 return this.stepAlt();
             }
 
-            throw new Error(`${lhs} Invalid rhs`);
-
+            throw new Error(`${lhs} has invalid rhs:${rhs}`);
         }
 
         state() {
             return this.stack.map(s => `${s.lhs}_${s.index}`);
         }
 
-        peek(tag) {
-            var {
-                ob,
-            } = this;
-            if (ob == null) {
-                throw new Error("No observations to parse");
-            }
-            if (ob.tag !== tag) {
-                return false;
-            }
-
-            observeNext();
-            return true;
-        }
-
-        expect(tag) {
-            var {
-                ob,
-            } = this;
-            if (ob == null) {
-                throw new Error("No observations to parse");
-            }
-            if (tag !== ob.tag) {
-                throw new Error(`Expected ${tag}`);
-            }
-
-            return true;
-        }
-
-        number() {
-        }
     }
 
     module.exports = exports.Parser = Parser;
