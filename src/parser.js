@@ -246,9 +246,8 @@
                 } else {
                     continue;
                 }
-                stack[0].index++;
-                return this.step();
             }
+            return false;
         }
 
         step() {
