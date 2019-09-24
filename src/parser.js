@@ -37,9 +37,9 @@
             return true;
         }
 
-        dumpList(list) {
+        arrayString(list) {
             return list.map((d,i)=> d instanceof Array 
-                ? `[${this.dumpList(d)}]` 
+                ? `[${this.arrayString(d)}]` 
                 : ""+d
             );
         }
@@ -59,7 +59,7 @@
                     rhsData,
                 } = tos;
                 var name = this.constructor.name;
-                var rhsText = this.dumpList(rhsData);
+                var rhsText = this.arrayString(rhsData);
                 var msg = `${lhs}(${rhsText})`;
                 logger[this.logLevel](
                     `${name}.reduce ${msg} [${this.state()}]`);
