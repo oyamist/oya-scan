@@ -14,14 +14,21 @@
         PLUS,
     } = Grammar;
 
-    it("grammar helpers", ()=>{
-        should.deepEqual(STAR("+","-"), {
+    it("TESTTESTgrammar helpers", ()=>{
+        const a = "a";
+        const b = "b";
+        const c = "c";
+        should.deepEqual(STAR(a), {
             ebnf: "*",
-            args: [ '+', '-'],
+            args: [ a ],
         });
-        should.deepEqual(ALT("+","-"), {
+        should.deepEqual(STAR(a,b,c), {
+            ebnf: "*",
+            args: [ a, b, c ],
+        });
+        should.deepEqual(ALT(a,[b,c]), {
             ebnf: "|",
-            args: [ '+', '-'],
+            args: [ a, [b,c]],
         });
         should.deepEqual(PLUS("+","-"), {
             ebnf: "+",
@@ -51,7 +58,7 @@
             "root",
         ].sort());
     });
-    it("custom ctor", ()=>{
+    it("TESTTESTcustom ctor", ()=>{
         const gdef = {
             root: "term",
             mulOp: ALT("*","/"),
@@ -59,9 +66,31 @@
         }
         var g = new Grammar(gdef);
         should.deepEqual(g.root, [gdef.root]); // canonical
-        should.deepEqual(g.expr, gdef.expr);
+        should.deepEqual(g.mulop, gdef.mulop);
+        should.deepEqual(g.term, [
+            OPT("-"),
+            "factor",
+            STAR("term@2"),
+        ]);
+        should.deepEqual(g["term@2"], [ "mulOp", "factor", ]);
         should(JSON.stringify(g.mulOp))
             .equal('[{"ebnf":"|","args":["*","/"]}]');
+    });
+    it("TESTTESTinvalid grammars", () => {
+        const a = 'a';
+        const b = 'b';
+        const c = 'c';
+        should.throws(() => {
+            var g = new Grammar({
+                // no rules
+            });
+        });
+        should.throws(() => {
+            var g = new Grammar({
+                root: OPT([a,b]),
+            });
+            console.log(`dbg g`, JSON.stringify(g));
+        });
     });
     it("grammar with STAR is expanded", ()=>{
         const gdef = {

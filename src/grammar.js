@@ -47,6 +47,9 @@
             if (nts.length === 0) {
                 throw new Error(`Grammar has no rules`);
             }
+            if (!this.hasOwnProperty('root')) {
+                throw new Error(`Expected rule for "root"`);
+            }
             nts.forEach(nt => {
                 var value = this[nt];
                 if (value instanceof Array) {
@@ -73,6 +76,15 @@
                 var rhs = this[lhs];
                 for (var i=0; i < rhs.length; i++) {
                     var rhsi = rhs[i];
+                    if (rhsi.args instanceof Array) {
+                        for (var j=0; j< rhsi.args.length; j++) {
+                            if (rhsi.args[j] instanceof Array) {
+                                throw new Error(
+                                    `${lhs}: Arrays are not allowed `+
+                                    `in grammar helpers`);
+                            }
+                        }
+                    }
                     if (/[*?+]/.test(rhsi.ebnf) && rhsi.args.length > 1) {
                         var lhsNew = `${lhs}@${i}`;
                         var rhsNew = rhsi.args;
