@@ -975,5 +975,51 @@
         test('abd', 'B');
         test('acd', 'C');
     });
+    it("TESTTESTobserve() rejects ALT nonterminals", ()=>{
+        var tp = new TestParser({
+            grammar: {
+                root: 'aBCd',
+                aBCd: ['a', ALT('B','C'), 'd'], 
+                B: 'b',
+                C: 'c',
+            },
+            logLevel,
+        });
+        var test = (text, ntAlt) => {
+            var obs = text.split('').map((tag,i)=>new Observation(tag,i));
+            var i = 0;
+
+            tp.clearAll();
+            should(tp.observe(obs[i++])).equal(true); // a
+            should.deepEqual(tp.state(), [ 'aBCd_1', 'root_0' ]);
+            should.deepEqual(tp.reduced, []);
+
+            should(tp.observe(obs[i++])).equal(false); // x
+            should.deepEqual(tp.state(), [ 'aBCd_1', 'root_0' ]);
+            should.deepEqual(tp.reduced, []);
+
+            should(tp.observe(obs[i++])).equal(true); // b
+            should.deepEqual(tp.state(), [ 'aBCd_2', 'root_0' ]);
+            should.deepEqual(tp.reduced, [{
+                lhs: ntAlt,
+                rhsData: [ obs[2] ],
+            }]);
+
+            should(tp.observe(obs[i++])).equal(true); // d
+            should.deepEqual(tp.state(), [ ]);
+            should.deepEqual(tp.reduced[1], {
+                lhs: 'aBCd',
+                rhsData: [ obs[0], [obs[2]], obs[3] ],
+            });
+            should.deepEqual(tp.reduced[2], {
+                lhs: 'root',
+                rhsData: [[ obs[0], [obs[2]], obs[3] ]],
+            });
+            should(tp.reduced.length).equal(3);
+        }
+
+        test('axbd', 'B');
+        test('axcd', 'C');
+    });
 
 })
