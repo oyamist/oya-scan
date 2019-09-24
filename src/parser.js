@@ -218,33 +218,24 @@
             s0.rhsData[index] = matched;
             for (var iArg = 0; iArg < args.length; iArg++) {
                 var arg = args[iArg];
-                console.log(`dbg stepAlt arg`, arg);
                 if (grammar.hasOwnProperty(arg)) {
-                    console.log(`dbg OOPS`);
                     var s1 = STATE(arg);
                     stack.unshift(s1); // depth first guess
                     var ok = this.step();
                     if (ok) {
                         this.reduce(false);
-                        matched.push(s1.rhsData);
-                        if (max1) {
-                            s0.index++;
-                        }
+                        s0.rhsData[index] = s1.rhsData;
+                        s0.index++;
                         return true;
                     } 
                     // not matched
                     stack.shift(); // discard guess
-                    if (min1 && matched.length === 0) {
-                        return false;
-                    } 
                 } else if (arg === sym) { // matches current symbol
                     var ob = lookahead.shift();
                     s0.rhsData[index] = ob;
                     this.shift(ob);
                     s0.index++;
                     return true;
-                } else {
-                    continue;
                 }
             }
             return false;
