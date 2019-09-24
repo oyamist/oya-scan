@@ -14,7 +14,7 @@
         PLUS,
     } = Grammar;
 
-    it("TESTTESTgrammar helpers", ()=>{
+    it("grammar helpers", ()=>{
         const a = "a";
         const b = "b";
         const c = "c";
@@ -58,7 +58,7 @@
             "root",
         ].sort());
     });
-    it("TESTTESTcustom ctor", ()=>{
+    it("custom ctor", ()=>{
         const gdef = {
             root: "term",
             mulOp: ALT("*","/"),
@@ -76,7 +76,7 @@
         should(JSON.stringify(g.mulOp))
             .equal('[{"ebnf":"|","args":["*","/"]}]');
     });
-    it("TESTTESTinvalid grammars", () => {
+    it("invalid grammars", () => {
         const a = 'a';
         const b = 'b';
         const c = 'c';

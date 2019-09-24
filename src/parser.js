@@ -147,7 +147,7 @@
             return true;
         }
 
-        stepStar(min1=false, max1=false) { 
+        stepStar(min1=false, max1=false) {
             var {
                 grammar,
                 stack,
@@ -198,6 +198,59 @@
             return this.step();
         }
 
+        stepAlt() { 
+            var {
+                grammar,
+                stack,
+                lookahead,
+            } = this;
+            var s0 = stack[0];
+            var lhs = s0.lhs;
+            var index = s0.index;
+            var rhs = grammar[lhs];
+            var rhsi = rhs[index];
+            if (rhsi.ebnf !== '|') {
+                throw new Error(`${lhs}_${index}: expected ALT node`);
+            }
+            var args = rhsi.args;
+            var sym = lookahead[0] && lookahead[0].tag;
+            var matched = s0.rhsData[index] || [];
+            s0.rhsData[index] = matched;
+            for (var iArg = 0; iArg < args.length; iArg++) {
+                var arg = args[iArg];
+                console.log(`dbg stepAlt arg`, arg);
+                if (grammar.hasOwnProperty(arg)) {
+                    console.log(`dbg OOPS`);
+                    var s1 = STATE(arg);
+                    stack.unshift(s1); // depth first guess
+                    var ok = this.step();
+                    if (ok) {
+                        this.reduce(false);
+                        matched.push(s1.rhsData);
+                        if (max1) {
+                            s0.index++;
+                        }
+                        return true;
+                    } 
+                    // not matched
+                    stack.shift(); // discard guess
+                    if (min1 && matched.length === 0) {
+                        return false;
+                    } 
+                } else if (arg === sym) { // matches current symbol
+                    var ob = lookahead.shift();
+                    s0.rhsData[index] = ob;
+                    this.shift(ob);
+                    s0.index++;
+                    return true;
+                } else {
+                    continue;
+                }
+                stack[0].index++;
+                return this.step();
+            }
+        }
+
         step() {
             var {
                 grammar,
@@ -228,7 +281,9 @@
                 return this.stepStar(false, true);
             }
 
-            //if (rhsi.ebnf === "|") { }
+            if (rhsi.ebnf === "|") { 
+                return this.stepAlt();
+            }
 
             throw new Error(`${lhs} Invalid rhs`);
 
