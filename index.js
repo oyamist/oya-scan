@@ -1,6 +1,7 @@
 
 module.exports = {
     Grammar: require('./src/grammar'),
+    GrammarFactory: require('./src/grammar-factory'),
     GuidStore: require('./src/guid-store'),
     Observation: require('./src/observation'),
     Parser: require('./src/parser'),
