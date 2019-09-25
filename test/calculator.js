@@ -54,8 +54,9 @@
         }
 
         reduce_signed_number(lhs, rhsData) {
-            var ob = new Observation(number, -rhsData[1].value);
-            return ob;
+            return rhsData[0].length 
+                ? new Observation(number, -rhsData[1].value)
+                : rhsData[1];
         }
 
         reduce_number(lhs, rhsData) {
@@ -118,8 +119,9 @@
     it("TESTTESTparses signed_number", ()=> {
         var calc = new Calculator({
             grammar: gf.create(gf.add_signed_number()),
-            logLevel: 'info',
+            logLevel,
         });
         testCalc(calc, '-123=', 'number:-123');
+        testCalc(calc, '123=', 'number:123');
     });
 })

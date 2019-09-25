@@ -133,10 +133,10 @@
             return s;
         }
 
-        toString(g = this) {
-            return g.nonterminals
+        toString(prefix='  ') {
+            return this.nonterminals
                 .sort()
-                .map(lhs => g.ruleToString(lhs))
+                .map(lhs => prefix+this.ruleToString(lhs))
                 .join('\n');
         }
 
