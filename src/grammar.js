@@ -32,9 +32,14 @@
 
     class Grammar {
         constructor(g = GRAMMAR) {
-            g = JSON.parse(JSON.stringify(g));
-            Object.assign(this, g);
-            Grammar.validate(this);
+            if (g instanceof Grammar) {
+                g = JSON.parse(JSON.stringify(g));
+                Object.assign(this, g);
+            } else {
+                g = JSON.parse(JSON.stringify(g));
+                Object.assign(this, g);
+            }
+            this.validate();
         }
 
         static get STAR() { return STAR; } // Grammar helper zero or more
@@ -42,7 +47,7 @@
         static get ALT() { return ALT; } // Grammar helper alternation
         static get OPT() { return OPT; } // Grammar helper zero or one
 
-        static validate(g) {
+        validate(g=this) {
             var nts = Object.keys(g).sort();
             if (nts.length === 0) {
                 throw new Error(`Grammar has no rules`);
