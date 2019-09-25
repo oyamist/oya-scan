@@ -60,8 +60,12 @@
             this.rhsMap[lhs] = rhs;
         }
 
+        get nonterminals() {
+            return Object.keys(this.rhsMap);
+        }
+
         validate(g=this) {
-            var nts = Object.keys(g).sort();
+            var nts = g.nonterminals.sort();
             if (nts.length === 0) {
                 throw new Error(`Grammar has no rules`);
             }
