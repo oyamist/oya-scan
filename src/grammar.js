@@ -1,5 +1,5 @@
 (function(exports) {
-    var todo = 1;
+    var todo = 0;
     const fs = require('fs');
     const path = require('path');
     const {

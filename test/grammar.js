@@ -39,7 +39,7 @@
             args: [ '+', '-'],
         });
     });
-    it("default ctor", ()=>{
+    it("TESTTESTdefault ctor", ()=>{
         var g = new Grammar();
         should(g).instanceOf(Grammar);
         should.deepEqual(g.rhs('root'), ["expr"]);
@@ -49,7 +49,7 @@
             "term", 
             STAR("expr@2"), // generated
         ]);
-        should.deepEqual(g[`expr@2`], // generated
+        should.deepEqual(g.rhs('expr@2'), // generated
             [ "addOp", "term" ]); 
         should.deepEqual(g.nonterminals.sort(), [
             "addOp",
@@ -72,7 +72,7 @@
             "factor",
             STAR("term@2"),
         ]);
-        should.deepEqual(g["term@2"], [ "mulOp", "factor", ]);
+        should.deepEqual(g.rhs('term@2'), [ "mulOp", "factor", ]);
         should(JSON.stringify(g.rhs('mulOp')))
             .equal('[{"ebnf":"|","args":["*","/"]}]');
     });
@@ -100,10 +100,10 @@
         var g = new Grammar(gdef);
 
         // rewrite grammar for monadic STAR 
-        should.deepEqual(g['root'], ["ab"]);
-        should.deepEqual(g['ab'], ['a', STAR('ab@1')]);
-        should.deepEqual(g['ab@1'], ['b', 'c']);
-        should.deepEqual(Object.keys(g).sort(), 
+        should.deepEqual(g.rhs('root'), ["ab"]);
+        should.deepEqual(g.rhs('ab'), ['a', STAR('ab@1')]);
+        should.deepEqual(g.rhs('ab@1'), ['b', 'c']);
+        should.deepEqual(g.nonterminals.sort(), 
             [ "root", "ab", "ab@1", ].sort());
     });
 })

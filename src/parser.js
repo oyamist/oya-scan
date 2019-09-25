@@ -198,7 +198,7 @@
             var sym = lookahead[0] && lookahead[0].tag;
             var matched = s0.rhsData[index] || [];
             s0.rhsData[index] = matched;
-            if (grammar.hasOwnProperty(arg)) {
+            if (grammar.rhs(arg)) {
                 var s1 = STATE(arg);
                 stack.unshift(s1); // depth first guess
                 var ok = this.step();
@@ -254,7 +254,7 @@
             s0.rhsData[index] = matched;
             for (var iArg = 0; iArg < args.length; iArg++) {
                 var arg = args[iArg];
-                if (grammar.hasOwnProperty(arg)) {
+                if (grammar.rhs(arg)) {
                     var s1 = STATE(arg);
                     stack.unshift(s1); // depth first guess
                     var ok = this.step();
@@ -293,7 +293,7 @@
             if (rhsi == null) {
                 throw new Error(`Parse error: ${lhs}_${index} does not exist`);
             }
-            if (grammar.hasOwnProperty(rhsi)) { // non-terminal
+            if (grammar.rhs(rhsi)) { // non-terminal
                 stack.unshift(STATE(rhsi));
                 return this.step();
             } 
