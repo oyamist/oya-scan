@@ -172,7 +172,7 @@
         var ob = scanner.scan("123.456");  // no match
         should.deepEqual(ob, new Observation("scanned", "123.456", ob.t));
     });
-    it("transform(is,os) transforms input to output stream", (done) => {
+    it("TESTTESTtransform(is,os) transforms input to output stream", (done) => {
         (async function() { try {
             var scanner = new Scanner({
                 map: TESTMAP,

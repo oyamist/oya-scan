@@ -15,7 +15,21 @@
     class GrammarFactory {
         constructor(opts={}) {
             this.template = opts.template || {};
+
+            // Define terminals for input Observation tags.
             this.digit = opts.digit || 'digit';
+            this.id = opts.id || 'id';
+            this.minus = opts.minus || '-';
+            this.plus = opts.plus || '+';
+            this.multiply = opts.multiply || '*';
+            this.divide = opts.divide || '/';
+            this.lpar = opts.lpar || '(';
+            this.rpar = opts.rpar || ')';
+
+            // The "enter" terminal can be used to force a reduce
+            opts.enter && (this.enter = opts.enter); 
+
+            // rename nonterminals for use in messages
             this.number = opts.number || 'number';
             this.signed_number = opts.signed_number || 'signed_number';
             this.term = opts.term || 'term';
@@ -23,17 +37,8 @@
             this.signed_factor = opts.signed_factor || 'signed_factor';
             this.paren_expr = opts.paren_expr || 'paren_expr';
             this.expr = opts.expr || 'expr';
-            this.id = opts.id || 'id';
             this.mulop = opts.mulop || 'mulop';
             this.addop = opts.addop || 'addop';
-            this.minus = opts.minus || '-';
-            this.plus = opts.plus || '+';
-            this.multiply = opts.star || '*';
-            this.divide = opts.slash || '/';
-            this.multiply = opts.multiply || '*';
-            this.divide = opts.divide || '/';
-            this.lpar = opts.lpar || '(';
-            this.rpar = opts.rpar || ')';
         }
 
         add_number(number = this.number) {
@@ -147,9 +152,10 @@
         }
 
 
-        create(ntRoot=this.expr) {
+        create(ntRoot=this.expr, enter=this.enter) {
             var t = this.template;
-            t.root = ntRoot;
+            t.root = [ ntRoot ];
+            enter && t.root.push(enter);
             return new Grammar(this.template);
         }
 

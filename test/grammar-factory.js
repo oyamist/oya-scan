@@ -1,5 +1,4 @@
-
-(typeof describe === 'function') && describe("grammar", function() {
+(typeof describe === 'function') && describe("grammar-factory", function() {
     const should = require("should");
     const fs = require('fs');
     const path = require('path');
@@ -23,6 +22,7 @@
     const term = 'term';
     const term1 = 'term@1';
     const signed_factor = 'signed_factor';
+    const enter = 'enter';
     const expr = 'expr';
     const expr1 = 'expr@1';
     const mulop = 'mulop';
@@ -71,66 +71,73 @@
         });
     });
     it("TESTTESTcustom ctor", ()=>{
+        let addOp = 'AO';
         let digit = 'D';
-        let number = 'N';
-        let signed_number = 'SN';
-        let factor = 'F';
-        let signed_factor = 'SF';
+        let divide = '|';
+        let enter = '=';
         let expr = 'E';
+        let factor = 'F';
         let id = 'ID';
         let lpar = '[';
-        let rpar = ']';
         let minus = '!';
-        let plus = '#';
-        let multiply = 'x';
-        let divide = '|';
-        let paren_expr = 'PE';
         let mulop = 'MD';
-        let term = 'T';
+        let multiply = 'x';
+        let number = 'N';
+        let paren_expr = 'PE';
+        let plus = '#';
         let root = 'ROOT';
+        let rpar = ']';
+        let signed_factor = 'SF';
+        let signed_number = 'SN';
+        let term = 'T';
+
         var gf = new GrammarFactory({
+            addop,
             digit,
-            number,
-            signed_number,
-            factor,
-            signed_factor,
+            divide,
+            enter,
             expr,
+            factor,
             id,
             lpar,
-            rpar,
-            paren_expr,
             minus,
-            plus,
-            multiply,
-            divide,
             mulop,
-            addop,
+            multiply,
+            number,
+            paren_expr,
+            plus,
+            rpar,
+            signed_factor,
+            signed_number,
             term,
+
         });
         should(gf).instanceOf(GrammarFactory);
         should(gf).properties({
             template: {},
+            addop,
             digit,
-            number,
-            signed_number,
-            factor,
-            signed_factor,
+            divide,
+            enter,
             expr,
+            factor,
             id,
             lpar,
-            rpar,
-            paren_expr,
             minus,
-            plus,
-            multiply,
-            divide,
             mulop,
-            addop,
+            multiply,
+            number,
+            paren_expr,
+            plus,
+            rpar,
+            signed_factor,
+            signed_number,
             term,
+
         });
     });
 
-    it("TESTTESTadd_number() one or more digits", ()=> {
+    it("add_number() one or more digits", ()=> {
         var gf = new GrammarFactory();
 
         should(gf.add_number()).equal(number);
@@ -140,7 +147,7 @@
         should.deepEqual(g.root, [number] );
         should.deepEqual(g[number], rhs_number);
     });
-    it("TESTTESTadd_signed_number()", ()=> {
+    it("add_signed_number()", ()=> {
         var gf = new GrammarFactory();
 
         should(gf.add_signed_number()).equal(signed_number);
@@ -151,13 +158,13 @@
         should.deepEqual(g[signed_number], rhs_signed_number);
         should.deepEqual(g[number], rhs_number);
     });
-    it("TESTTESTadd_paren_expr()", ()=>{
+    it("add_paren_expr()", ()=>{
         var gf = new GrammarFactory();
 
         should(gf.add_paren_expr()).equal(paren_expr);
         should.deepEqual(gf.template.paren_expr, rhs_paren_expr);
     });
-    it("TESTTESTadd_factor()", ()=> {
+    it("add_factor()", ()=> {
         var gf = new GrammarFactory();
 
         should(gf.add_factor()).equal(factor);
@@ -170,7 +177,7 @@
         should.deepEqual(g[paren_expr], rhs_paren_expr);
         should.deepEqual(g[number], rhs_number);
     });
-    it("TESTTESTadd_signed_factor()", ()=> {
+    it("add_signed_factor()", ()=> {
         var gf = new GrammarFactory();
 
         should(gf.add_signed_factor()).equal(signed_factor);
@@ -184,7 +191,7 @@
         should.deepEqual(g[paren_expr], rhs_paren_expr);
         should.deepEqual(g[number], rhs_number);
     });
-    it("TESTTESTadd_mulop()", ()=> {
+    it("add_mulop()", ()=> {
         var gf = new GrammarFactory();
 
         should(gf.add_mulop()).equal(mulop);
@@ -194,7 +201,7 @@
         should.deepEqual(g.root, [mulop] );
         should.deepEqual(g[mulop], rhs_mulop);
     });
-    it("TESTTESTadd_term()", ()=> {
+    it("add_term()", ()=> {
         var gf = new GrammarFactory();
 
         should(gf.add_term()).equal(term);
@@ -204,7 +211,7 @@
         should.deepEqual(g[term], rhs_term);
         should.deepEqual(g[term1], rhs_term1);
     });
-    it("TESTTESTadd_addop()", ()=> {
+    it("add_addop()", ()=> {
         var gf = new GrammarFactory();
 
         should(gf.add_addop()).equal(addop);
@@ -214,7 +221,7 @@
         should.deepEqual(g.root, [addop] );
         should.deepEqual(g[addop], rhs_addop);
     });
-    it("TESTTESTadd_expr()", ()=> {
+    it("add_expr()", ()=> {
         var gf = new GrammarFactory();
 
         should(gf.add_expr()).equal(expr);
@@ -224,10 +231,11 @@
         should.deepEqual(g[expr], rhs_expr);
         should.deepEqual(g[expr1], rhs_expr1);
 
+        // Default grammar is the expression grammar
         var gdefault = gf.create();
         should.deepEqual(gdefault, g);
     });
-    it("TESTTESTcreate() uses custom nonterminals", ()=> {
+    it("create() uses custom nonterminals", ()=> {
         let number = 'N';
         let digit = 'D';
         let root = 'R';

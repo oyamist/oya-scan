@@ -84,7 +84,7 @@
         should(parser.grammar).not.equal(grammar); 
 
     });
-    it("TESTTESTisParsing() false at empty state", ()=> {
+    it("isParsing() false at empty state", ()=> {
         const grammar = {
             root: 'ab',
             ab: [ 'a', 'b' ],
@@ -872,7 +872,7 @@
         should(tp.reduced.length).equal(3);
         should.deepEqual(tp.shifted, [obs[0],obs[1]]);
     });
-    it("TESTTESTobserve() consumes ALT terminals", ()=>{
+    it("observe() consumes ALT terminals", ()=>{
         var tp = new TestParser({
             grammar: {
                 root: 'aBCd',
@@ -909,7 +909,7 @@
         test('abd');
         test('acd');
     });
-    it("TESTTESTobserve() rejects invalid ALT terminals", ()=>{
+    it("observe() rejects invalid ALT terminals", ()=>{
         var tp = new TestParser({
             grammar: {
                 root: 'aBCd',
@@ -950,7 +950,7 @@
 
         test('axcd');
     });
-    it("TESTTESTobserve() consumes ALT nonterminals", ()=>{
+    it("observe() consumes ALT nonterminals", ()=>{
         var tp = new TestParser({
             grammar: {
                 root: 'aBCd',
@@ -992,7 +992,7 @@
         test('abd', 'B');
         test('acd', 'C');
     });
-    it("TESTTESTobserve() rejects ALT nonterminals", ()=>{
+    it("observe() rejects ALT nonterminals", ()=>{
         var tp = new TestParser({
             grammar: {
                 root: 'aBCd',
@@ -1038,7 +1038,7 @@
         test('axbd', 'B');
         test('axcd', 'C');
     });
-    it("TESTTESTobserve() repeated error is accepted", ()=>{
+    it("observe() repeated error is accepted", ()=>{
         var tp = new TestParser({
             grammar: {
                 root: 'ab',

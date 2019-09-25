@@ -77,8 +77,15 @@
         onReject(ob) {
             if (this.logLevel) {
                 var name = this.constructor.name;
+                var {
+                    lhs,
+                    args,
+                    index,
+                } = this.stack[0];
+                var rule = Grammar.ruleToString(lhs, this.grammar[lhs]);
                 logger[this.logLevel](
-                    `${name}.reject ${ob} [${this.state()}]`);
+                    `${name}.reject(${ob}) at rhs[${index}]\n`+
+                    `    ${rule}`);
             }
         }
 
@@ -276,6 +283,9 @@
                 stack,
             } = this;
             while (this.reduce()) {}
+            if (stack.length === 0) {
+                return false;
+            }
             var lhs = stack[0].lhs;
             var rhs = grammar[lhs];
             var index = stack[0].index;

@@ -1,4 +1,4 @@
-(typeof describe === 'function') && describe("Workspace", function() {
+(typeof describe === 'function') && describe("workspace", function() {
     const fs = require('fs');
     const path = require('path');
     const winston = require('winston');

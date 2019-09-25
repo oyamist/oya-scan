@@ -1,4 +1,4 @@
-(typeof describe === 'function') && describe("Thing", function() {
+(typeof describe === 'function') && describe("thing", function() {
     const winston = require('winston');
     const should = require("should");
     const {
@@ -568,7 +568,8 @@
         var days2 = 2 * days1;
         var t2 = new Date(t1.getTime() + days2);
         thing.observe(HARVESTED, 1, t2); // Harvested 1 tomato
-        should(thing.ageSinceTag(HARVESTED)).equal(Date.now() - t2);
+        var elapsed = Date.now() - t2;
+        should(thing.ageSinceTag(HARVESTED)).equal(elapsed);
 
         // Multiple observations uses most recent
         var t3 = new Date(t2.getTime() + days1);

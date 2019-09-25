@@ -1,4 +1,4 @@
-(typeof describe === 'function') && describe("Observation", function() {
+(typeof describe === 'function') && describe("observation", function() {
     const winston = require('winston');
     const should = require("should");
     const {
