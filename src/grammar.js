@@ -33,20 +33,19 @@
     class Grammar {
         constructor(g = GRAMMAR) {
             if (g instanceof Grammar) {
-                g = JSON.parse(JSON.stringify(g));
-                Object.assign(this, g); // TODO
-                Object.defineProperty(this, 'lhsRhsMap', {
-                    value: g.lhsRhsMap,
+                1 && Object.assign(this, g); // TODO
+                Object.defineProperty(this, 'rhsMap', {
+                    value: g.rhsMap,
                 });
             } else {
                 g = JSON.parse(JSON.stringify(g));
                 Object.assign(this, g);
-                Object.defineProperty(this, 'lhsRhsMap', {
+                Object.defineProperty(this, 'rhsMap', {
                     value: g,
                 });
             }
             Object.defineProperty(this, 'rhs', {
-                value: (lhs => g.lhsRhsMap[lhs]),
+                value: (lhs => this.rhsMap[lhs]),
             });
             this.validate();
         }
@@ -55,6 +54,11 @@
         static get PLUS() { return PLUS; } // Grammar helper one or more
         static get ALT() { return ALT; } // Grammar helper alternation
         static get OPT() { return OPT; } // Grammar helper zero or one
+
+        addRule(lhs, rhs) {
+            this[lhs] = rhs; // TODO
+            this.rhsMap[lhs] = rhs;
+        }
 
         validate(g=this) {
             var nts = Object.keys(g).sort();
@@ -65,12 +69,12 @@
                 throw new Error(`Expected rule for "root"`);
             }
             nts.forEach(nt => {
-                var value = g[nt];
+                var value = g.rhs(nt);
                 if (value instanceof Array) {
                     // canonical rule body
                 } else {
                     value = [value];
-                    g[nt] = value; // make canonical
+                    g.addRule(nt, value);
                 }
             });
             nts.forEach(lhs => {
@@ -90,6 +94,9 @@
                 var rhs = g[lhs];
                 for (var i=0; i < rhs.length; i++) {
                     var rhsi = rhs[i];
+                    if (!rhsi) {
+                        throw new Error(`Invalid rule ${lhs} ${rhs}`);
+                    }
                     if (rhsi.args instanceof Array) {
                         for (var j=0; j< rhsi.args.length; j++) {
                             if (rhsi.args[j] instanceof Array) {
@@ -102,7 +109,7 @@
                     if (/[*?+]/.test(rhsi.ebnf) && rhsi.args.length > 1) {
                         var lhsNew = `${lhs}@${i}`;
                         var rhsNew = rhsi.args;
-                        g[lhsNew] = rhsNew;
+                        g.addRule(lhsNew, rhsNew);
                         rhsi.args = [ lhsNew ];
                     }
                 }

@@ -64,7 +64,7 @@
 
         should.deepEqual(parser.state(), [ ]);
     });
-    it("custom ctor", ()=>{
+    it("TESTTESTcustom ctor", ()=>{
         const gdef = {
             root: "term",
             mulOp: ALT("*","/"),
