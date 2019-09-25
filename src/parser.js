@@ -82,7 +82,7 @@
                     args,
                     index,
                 } = this.stack[0];
-                var rule = Grammar.ruleToString(lhs, this.grammar[lhs]);
+                var rule = Grammar.ruleToString(lhs, this.grammar.rhs(lhs));
                 logger[this.logLevel](
                     `${name}.reject(${ob}) at rhs[${index}]\n`+
                     `    ${rule}`);
@@ -96,7 +96,7 @@
             } = this;
             var s0 = stack[0];
             var s1 = stack[1];
-            if (!s0 || s0.index < grammar[s0.lhs].length) {
+            if (!s0 || s0.index < grammar.rhs(s0.lhs).length) {
                 return false; // not at end of rule
             }
 
@@ -171,7 +171,7 @@
                 lookahead,
             } = this;
             var sym = lookahead[0] && lookahead[0].tag;
-            var rhs = grammar[stack[0].lhs];
+            var rhs = grammar.rhs(stack[0].lhs);
             var rhsi = rhs[stack[0].index];
             if (rhsi !== sym) {
                 return false;
@@ -192,7 +192,7 @@
             var s0 = stack[0];
             var lhs = s0.lhs;
             var index = s0.index;
-            var rhs = grammar[lhs];
+            var rhs = grammar.rhs(lhs);
             var rhsi = rhs[index];
             var arg = rhsi.args[0]; // STAR is monadic
             var sym = lookahead[0] && lookahead[0].tag;
@@ -243,7 +243,7 @@
             var s0 = stack[0];
             var lhs = s0.lhs;
             var index = s0.index;
-            var rhs = grammar[lhs];
+            var rhs = grammar.rhs(lhs);
             var rhsi = rhs[index];
             if (rhsi.ebnf !== '|') {
                 throw new Error(`${lhs}_${index}: expected ALT node`);
@@ -287,7 +287,7 @@
                 return false;
             }
             var lhs = stack[0].lhs;
-            var rhs = grammar[lhs];
+            var rhs = grammar.rhs(lhs);
             var index = stack[0].index;
             var rhsi = rhs[index];
             if (rhsi == null) {

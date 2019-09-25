@@ -156,7 +156,7 @@
             var t = this.template;
             t.root = [ ntRoot ];
             enter && t.root.push(enter);
-            return new Grammar(this.template);
+            return new Grammar(t);
         }
 
     }

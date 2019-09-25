@@ -32,14 +32,15 @@
 
     class Grammar {
         constructor(g = GRAMMAR) {
+            var todo = 1;
             if (g instanceof Grammar) {
-                1 && Object.assign(this, g); // TODO
+                todo && Object.assign(this, g); // TODO
                 Object.defineProperty(this, 'rhsMap', {
                     value: g.rhsMap,
                 });
             } else {
                 g = JSON.parse(JSON.stringify(g));
-                Object.assign(this, g);
+                todo && Object.assign(this, g);
                 Object.defineProperty(this, 'rhsMap', {
                     value: g,
                 });
@@ -69,7 +70,7 @@
             if (nts.length === 0) {
                 throw new Error(`Grammar has no rules`);
             }
-            if (!g.hasOwnProperty('root')) {
+            if (!g.rhsMap.hasOwnProperty('root')) {
                 throw new Error(`Expected rule for "root"`);
             }
             nts.forEach(nt => {
