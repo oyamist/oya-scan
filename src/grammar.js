@@ -78,11 +78,11 @@
                 }
             });
             nts.forEach(lhs => {
-                var rhs = g[lhs];
+                var rhs = g.rhs(lhs);
                 if (!rhs) {
                     throw new Error(`Grammar has no rule for:"${lhs}"`);
                 }
-                var rhs = g[lhs];
+                var rhs = g.rhs(lhs);
                 if (!(rhs instanceof Array)) {
                     throw new Error(
                         `${lhs}: rhs must be Array ${rhs}`);
@@ -91,7 +91,7 @@
 
             // Rewrite grammar for EBNF rules
             nts.forEach(lhs => {
-                var rhs = g[lhs];
+                var rhs = g.rhs(lhs);
                 for (var i=0; i < rhs.length; i++) {
                     var rhsi = rhs[i];
                     if (!rhsi) {
@@ -137,7 +137,7 @@
 
         static grammarToString(g) {
             return Object.keys(g).sort().map(lhs => ( 
-                Grammar.ruleToString(lhs, g[lhs])
+                Grammar.ruleToString(lhs, g.rhs(lhs))
             )).join('\n');
         }
 
