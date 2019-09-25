@@ -82,7 +82,7 @@
                     args,
                     index,
                 } = this.stack[0];
-                var rule = Grammar.ruleToString(lhs, this.grammar.rhs(lhs));
+                var rule = Grammar.ruleToString(lhs);
                 logger[this.logLevel](
                     `${name}.reject(${ob}) at rhs[${index}]\n`+
                     `    ${rule}`);

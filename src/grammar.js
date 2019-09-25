@@ -30,9 +30,10 @@
         expr: [ OPT("addOp"), "term", STAR("addOp", "term")],
     }
 
+    var todo = 1;
+
     class Grammar {
         constructor(g = GRAMMAR) {
-            var todo = 1;
             if (g instanceof Grammar) {
                 todo && Object.assign(this, g); // TODO
                 Object.defineProperty(this, 'rhsMap', {
@@ -57,7 +58,7 @@
         static get OPT() { return OPT; } // Grammar helper zero or one
 
         addRule(lhs, rhs) {
-            this[lhs] = rhs; // TODO
+            todo && (this[lhs] = rhs); // TODO
             this.rhsMap[lhs] = rhs;
         }
 
@@ -122,7 +123,7 @@
             return g;
         }
 
-        static ruleToString(lhs, rhs) {
+        ruleToString(lhs, rhs=this.rhs(lhs)) {
             var s = rhs.reduce((a,r) => {
                 switch (r.ebnf) {
                     case '*':
@@ -140,10 +141,11 @@
             return s;
         }
 
-        static grammarToString(g) {
-            return Object.keys(g).sort().map(lhs => ( 
-                Grammar.ruleToString(lhs, g.rhs(lhs))
-            )).join('\n');
+        toString(g = this) {
+            return g.nonterminals
+                .sort()
+                .map(lhs => g.ruleToString(lhs))
+                .join('\n');
         }
 
 

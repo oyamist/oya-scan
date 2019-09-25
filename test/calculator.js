@@ -86,7 +86,7 @@
                 `testCalc expect: "${input}" => "${expected}"`
             );
             logger[logLevel](`grammar\n`+
-                Grammar.grammarToString(calc.grammar));
+                calc.grammar.toString());
         }
         calc.clearAll();
         obs.forEach(ob => {
