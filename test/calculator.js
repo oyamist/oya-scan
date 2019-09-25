@@ -53,22 +53,28 @@
             return opts;
         }
 
+        reduce_signed_number(lhs, rhsData) {
+            var ob = new Observation(number, -rhsData[1].value);
+            return ob;
+        }
+
+        reduce_number(lhs, rhsData) {
+            rhsData = rhsData.reduce((a,v) => a.concat(v),[]); // flat(1)
+            var digits = rhsData.reduce( 
+                (acc,ob) => `${acc}${ob.value}`, 
+                '0');
+            return new Observation(number, Number(digits));
+        }
+
         onReduce(tos) {
             super.onReduce(tos);
             var {
                 lhs,
                 rhsData,
             } = tos;
-            console.log(`${lhs}(${rhsData})`);
-            if (lhs === number) {
-                rhsData = rhsData.reduce((a,v) => a.concat(v),[]); // flat(1)
-                var digits = rhsData.reduce( (acc,ob) => {
-                    let value = ob.value;
-                    acc = `${acc}${value}`;
-                    console.log(`dbg reduce ${acc}`, value, ob);
-                    return acc;
-                }, '0');
-                tos.rhsData = new Observation(number, Number(digits));
+            var m = `reduce_${lhs}`;
+            if (typeof this[m] === 'function') {
+                tos.rhsData = this[m](lhs, rhsData);
             } else if (lhs === root) {
                 this.answer = rhsData[0];
             }
@@ -101,16 +107,15 @@
         should(g).instanceOf(Grammar);
         should.deepEqual(g.rhs('root'), [expr, enter]);
     });
-    it("TESTTESTparses number", ()=> {
+    it("parses number", ()=> {
         gf.add_number();
         var calc = new Calculator({
             grammar: gf.create(gf.add_number()),
-            logLevel: 'info',
+            logLevel,
         });
         testCalc(calc, '123=', 'number:123');
     });
     it("TESTTESTparses signed_number", ()=> {
-        return; // TODO dbg
         var calc = new Calculator({
             grammar: gf.create(gf.add_signed_number()),
             logLevel: 'info',
