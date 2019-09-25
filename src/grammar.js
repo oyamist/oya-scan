@@ -1,5 +1,4 @@
 (function(exports) {
-    var todo = 0;
     const fs = require('fs');
     const path = require('path');
     const {
@@ -35,20 +34,10 @@
     class Grammar {
         constructor(g = GRAMMAR) {
             if (g instanceof Grammar) {
-                todo && Object.assign(this, g); // TODO
-                Object.defineProperty(this, 'rhsMap', {
-                    value: g.rhsMap,
-                });
+                this.rhsMap = JSON.parse(JSON.stringify(g.rhsMap));
             } else {
-                g = JSON.parse(JSON.stringify(g));
-                todo && Object.assign(this, g);
-                Object.defineProperty(this, 'rhsMap', {
-                    value: g,
-                });
+                this.rhsMap = JSON.parse(JSON.stringify(g));
             }
-            Object.defineProperty(this, 'rhs', {
-                value: (lhs => this.rhsMap[lhs]),
-            });
             this.validate();
         }
 
@@ -57,8 +46,11 @@
         static get ALT() { return ALT; } // Grammar helper alternation
         static get OPT() { return OPT; } // Grammar helper zero or one
 
+        rhs(lhs) {
+            return this.rhsMap[lhs];
+        }
+
         addRule(lhs, rhs) {
-            todo && (this[lhs] = rhs); // TODO
             this.rhsMap[lhs] = rhs;
         }
 
