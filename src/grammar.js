@@ -35,16 +35,19 @@
             if (g instanceof Grammar) {
                 g = JSON.parse(JSON.stringify(g));
                 Object.assign(this, g); // TODO
-                Object.defineProperty(this, 'rules', {
-                    value: g.rules,
+                Object.defineProperty(this, 'lhsRhsMap', {
+                    value: g.lhsRhsMap,
                 });
             } else {
                 g = JSON.parse(JSON.stringify(g));
                 Object.assign(this, g);
-                Object.defineProperty(this, 'rules', {
+                Object.defineProperty(this, 'lhsRhsMap', {
                     value: g,
                 });
             }
+            Object.defineProperty(this, 'rhs', {
+                value: (lhs => g.lhsRhsMap[lhs]),
+            });
             this.validate();
         }
 
