@@ -1,4 +1,5 @@
 (function(exports) {
+    var todo = 2;
     const fs = require('fs');
     const path = require('path');
     const {
@@ -30,7 +31,6 @@
         expr: [ OPT("addOp"), "term", STAR("addOp", "term")],
     }
 
-    var todo = 1;
 
     class Grammar {
         constructor(g = GRAMMAR) {
