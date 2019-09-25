@@ -195,9 +195,11 @@
 
             // output stream has one observation per line
             should(fs.existsSync(ospath));
-            var odata = fs.readFileSync(ospath).toString();
+            var odata = fs.readFileSync(ospath);
+            var otext = odata.toString();
             //console.log(`dbg odata`, odata);
-            var ojs = odata.trim().split('\n').map(line => line && JSON.parse(line));
+            var ojs = otext.trim().split('\n').map(line => 
+                line && JSON.parse(line));
             should(ojs[0]).properties({ // a001
                 tag: 'color',
                 value: 'red',
