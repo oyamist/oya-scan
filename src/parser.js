@@ -62,7 +62,7 @@
                 var rhsText = this.arrayString(rhsData);
                 var msg = `${lhs}(${rhsText})`;
                 logger[this.logLevel](
-                    `${name}.reduce ${msg} [${this.state()}]`);
+                    `${name}.reduce ${msg} => [${this.state(1)}]`);
             }
         }
 
@@ -70,7 +70,7 @@
             if (this.logLevel) {
                 var name = this.constructor.name;
                 logger[this.logLevel](
-                    `${name}.shift ${ob} [${this.state()}]`);
+                    `${name}.shift(${ob}) [${this.state()}]`);
             }
         }
 
@@ -317,8 +317,9 @@
             throw new Error(`${lhs} has invalid rhs:${rhs}`);
         }
 
-        state() {
-            return this.stack.map(s => `${s.lhs}_${s.index}`);
+        state(index=0) {
+            return this.stack.slice(index)
+                .map(s => `${s.lhs}_${s.index}`);
         }
 
     }

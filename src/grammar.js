@@ -140,7 +140,6 @@
                 .join('\n');
         }
 
-
     }
 
     module.exports = exports.Grammar = Grammar;

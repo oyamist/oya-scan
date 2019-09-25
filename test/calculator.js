@@ -83,10 +83,9 @@
         var logLevel = calc.logLevel;
         if (logLevel) {
             logger[logLevel](
-                `testCalc expect: "${input}" => "${expected}"`
+                `testCalc expect: "${input}" => "${expected}"\n`+
+                `${calc.grammar}`
             );
-            logger[logLevel](`grammar\n`+
-                calc.grammar.toString());
         }
         calc.clearAll();
         obs.forEach(ob => {
