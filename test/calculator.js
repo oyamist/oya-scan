@@ -100,7 +100,7 @@
         var g = calc.grammar;
 
         should(g).instanceOf(Grammar);
-        should.deepEqual(g.rootRhs, [expr, enter]);
+        should.deepEqual(g.rhs('root'), [expr, enter]);
     });
     it("TESTTESTparses number", ()=> {
         gf.add_number();

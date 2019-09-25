@@ -42,16 +42,16 @@
     it("default ctor", ()=>{
         var g = new Grammar();
         should(g).instanceOf(Grammar);
-        should.deepEqual(g.rootRhs, ["expr"]);
-        should.deepEqual(g.addOp, [ALT("+","-")]);
-        should.deepEqual(g.expr, [ 
+        should.deepEqual(g.rhs('root'), ["expr"]);
+        should.deepEqual(g.rhs('addOp'), [ALT("+","-")]);
+        should.deepEqual(g.rhs('expr'), [ 
             OPT("addOp"), 
             "term", 
             STAR("expr@2"), // generated
         ]);
         should.deepEqual(g[`expr@2`], // generated
             [ "addOp", "term" ]); 
-        should.deepEqual(Object.keys(g).sort(), [
+        should.deepEqual(g.nonterminals.sort(), [
             "addOp",
             "expr",
             "expr@2", // generated for STAR("addOp", "term")
@@ -65,15 +65,15 @@
             term: [ OPT("-"), "factor", STAR("mulOp", "factor")],
         }
         var g = new Grammar(gdef);
-        should.deepEqual(g.rootRhs, [gdef.root]); // canonical
-        should.deepEqual(g.mulop, gdef.mulop);
-        should.deepEqual(g.term, [
+        should.deepEqual(g.rhs('root'), [gdef.root]); // canonical
+        should.deepEqual(g.rhs('mulop'), gdef.mulop);
+        should.deepEqual(g.rhs('term'), [
             OPT("-"),
             "factor",
             STAR("term@2"),
         ]);
         should.deepEqual(g["term@2"], [ "mulOp", "factor", ]);
-        should(JSON.stringify(g.mulOp))
+        should(JSON.stringify(g.rhs('mulOp')))
             .equal('[{"ebnf":"|","args":["*","/"]}]');
     });
     it("invalid grammars", () => {

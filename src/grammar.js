@@ -1,5 +1,5 @@
 (function(exports) {
-    var todo = 2;
+    var todo = 1;
     const fs = require('fs');
     const path = require('path');
     const {
@@ -64,10 +64,6 @@
 
         get nonterminals() {
             return Object.keys(this.rhsMap);
-        }
-
-        get rootRhs() {
-            return this.rhs('root'); 
         }
 
         validate(g=this) {
