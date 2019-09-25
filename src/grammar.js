@@ -34,10 +34,16 @@
         constructor(g = GRAMMAR) {
             if (g instanceof Grammar) {
                 g = JSON.parse(JSON.stringify(g));
-                Object.assign(this, g);
+                Object.assign(this, g); // TODO
+                Object.defineProperty(this, 'rules', {
+                    value: g.rules,
+                });
             } else {
                 g = JSON.parse(JSON.stringify(g));
                 Object.assign(this, g);
+                Object.defineProperty(this, 'rules', {
+                    value: g,
+                });
             }
             this.validate();
         }
