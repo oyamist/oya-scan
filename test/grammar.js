@@ -42,7 +42,7 @@
     it("default ctor", ()=>{
         var g = new Grammar();
         should(g).instanceOf(Grammar);
-        should.deepEqual(g.root, ["expr"]);
+        should.deepEqual(g.rootRhs, ["expr"]);
         should.deepEqual(g.addOp, [ALT("+","-")]);
         should.deepEqual(g.expr, [ 
             OPT("addOp"), 
@@ -65,7 +65,7 @@
             term: [ OPT("-"), "factor", STAR("mulOp", "factor")],
         }
         var g = new Grammar(gdef);
-        should.deepEqual(g.root, [gdef.root]); // canonical
+        should.deepEqual(g.rootRhs, [gdef.root]); // canonical
         should.deepEqual(g.mulop, gdef.mulop);
         should.deepEqual(g.term, [
             OPT("-"),

@@ -66,6 +66,10 @@
             return Object.keys(this.rhsMap);
         }
 
+        get rootRhs() {
+            return this.rhs('root'); 
+        }
+
         validate(g=this) {
             var nts = g.nonterminals.sort();
             if (nts.length === 0) {
