@@ -125,7 +125,7 @@
         testCalc(calc, '123=', 'number:123');
     });
     it("TESTTESTparses factor", ()=> {
-        return; //TODO
+        return; // TODO
         var calc = new Calculator({
             grammar: gf.create(gf.add_factor()),
             logLevel: 'info',

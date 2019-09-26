@@ -37,15 +37,36 @@
             return true;
         }
 
-        arrayString(list) {
-            if (!(list instanceof Array)) {
-                return ""+list;
+        simpleString(value) {
+            if (value instanceof Array) {
+                var a = value.map((d,i)=> d instanceof Array 
+                    ? `${this.simpleString(d)}` 
+                    : ""+d
+                );
+                return `[${a.join(", ")}]`;
             }
-            var a = list.map((d,i)=> d instanceof Array 
-                ? `${this.arrayString(d)}` 
-                : ""+d
-            );
-            return `[${a.join(", ")}]`;
+            if (value === undefined) {
+                return 'undefined';
+            }
+            if (value === null) {
+                return 'null';
+            }
+            if (typeof value === 'string') {
+                return value;
+            }
+            if (value.toString !== {}.toString) {
+                return value.toString();
+            }
+            var keys = Object.keys(value);
+            if (keys && keys.length) {
+                var kv = keys.map(k => {
+                    var v = this.simpleString(value[k]);
+                    return `${k}:${v}`;
+                });
+                var s = kv.join(', ');
+                return `{${kv}}`;
+            }
+            return ""+value;
         }
 
         onReady() {
@@ -63,7 +84,7 @@
                     rhsData,
                 } = tos;
                 var name = this.constructor.name;
-                var rhsText = this.arrayString(rhsData);
+                var rhsText = this.simpleString(rhsData);
                 var msg = `${lhs}(${rhsText})`;
                 logger[this.logLevel](
                     `${name}.reduce ${msg} => [${this.state(1)}]`);
@@ -103,8 +124,8 @@
                 } = state;
                 logger[this.logLevel](
                     `${name}.advance(`+
-                    `${lhs}_${index-1} <= `+
-                    `${this.arrayString(rhsData[index-1])})`+
+                    `${lhs}_${index-1}.rhsData = `+
+                    `${this.simpleString(rhsData[index-1])})`+
                     ` at ${label}`);
             }
         }
@@ -167,7 +188,8 @@
 
             if (logLevel) {
                 var name = this.constructor.name;
-                logger[logLevel](`${name}.observe(${ob})`);
+                logger[logLevel](
+                    `----- ${name}.observe(${ob}) -----`);
             }
 
             lookahead.push(ob);
