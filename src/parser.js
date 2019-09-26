@@ -1,6 +1,7 @@
 (function(exports) {
     const fs = require('fs');
     const path = require('path');
+    const js = require('just-simple').JustSimple.js;
     const {
         logger,
     } = require('rest-bundle');
@@ -37,38 +38,6 @@
             return true;
         }
 
-        simpleString(value) {
-            if (value instanceof Array) {
-                var a = value.map((d,i)=> d instanceof Array 
-                    ? `${this.simpleString(d)}` 
-                    : ""+d
-                );
-                return `[${a.join(", ")}]`;
-            }
-            if (value === undefined) {
-                return 'undefined';
-            }
-            if (value === null) {
-                return 'null';
-            }
-            if (typeof value === 'string') {
-                return value;
-            }
-            if (value.toString !== {}.toString) {
-                return value.toString();
-            }
-            var keys = Object.keys(value);
-            if (keys && keys.length) {
-                var kv = keys.map(k => {
-                    var v = this.simpleString(value[k]);
-                    return `${k}:${v}`;
-                });
-                var s = kv.join(', ');
-                return `{${kv}}`;
-            }
-            return ""+value;
-        }
-
         onReady() {
             if (this.logLevel) {
                 var name = this.constructor.name;
@@ -84,7 +53,7 @@
                     rhsData,
                 } = tos;
                 var name = this.constructor.name;
-                var rhsText = this.simpleString(rhsData);
+                var rhsText = js.simpleString(rhsData);
                 var msg = `${lhs}(${rhsText})`;
                 logger[this.logLevel](
                     `${name}.reduce ${msg} => [${this.state(1)}]`);
@@ -125,7 +94,7 @@
                 logger[this.logLevel](
                     `${name}.advance(`+
                     `${lhs}_${index-1}.rhsData = `+
-                    `${this.simpleString(rhsData[index-1])})`+
+                    `${js.simpleString(rhsData[index-1])})`+
                     ` at ${label}`);
             }
         }

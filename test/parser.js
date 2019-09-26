@@ -1074,24 +1074,5 @@
         should.deepEqual(tp.state(), [ ]);
         should(tp.isParsing).equal(false);
     });
-    it("TESTTESTsimpleString() summarizes array", ()=>{
-        var tp = new TestParser();
-        should(tp.simpleString(null)).equal('null');
-        should(tp.simpleString(undefined)).equal('undefined');
-        should(tp.simpleString(1.2)).equal('1.2');
-        should(tp.simpleString('abc')).equal('abc');
-        should(tp.simpleString([])).equal('[]');
-        should(tp.simpleString(['a'])).equal('[a]');
-        should(tp.simpleString(['a','b'])).equal('[a, b]');
-        should(tp.simpleString(['a',1])).equal('[a, 1]');
-        should(tp.simpleString(['a',[2,[3]],4]))
-            .equal('[a, [2, [3]], 4]');
-        var ob1 = new Observation('size', 42);
-        var ob2 = new Observation('color','red');
-        should(tp.simpleString(ob1)).equal('size:42');
-        should(tp.simpleString([[ob1],ob2]))
-            .equal('[[size:42], color:red]');
-        should(tp.simpleString({a:1})).equal('{a:1}');
-    });
 
 })

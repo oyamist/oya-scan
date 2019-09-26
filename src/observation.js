@@ -1,8 +1,8 @@
 (function(exports) {
     const uuidv4 = require("uuid/v4");
+    const js = require('just-simple').JustSimple.js;
 
     class Observation {
-        //constructor(opts={}) {
         constructor(...args) {
             if (typeof args[0] === 'string') {
                 var opts = {};
@@ -87,9 +87,7 @@
                 value,
                 text,
             } = this;
-            if (value instanceof Date) {
-                value = value.toLocaleDateString();
-            }
+            value = js.simpleString(value);
             return text 
                 ?  `${tag}:${value} ${text}`
                 :  `${tag}:${value}`;
