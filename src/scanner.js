@@ -6,9 +6,7 @@
         Readable,
         Writable,
     } = require('stream');
-    const {
-        logger,
-    } = require('rest-bundle');
+    const { logger } = require('just-simple').JustSimple;
     const {
         exec,
     } = require('child_process');

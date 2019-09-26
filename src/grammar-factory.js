@@ -1,7 +1,5 @@
 (function(exports) {
-    const {
-        logger,
-    } = require('rest-bundle');
+    const { logger } = require('just-simple').JustSimple;
     const Grammar = require('./grammar');
 
     // Grammar helpers

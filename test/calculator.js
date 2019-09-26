@@ -1,7 +1,7 @@
 (typeof describe === 'function') && describe("calculator", function() {
     const winston = require('winston');
     const should = require("should");
-    const { logger } = require('rest-bundle');
+    const { logger } = require('just-simple').JustSimple;
     const {
         Parser,
         Grammar,

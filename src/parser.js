@@ -2,9 +2,7 @@
     const fs = require('fs');
     const path = require('path');
     const js = require('just-simple').JustSimple.js;
-    const {
-        logger,
-    } = require('rest-bundle');
+    const logger = require('just-simple').JustSimple.js.logger;
     const Observation = require('./observation');
     const Grammar = require('./grammar');
     const STATE = (lhs, index=0, rhsData=[]) => ({ 
