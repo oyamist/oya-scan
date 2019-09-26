@@ -123,6 +123,7 @@
             var t = this.template;
 
             t[paren_expr] = [ lpar, expr, rpar ];
+            t[expr] || this.add_expr();
             return paren_expr;
         }
 

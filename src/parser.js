@@ -38,10 +38,14 @@
         }
 
         arrayString(list) {
-            return list.map((d,i)=> d instanceof Array 
-                ? `[${this.arrayString(d)}]` 
+            if (!(list instanceof Array)) {
+                return ""+list;
+            }
+            var a = list.map((d,i)=> d instanceof Array 
+                ? `${this.arrayString(d)}` 
                 : ""+d
             );
+            return `[${a.join(", ")}]`;
         }
 
         onReady() {
@@ -89,6 +93,22 @@
             }
         }
 
+        onAdvance(state, label) {
+            if (this.logLevel) {
+                var name = this.constructor.name;
+                var {
+                    lhs,
+                    index,
+                    rhsData,
+                } = state;
+                logger[this.logLevel](
+                    `${name}.advance(`+
+                    `${lhs}_${index-1} <= `+
+                    `${this.arrayString(rhsData[index-1])})`+
+                    ` at ${label}`);
+            }
+        }
+
         reduce(advance=true) {
             var {
                 stack,
@@ -104,10 +124,15 @@
             stack.shift();
             if (s1 && advance) {
                 s1.rhsData[s1.index] = s0.rhsData;
-                s1.index++;
+                this.advance(s1, 'reduce');
             }
 
             return true;
+        }
+
+        advance(state, label) {
+            state.index++;
+            this.onAdvance(state, label);
         }
 
         shift(ob) {
@@ -170,16 +195,17 @@
                 stack,
                 lookahead,
             } = this;
+            var s0 = stack[0];
             var sym = lookahead[0] && lookahead[0].tag;
-            var rhs = grammar.rhs(stack[0].lhs);
-            var rhsi = rhs[stack[0].index];
+            var rhs = grammar.rhs(s0.lhs);
+            var rhsi = rhs[s0.index];
             if (rhsi !== sym) {
                 return false;
             }
             var ob = lookahead.shift();
             this.shift(ob);
-            stack[0].rhsData.push(ob);
-            stack[0].index++;
+            s0.rhsData.push(ob);
+            this.advance(s0, 'stepTerminal');
             return true;
         }
 
@@ -206,7 +232,7 @@
                     this.reduce(false);
                     matched.push(s1.rhsData);
                     if (max1) {
-                        s0.index++;
+                        this.advance(s0, 'stepStar1');
                     }
                     return true;
                 } 
@@ -221,7 +247,7 @@
                     matched.push(ob);
                     this.shift(ob);
                     if (max1) {
-                        s0.index++;
+                        this.advance(s0, 'stepStar2');
                         return true;
                     }
                     sym = lookahead[0] && lookahead[0].tag;
@@ -230,7 +256,7 @@
             } else if (min1 && matched.length === 0) {
                 return false;
             }
-            stack[0].index++;
+            this.advance(stack[0], 'stepStar3');
             return this.step();
         }
 
@@ -250,8 +276,7 @@
             }
             var args = rhsi.args;
             var sym = lookahead[0] && lookahead[0].tag;
-            var matched = s0.rhsData[index] || [];
-            s0.rhsData[index] = matched;
+            s0.rhsData[index] = null;
             for (var iArg = 0; iArg < args.length; iArg++) {
                 var arg = args[iArg];
                 if (grammar.rhs(arg)) {
@@ -261,7 +286,7 @@
                     if (ok) {
                         this.reduce(false);
                         s0.rhsData[index] = s1.rhsData;
-                        s0.index++;
+                        this.advance(s0, 'stepAlt1');
                         return true;
                     } 
                     // not matched
@@ -270,7 +295,7 @@
                     var ob = lookahead.shift();
                     s0.rhsData[index] = ob;
                     this.shift(ob);
-                    s0.index++;
+                    this.advance(s0, 'stepAlt2');
                     return true;
                 }
             }

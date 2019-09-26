@@ -116,10 +116,19 @@
         });
         testCalc(calc, '123=', 'number:123');
     });
-    it("TESTTESTparses signed_number", ()=> {
+    it("parses signed_number", ()=> {
         var calc = new Calculator({
             grammar: gf.create(gf.add_signed_number()),
             logLevel,
+        });
+        testCalc(calc, '-123=', 'number:-123');
+        testCalc(calc, '123=', 'number:123');
+    });
+    it("TESTTESTparses factor", ()=> {
+        return; //TODO
+        var calc = new Calculator({
+            grammar: gf.create(gf.add_factor()),
+            logLevel: 'info',
         });
         testCalc(calc, '-123=', 'number:-123');
         testCalc(calc, '123=', 'number:123');
