@@ -3,7 +3,7 @@
     const fs = require('fs');
     const path = require('path');
     const tmp = require('tmp');
-    const { logger } = require('just-simple').JustSimple;
+    const { js, logger } = require('just-simple').JustSimple;
     const {
         Grammar,
         Observation,
@@ -64,7 +64,7 @@
 
         should.deepEqual(parser.state(), [ ]);
     });
-    it("TESTTESTcustom ctor", ()=>{
+    it("custom ctor", ()=>{
         const gdef = {
             root: "term",
             mulOp: ALT("*","/"),
@@ -950,7 +950,7 @@
 
         test('axcd');
     });
-    it("TESTTESTobserve() consumes ALT nonterminals", ()=>{
+    it("observe() consumes ALT nonterminals", ()=>{
         var tp = new TestParser({
             grammar: {
                 root: 'aBCd',
@@ -968,6 +968,8 @@
             should(tp.observe(obs[i++])).equal(true); // a
             should.deepEqual(tp.state(), [ 'aBCd_1', 'root_0' ]);
             should.deepEqual(tp.reduced, []);
+            should(js.simpleString(tp.stack[0].rhsData))
+                .equal('[a:0]');
 
             should(tp.observe(obs[i++])).equal(true); // b
             should.deepEqual(tp.state(), [ 'aBCd_2', 'root_0' ]);
@@ -975,6 +977,8 @@
                 lhs: ntAlt,
                 rhsData: [ obs[1] ],
             }]);
+            should(js.simpleString(tp.stack[0].rhsData))
+                .equal(`[a:0, [${ntAlt.toLowerCase()}:1]]`);
 
             should(tp.observe(obs[i++])).equal(true); // d
             should.deepEqual(tp.state(), [ ]);

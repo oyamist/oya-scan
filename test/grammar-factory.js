@@ -47,7 +47,7 @@
     const rhs_expr = [ term, STAR(expr1) ];
     const rhs_expr1 = [ addop, term ];
 
-    it("TESTTESTdefault ctor", ()=>{
+    it("default ctor", ()=>{
         var gf = new GrammarFactory();
         should(gf).instanceOf(GrammarFactory);
         should(gf).properties({
@@ -70,7 +70,7 @@
             divide,
         });
     });
-    it("TESTTESTcustom ctor", ()=>{
+    it("custom ctor", ()=>{
         let addOp = 'AO';
         let digit = 'D';
         let divide = '|';

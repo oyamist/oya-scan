@@ -39,7 +39,7 @@
             args: [ '+', '-'],
         });
     });
-    it("TESTTESTdefault ctor", ()=>{
+    it("default ctor", ()=>{
         var g = new Grammar();
         should(g).instanceOf(Grammar);
         should.deepEqual(g.rhs('root'), ["expr"]);

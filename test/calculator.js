@@ -16,11 +16,15 @@
     const digit = 'digit';
     const expr = 'expr';
     const root = 'root';
+    const lpar = 'lpar';
+    const rpar = 'rpar';
     const gf = new GrammarFactory({
         enter,
         number,
         plus,
         minus,
+        lpar, 
+        rpar,
     });
 
     const TERMINALS = {
@@ -37,6 +41,8 @@
         '-': minus,
         '+': plus,
         '=': enter,
+        '(': lpar,
+        ')': rpar,
     };
 
     class Calculator extends Parser {
@@ -125,7 +131,6 @@
         testCalc(calc, '123=', 'number:123');
     });
     it("TESTTESTparses factor", ()=> {
-        return; // TODO
         var calc = new Calculator({
             grammar: gf.create(gf.add_factor()),
             logLevel: 'info',

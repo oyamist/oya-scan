@@ -221,7 +221,7 @@
                     this.reduce(false);
                     matched.push(s1.rhsData);
                     if (max1) {
-                        this.advance(s0, 'stepStar1');
+                        this.advance(s0, 'stepStar-OptNT');
                     }
                     return true;
                 } 
@@ -236,7 +236,7 @@
                     matched.push(ob);
                     this.shift(ob);
                     if (max1) {
-                        this.advance(s0, 'stepStar2');
+                        this.advance(s0, 'stepStar-OptT');
                         return true;
                     }
                     sym = lookahead[0] && lookahead[0].tag;
@@ -273,9 +273,7 @@
                     stack.unshift(s1); // depth first guess
                     var ok = this.step();
                     if (ok) {
-                        this.reduce(false);
-                        s0.rhsData[index] = s1.rhsData;
-                        this.advance(s0, 'stepAlt1');
+                        this.reduce(true);
                         return true;
                     } 
                     // not matched
@@ -284,7 +282,7 @@
                     var ob = lookahead.shift();
                     s0.rhsData[index] = ob;
                     this.shift(ob);
-                    this.advance(s0, 'stepAlt2');
+                    this.advance(s0, `stepAltT${iArg}`);
                     return true;
                 }
             }
