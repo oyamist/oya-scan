@@ -59,6 +59,16 @@
             return opts;
         }
 
+        reduce_factor(lhs, rhsData) {
+            return rhsData[0];
+        }
+
+        reduce_signed_factor(lhs, rhsData) {
+            return rhsData[0].length 
+                ? new Observation(number, -rhsData[1].value)
+                : rhsData[1];
+        }
+
         reduce_signed_number(lhs, rhsData) {
             return rhsData[0].length 
                 ? new Observation(number, -rhsData[1].value)
@@ -133,6 +143,14 @@
     it("TESTTESTparses factor", ()=> {
         var calc = new Calculator({
             grammar: gf.create(gf.add_factor()),
+            logLevel: 'info',
+        });
+        testCalc(calc, '-123=', 'number:-123');
+        testCalc(calc, '123=', 'number:123');
+    });
+    it("TESTTESTparses signed_factor", ()=> {
+        var calc = new Calculator({
+            grammar: gf.create(gf.add_signed_factor()),
             logLevel: 'info',
         });
         testCalc(calc, '-123=', 'number:-123');
