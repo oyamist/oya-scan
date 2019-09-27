@@ -204,6 +204,9 @@
                 tag: 'color',
                 value: 'red',
             });
+            if (ojs[1] == null) {
+                console.log(`dbg ojs`, ojs);
+            }
             should(ojs[1]).properties({ // a002
                 tag: 'color',
                 value: 'blue',
