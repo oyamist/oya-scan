@@ -180,7 +180,7 @@
             var ispath = path.join(__dirname, 'data', 'a0001.txt');
             var is = fs.createReadStream(ispath);
             var ospath = tmp.tmpNameSync();
-            var os = fs.createWriteStream(ospath);;
+            var os = fs.createWriteStream(ospath);
 
             // transform returns a Promise
             var result = await scanner.transform(is, os);
@@ -195,6 +195,7 @@
 
             // output stream has one observation per line
             should(fs.existsSync(ospath));
+            os.end();
             var odata = fs.readFileSync(ospath);
             var otext = odata.toString();
             //console.log(`dbg odata`, odata);
