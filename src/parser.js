@@ -65,7 +65,7 @@
                 var rhsText = js.simpleString(rhsData);
                 var msg = `${lhs}(${rhsText})`;
                 logger[this.logLevel](
-                    `${name}.reduce ${msg} => [${this.state(1)}]`);
+                    `${name}.reduce ${this.state(0,2)}`);
             }
         }
 
@@ -340,9 +340,14 @@
             throw new Error(`${lhs} has invalid rhs:${rhs}`);
         }
 
-        state(index=0) {
-            return this.stack.slice(index)
-                .map(s => `${s.lhs}_${s.index}`);
+        state(index=0, end=this.stack.length) {
+            var {
+                stack,
+            } = this;
+            var sv = stack.slice(index, end)
+                .map(s => `${s}`);
+
+            return sv.join(', ');
         }
 
     }

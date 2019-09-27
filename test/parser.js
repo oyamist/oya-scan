@@ -62,7 +62,7 @@
         should(typeof parser.onShift).equal('function');
         should(typeof parser.onReduce).equal('function');
 
-        should.deepEqual(parser.state(), [ ]);
+        should(parser.state()).equal('');
     });
     it("custom ctor", ()=>{
         const gdef = {
@@ -114,14 +114,14 @@
         var i = 0;
 
         should(tp.observe(obs[i++])).equal(true); // a
-        should.deepEqual(tp.state(), [ 'abc_1', 'root_0' ]);
+        should(tp.state()).equal(`abc_1:[a:0], root_0:[]`);
 
         should(tp.observe(obs[i++])).equal(true); // b
-        should.deepEqual(tp.state(), [ 'abc_2', 'root_0' ]);
+        should(tp.state()).equal(`abc_2:[a:0, b:1], root_0:[]`);
         should.deepEqual(tp.reduced, []);
 
         should(tp.observe(obs[i++])).equal(true); // c
-        should.deepEqual(tp.state(), []);
+        should(tp.state()).equal('');
         should.deepEqual(tp.reduced, [{
             lhs: 'abc', // first reduce
             rhsData: [obs[0], obs[1], obs[2]],
@@ -142,23 +142,22 @@
         var obs = 'axbc'.split('').map((tag,i)=>new Observation(tag,i));
         var i = 0;
 
-
         should(tp.observe(obs[i++])).equal(true); // a
-        should.deepEqual(tp.state(), [ 'abc_1', 'root_0' ]);
+        should(tp.state()).equal(`abc_1:[a:0], root_0:[]`);
         should.deepEqual(tp.shifted, [obs[0]]);
 
         should(tp.observe(obs[i++])).equal(false); // x reject
-        should.deepEqual(tp.state(), [ 'abc_1', 'root_0' ]);
+        should(tp.state()).equal(`abc_1:[a:0], root_0:[]`);
         should.deepEqual(tp.rejected, [obs[1]]);
         should.deepEqual(tp.shifted, [obs[0]]);
 
         should(tp.observe(obs[i++])).equal(true); // b
-        should.deepEqual(tp.state(), [ 'abc_2', 'root_0' ]);
+        should(tp.state()).equal(`abc_2:[a:0, b:2], root_0:[]`);
         should.deepEqual(tp.shifted, [obs[0], obs[2]]);
 
         should.deepEqual(tp.reduced, []);
         should(tp.observe(obs[i++])).equal(true); // c
-        should.deepEqual(tp.state(), []);
+        should(tp.state()).equal('');
         should.deepEqual(tp.reduced, [{
             lhs: 'abc', // first reduce
             rhsData: [obs[0], obs[2], obs[3]],
@@ -183,24 +182,24 @@
 
         var i = 0;
         should(tp.observe(obs[i++])).equal(true); // a
-        should.deepEqual(tp.state(), [ 'ab_1', 'abab_0', 'root_0' ]);
+        should(tp.state()).equal(`ab_1:[a:0], abab_0:[], root_0:[]`);
 
         should(tp.observe(obs[i++])).equal(true); // b
-        should.deepEqual(tp.state(), [ 'abab_1', 'root_0' ]);
+        should(tp.state()).equal(`abab_1:[[a:0, b:1]], root_0:[]`);
         should.deepEqual(tp.reduced, [{
             lhs: 'ab', // first reduce
             rhsData: [obs[0], obs[1]],
         }]);
 
         should(tp.observe(obs[i++])).equal(true); // a
-        should.deepEqual(tp.state(), [ 'ab_1', 'abab_1', 'root_0' ]);
+        should(tp.state()).equal(`ab_1:[a:2], abab_1:[[a:0, b:1]], root_0:[]`);
         should.deepEqual(tp.reduced, [{
             lhs: 'ab', // first reduce
             rhsData: [obs[0], obs[1]],
         }]);
 
         should(tp.observe(obs[i++])).equal(true); // b
-        should.deepEqual(tp.state(), []);
+        should(tp.state()).equal('');
         should.deepEqual(tp.reduced, [{
             lhs: 'ab', // first reduce
             rhsData: [obs[0], obs[1]],
@@ -227,11 +226,11 @@
         var i = 0;
 
         should(tp.observe(obs[i++])).equal(true); // a
-        should.deepEqual(tp.state(), [ 'abc_1', 'root_0' ]);
+        should(tp.state()).equal(`abc_1:[a:0], root_0:[]`);
         should.deepEqual(tp.reduced, []);
 
         should(tp.observe(obs[i++])).equal(true); // c
-        should.deepEqual(tp.state(), []);
+        should(tp.state()).equal('');
         should.deepEqual(tp.reduced, [{
             lhs: 'abc',
             rhsData: [ obs[0], [], obs[1], ],
@@ -252,17 +251,17 @@
         var i = 0;
 
         should(tp.observe(obs[i++])).equal(true); // a
-        should.deepEqual(tp.state(), [ 'abc_1', 'root_0' ]);
+        should(tp.state()).equal(`abc_1:[a:0], root_0:[]`);
 
         should(tp.observe(obs[i++])).equal(true); // b
-        should.deepEqual(tp.state(), [ 'abc_1', 'root_0' ]);
+        should(tp.state()).equal(`abc_1:[a:0, [b:1]], root_0:[]`);
 
         should(tp.observe(obs[i++])).equal(true); // b
-        should.deepEqual(tp.state(), [ 'abc_1', 'root_0' ]);
+        should(tp.state()).equal(`abc_1:[a:0, [b:1, b:2]], root_0:[]`);
         should.deepEqual(tp.reduced, []);
 
         should(tp.observe(obs[i++])).equal(true); // c
-        should.deepEqual(tp.state(), []);
+        should(tp.state()).equal('');
         should.deepEqual(tp.reduced, [{
             lhs: 'abc',
             rhsData: [ obs[0], [obs[1], obs[2]], obs[3] ],
@@ -285,15 +284,15 @@
         var i = 0;
 
         should(tp.observe(obs[i++])).equal(true); // a
-        should.deepEqual(tp.state(), [ 'abc_1', 'root_0' ]);
+        should(tp.state()).equal(`abc_1:[a:0], root_0:[]`);
         should.deepEqual(tp.shifted, [obs[0]]);
 
         should(tp.observe(obs[i++])).equal(true); // b
-        should.deepEqual(tp.state(), [ 'abc_1', 'root_0' ]);
+        should(tp.state()).equal(`abc_1:[a:0, [b:1]], root_0:[]`);
         should.deepEqual(tp.shifted, [obs[0],obs[1]]);
 
         should(tp.observe(obs[i++])).equal(true); // b
-        should.deepEqual(tp.state(), [ 'abc_1', 'root_0' ]);
+        should(tp.state()).equal(`abc_1:[a:0, [b:1, b:2]], root_0:[]`);
         should.deepEqual(tp.reduced, []);
         should.deepEqual(tp.shifted, [obs[0],obs[1],obs[2]]);
     });
@@ -310,11 +309,11 @@
         var i = 0;
 
         should(tp.observe(obs[i++])).equal(true); // a
-        should.deepEqual(tp.state(), [ 'abc_1', 'root_0' ]);
+        should(tp.state()).equal(`abc_1:[a:0], root_0:[]`);
         should.deepEqual(tp.reduced, []);
 
         should(tp.observe(obs[i++])).equal(true); // c
-        should.deepEqual(tp.state(), []);
+        should(tp.state()).equal('');
         should.deepEqual(tp.reduced, [{
             lhs: 'abc',
             rhsData: [ obs[0], [], obs[1], ],
@@ -336,13 +335,13 @@
         var i = 0;
 
         should(tp.observe(obs[i++])).equal(true); // a
-        should.deepEqual(tp.state(), [ 'aBc_1', 'root_0' ]);
+        should(tp.state()).equal(`aBc_1:[a:0], root_0:[]`);
 
         should(tp.observe(obs[i++])).equal(true); // b
-        should.deepEqual(tp.state(), [ 'aBc_1', 'root_0' ]);
+        should(tp.state()).equal(`aBc_1:[a:0, [[b:1]]], root_0:[]`);
 
         should(tp.observe(obs[i++])).equal(true); // b
-        should.deepEqual(tp.state(), [ 'aBc_1', 'root_0' ]);
+        should(tp.state()).equal(`aBc_1:[a:0, [[b:1], [b:2]]], root_0:[]`);
         should.deepEqual(tp.reduced, [{
             lhs:'B',
             rhsData: [obs[1]],
@@ -352,7 +351,7 @@
         }]);
 
         should(tp.observe(obs[i++])).equal(true); // c
-        should.deepEqual(tp.state(), []);
+        should(tp.state()).equal('');
         should.deepEqual(tp.reduced[0], {
             lhs: 'B',
             rhsData: [ obs[1] ],
@@ -385,11 +384,11 @@
         var i = 0;
 
         should(tp.observe(obs[i++])).equal(true); // a
-        should.deepEqual(tp.state(), [ 'aBc_1', 'root_0' ]);
+        should(tp.state()).equal(`aBc_1:[a:0], root_0:[]`);
         should.deepEqual(tp.shifted, [obs[0]]);
 
         should(tp.observe(obs[i++])).equal(true); // b
-        should.deepEqual(tp.state(), [ 'aBc_1', 'root_0' ]);
+        should(tp.state()).equal(`aBc_1:[a:0, [[b:1]]], root_0:[]`);
         should.deepEqual(tp.shifted, [obs[0],obs[1]]);
         should.deepEqual(tp.reduced[0], {
             lhs: 'B',
@@ -398,7 +397,7 @@
         should(tp.reduced.length).equal(1);
 
         should(tp.observe(obs[i++])).equal(true); // b
-        should.deepEqual(tp.state(), [ 'aBc_1', 'root_0' ]);
+        should(tp.state()).equal(`aBc_1:[a:0, [[b:1], [b:2]]], root_0:[]`);
         should.deepEqual(tp.reduced[1], {
             lhs: 'B',
             rhsData: [ obs[2] ],
@@ -418,11 +417,11 @@
         var i = 0;
 
         should(tp.observe(obs[i++])).equal(true); // a
-        should.deepEqual(tp.state(), [ 'abc_1', 'root_0' ]);
+        should(tp.state()).equal(`abc_1:[a:0], root_0:[]`);
         should.deepEqual(tp.reduced, []);
 
         should(tp.observe(obs[i++])).equal(false); // c
-        should.deepEqual(tp.state(), ['abc_1', 'root_0']);
+        should(tp.state()).equal(`abc_1:[a:0, []], root_0:[]`);
         should.deepEqual(tp.reduced, []);
     });
     it("observe() consumes PLUS terminals ", ()=>{
@@ -437,17 +436,17 @@
         var i = 0;
 
         should(tp.observe(obs[i++])).equal(true); // a
-        should.deepEqual(tp.state(), [ 'abc_1', 'root_0' ]);
+        should(tp.state()).equal(`abc_1:[a:0], root_0:[]`);
 
         should(tp.observe(obs[i++])).equal(true); // b
-        should.deepEqual(tp.state(), [ 'abc_1', 'root_0' ]);
+        should(tp.state()).equal(`abc_1:[a:0, [b:1]], root_0:[]`);
 
         should(tp.observe(obs[i++])).equal(true); // b
-        should.deepEqual(tp.state(), [ 'abc_1', 'root_0' ]);
+        should(tp.state()).equal(`abc_1:[a:0, [b:1, b:2]], root_0:[]`);
         should.deepEqual(tp.reduced, []);
 
         should(tp.observe(obs[i++])).equal(true); // c
-        should.deepEqual(tp.state(), []);
+        should(tp.state()).equal('');
         should.deepEqual(tp.reduced, [{
             lhs: 'abc',
             rhsData: [ obs[0], [obs[1], obs[2]], obs[3] ],
@@ -470,15 +469,15 @@
         var i = 0;
 
         should(tp.observe(obs[i++])).equal(true); // a
-        should.deepEqual(tp.state(), [ 'abc_1', 'root_0' ]);
+        should(tp.state()).equal(`abc_1:[a:0], root_0:[]`);
         should.deepEqual(tp.shifted, [obs[0]]);
 
         should(tp.observe(obs[i++])).equal(true); // b
-        should.deepEqual(tp.state(), [ 'abc_1', 'root_0' ]);
+        should(tp.state()).equal(`abc_1:[a:0, [b:1]], root_0:[]`);
         should.deepEqual(tp.shifted, [obs[0],obs[1]]);
 
         should(tp.observe(obs[i++])).equal(true); // b
-        should.deepEqual(tp.state(), [ 'abc_1', 'root_0' ]);
+        should(tp.state()).equal(`abc_1:[a:0, [b:1, b:2]], root_0:[]`);
         should.deepEqual(tp.reduced, []);
         should.deepEqual(tp.shifted, [obs[0],obs[1],obs[2]]);
     });
@@ -495,11 +494,11 @@
         var i = 0;
 
         should(tp.observe(obs[i++])).equal(true); // a
-        should.deepEqual(tp.state(), [ 'abc_1', 'root_0' ]);
+        should(tp.state()).equal(`abc_1:[a:0], root_0:[]`);
         should.deepEqual(tp.reduced, []);
 
         should(tp.observe(obs[i++])).equal(false); // c
-        should.deepEqual(tp.state(), [ 'abc_1', 'root_0' ]);
+        should(tp.state()).equal(`abc_1:[a:0, []], root_0:[]`);
         should.deepEqual(tp.reduced, []);
     });
     it("observe() consumes PLUS nonterminals ", ()=>{
@@ -515,13 +514,13 @@
         var i = 0;
 
         should(tp.observe(obs[i++])).equal(true); // a
-        should.deepEqual(tp.state(), [ 'aBc_1', 'root_0' ]);
+        should(tp.state()).equal(`aBc_1:[a:0], root_0:[]`);
 
         should(tp.observe(obs[i++])).equal(true); // b
-        should.deepEqual(tp.state(), [ 'aBc_1', 'root_0' ]);
+        should(tp.state()).equal(`aBc_1:[a:0, [[b:1]]], root_0:[]`);
 
         should(tp.observe(obs[i++])).equal(true); // b
-        should.deepEqual(tp.state(), [ 'aBc_1', 'root_0' ]);
+        should(tp.state()).equal(`aBc_1:[a:0, [[b:1], [b:2]]], root_0:[]`);
         should.deepEqual(tp.reduced, [{
             lhs:'B',
             rhsData: [obs[1]],
@@ -531,7 +530,7 @@
         }]);
 
         should(tp.observe(obs[i++])).equal(true); // c
-        should.deepEqual(tp.state(), []);
+        should(tp.state()).equal('');
         should.deepEqual(tp.reduced[0], {
             lhs: 'B',
             rhsData: [ obs[1] ],
@@ -564,11 +563,11 @@
         var i = 0;
 
         should(tp.observe(obs[i++])).equal(true); // a
-        should.deepEqual(tp.state(), [ 'aBc_1', 'root_0' ]);
+        should(tp.state()).equal(`aBc_1:[a:0], root_0:[]`);
         should.deepEqual(tp.shifted, [obs[0]]);
 
         should(tp.observe(obs[i++])).equal(true); // b
-        should.deepEqual(tp.state(), [ 'aBc_1', 'root_0' ]);
+        should(tp.state()).equal(`aBc_1:[a:0, [[b:1]]], root_0:[]`);
         should.deepEqual(tp.shifted, [obs[0],obs[1]]);
         should.deepEqual(tp.reduced[0], {
             lhs: 'B',
@@ -577,7 +576,7 @@
         should(tp.reduced.length).equal(1);
 
         should(tp.observe(obs[i++])).equal(true); // b
-        should.deepEqual(tp.state(), [ 'aBc_1', 'root_0' ]);
+        should(tp.state()).equal(`aBc_1:[a:0, [[b:1], [b:2]]], root_0:[]`);
         should.deepEqual(tp.reduced[1], {
             lhs: 'B',
             rhsData: [ obs[2] ],
@@ -597,11 +596,11 @@
         var i = 0;
 
         should(tp.observe(obs[i++])).equal(true); // a
-        should.deepEqual(tp.state(), [ 'abc_1', 'root_0' ]);
+        should(tp.state()).equal(`abc_1:[a:0], root_0:[]`);
         should.deepEqual(tp.reduced, []);
 
         should(tp.observe(obs[i++])).equal(true); // c
-        should.deepEqual(tp.state(), []);
+        should(tp.state()).equal('');
         should.deepEqual(tp.reduced, [{
             lhs: 'abc',
             rhsData: [ obs[0], [], obs[1], ],
@@ -622,14 +621,14 @@
         var i = 0;
 
         should(tp.observe(obs[i++])).equal(true); // a
-        should.deepEqual(tp.state(), [ 'abc_1', 'root_0' ]);
+        should(tp.state()).equal(`abc_1:[a:0], root_0:[]`);
 
         should(tp.observe(obs[i++])).equal(true); // b
-        should.deepEqual(tp.state(), [ 'abc_2', 'root_0' ]);
+        should(tp.state()).equal(`abc_2:[a:0, [b:1]], root_0:[]`);
         should.deepEqual(tp.reduced, []);
 
         should(tp.observe(obs[i++])).equal(true); // c
-        should.deepEqual(tp.state(), []);
+        should(tp.state()).equal('');
         should.deepEqual(tp.reduced, [{
             lhs: 'abc',
             rhsData: [ obs[0], [obs[1]], obs[2] ],
@@ -650,17 +649,17 @@
         var i = 0;
 
         should(tp.observe(obs[i++])).equal(true); // a
-        should.deepEqual(tp.state(), [ 'abc_1', 'root_0' ]);
+        should(tp.state()).equal(`abc_1:[a:0], root_0:[]`);
 
         should(tp.observe(obs[i++])).equal(true); // b
-        should.deepEqual(tp.state(), [ 'abc_2', 'root_0' ]);
+        should(tp.state()).equal(`abc_2:[a:0, [b:1]], root_0:[]`);
 
         should(tp.observe(obs[i++])).equal(false); // b
-        should.deepEqual(tp.state(), [ 'abc_2', 'root_0' ]);
+        should(tp.state()).equal(`abc_2:[a:0, [b:1]], root_0:[]`);
         should.deepEqual(tp.reduced, []);
 
         should(tp.observe(obs[i++])).equal(true); // c
-        should.deepEqual(tp.state(), []);
+        should(tp.state()).equal('');
         should.deepEqual(tp.reduced[0], {
             lhs: 'abc',
             rhsData: [ obs[0], [obs[1]], obs[3] ],
@@ -684,11 +683,11 @@
         var i = 0;
 
         should(tp.observe(obs[i++])).equal(true); // a
-        should.deepEqual(tp.state(), [ 'ab_1', 'root_0' ]);
+        should(tp.state()).equal(`ab_1:[a:0], root_0:[]`);
         should.deepEqual(tp.shifted, [obs[0]]);
 
         should(tp.observe(obs[i++])).equal(true); // b
-        should.deepEqual(tp.state(), [ ]);
+        should(tp.state()).equal('');
         should.deepEqual(tp.reduced[0], {
             lhs: 'ab',
             rhsData: [obs[0], [obs[1]] ],
@@ -713,11 +712,11 @@
         var i = 0;
 
         should(tp.observe(obs[i++])).equal(true); // a
-        should.deepEqual(tp.state(), [ 'ab_1', 'root_0' ]);
+        should(tp.state()).equal(`ab_1:[a:0], root_0:[]`);
         should.deepEqual(tp.shifted, [obs[0]]);
 
         should(tp.observe(obs[i++])).equal(true); // b
-        should.deepEqual(tp.state(), [ ]);
+        should(tp.state()).equal('');
         should.deepEqual(tp.shifted, [obs[0],obs[1]]);
         should.deepEqual(tp.reduced[0], {
             lhs: 'ab',
@@ -729,7 +728,7 @@
         });
 
         should(tp.observe(obs[i++])).equal(false); // b
-        should.deepEqual(tp.state(), [ 'ab_0', 'root_0' ]);
+        should(tp.state()).equal(`ab_0:[], root_0:[]`);
         should.deepEqual(tp.shifted, [obs[0],obs[1]]);
     });
     it("observe() consumes empty OPT nonterminal", ()=>{
@@ -745,11 +744,11 @@
         var i = 0;
 
         should(tp.observe(obs[i++])).equal(true); // a
-        should.deepEqual(tp.state(), [ 'abc_1', 'root_0' ]);
+        should(tp.state()).equal(`abc_1:[a:0], root_0:[]`);
         should.deepEqual(tp.reduced, []);
 
         should(tp.observe(obs[i++])).equal(true); // c
-        should.deepEqual(tp.state(), []);
+        should(tp.state()).equal('');
         should.deepEqual(tp.reduced, [{
             lhs: 'abc',
             rhsData: [ obs[0], [], obs[1], ],
@@ -771,18 +770,18 @@
         var i = 0;
 
         should(tp.observe(obs[i++])).equal(true); // a
-        should.deepEqual(tp.state(), [ 'aBc_1', 'root_0' ]);
+        should(tp.state()).equal(`aBc_1:[a:0], root_0:[]`);
         should.deepEqual(tp.reduced, []);
 
         should(tp.observe(obs[i++])).equal(true); // b
-        should.deepEqual(tp.state(), [ 'aBc_2', 'root_0' ]);
+        should(tp.state()).equal(`aBc_2:[a:0, [[b:1]]], root_0:[]`);
         should.deepEqual(tp.reduced, [{
             lhs:'B',
             rhsData: [obs[1]],
         }]);
 
         should(tp.observe(obs[i++])).equal(true); // c
-        should.deepEqual(tp.state(), []);
+        should(tp.state()).equal('');
         should.deepEqual(tp.reduced, [{
             lhs: 'B',
             rhsData: [ obs[1] ],
@@ -807,20 +806,20 @@
         var i = 0;
 
         should(tp.observe(obs[i++])).equal(true); // a
-        should.deepEqual(tp.state(), [ 'aBc_1', 'root_0' ]);
+        should(tp.state()).equal(`aBc_1:[a:0], root_0:[]`);
 
         should(tp.observe(obs[i++])).equal(true); // b
-        should.deepEqual(tp.state(), [ 'aBc_2', 'root_0' ]);
+        should(tp.state()).equal(`aBc_2:[a:0, [[b:1]]], root_0:[]`);
 
         should(tp.observe(obs[i++])).equal(false); // b
-        should.deepEqual(tp.state(), [ 'aBc_2', 'root_0' ]);
+        should(tp.state()).equal(`aBc_2:[a:0, [[b:1]]], root_0:[]`);
         should.deepEqual(tp.reduced, [{
             lhs:'B',
             rhsData: [obs[1]],
         }]);
 
         should(tp.observe(obs[i++])).equal(true); // c
-        should.deepEqual(tp.state(), []);
+        should(tp.state()).equal('');
         should.deepEqual(tp.reduced[0], {
             lhs: 'B',
             rhsData: [ obs[1] ],
@@ -847,11 +846,11 @@
         var i = 0;
 
         should(tp.observe(obs[i++])).equal(true); // a
-        should.deepEqual(tp.state(), [ 'aB_1', 'root_0' ]);
+        should(tp.state()).equal(`aB_1:[a:0], root_0:[]`);
         should.deepEqual(tp.shifted, [obs[0]]);
 
         should(tp.observe(obs[i++])).equal(true); // b
-        should.deepEqual(tp.state(), [ ]);
+        should(tp.state()).equal('');
         should.deepEqual(tp.shifted, [obs[0],obs[1]]);
         should.deepEqual(tp.reduced[0], {
             lhs: 'B',
@@ -868,7 +867,7 @@
         should(tp.reduced.length).equal(3);
 
         should(tp.observe(obs[i++])).equal(false); // b
-        should.deepEqual(tp.state(), [ 'aB_0', 'root_0' ]);
+        should(tp.state()).equal(`aB_0:[], root_0:[]`);
         should(tp.reduced.length).equal(3);
         should.deepEqual(tp.shifted, [obs[0],obs[1]]);
     });
@@ -886,15 +885,16 @@
 
             tp.clearAll();
             should(tp.observe(obs[i++])).equal(true); // a
-            should.deepEqual(tp.state(), [ 'aBCd_1', 'root_0' ]);
+            should(tp.state()).equal(`aBCd_1:[a:0], root_0:[]`);
             should.deepEqual(tp.reduced, []);
 
             should(tp.observe(obs[i++])).equal(true); // b
-            should.deepEqual(tp.state(), [ 'aBCd_2', 'root_0' ]);
+            should(tp.state())
+                .equal(`aBCd_2:[a:0, ${text[1]}:1], root_0:[]`);
             should.deepEqual(tp.reduced, []);
 
             should(tp.observe(obs[i++])).equal(true); // d
-            should.deepEqual(tp.state(), [ ]);
+            should(tp.state()).equal('');
             should.deepEqual(tp.reduced[0], {
                 lhs: 'aBCd',
                 rhsData: [ obs[0], obs[1], obs[2] ],
@@ -923,20 +923,20 @@
 
             tp.clearAll();
             should(tp.observe(obs[i++])).equal(true); // a
-            should.deepEqual(tp.state(), [ 'aBCd_1', 'root_0' ]);
+            should(tp.state()).equal(`aBCd_1:[a:0], root_0:[]`);
             should.deepEqual(tp.reduced, []);
 
             should(tp.observe(obs[i++])).equal(false); // x
-            should.deepEqual(tp.state(), [ 'aBCd_1', 'root_0' ]);
+            should(tp.state()).equal(`aBCd_1:[a:0, null], root_0:[]`);
             should.deepEqual(tp.reduced, []);
 
             // recover with good input
             should(tp.observe(obs[i++])).equal(true); // c
-            should.deepEqual(tp.state(), [ 'aBCd_2', 'root_0' ]);
+            should(tp.state()) .equal(`aBCd_2:[a:0, c:2], root_0:[]`);
             should.deepEqual(tp.reduced, []);
 
             should(tp.observe(obs[i++])).equal(true); // d
-            should.deepEqual(tp.state(), [ ]);
+            should(tp.state()).equal('');
             should.deepEqual(tp.reduced[0], {
                 lhs: 'aBCd',
                 rhsData: [ obs[0], obs[2], obs[3] ],
@@ -966,13 +966,15 @@
 
             tp.clearAll();
             should(tp.observe(obs[i++])).equal(true); // a
-            should.deepEqual(tp.state(), [ 'aBCd_1', 'root_0' ]);
+            should(tp.state()).equal(`aBCd_1:[a:0], root_0:[]`);
             should.deepEqual(tp.reduced, []);
             should(js.simpleString(tp.stack[0].rhsData))
                 .equal('[a:0]');
 
             should(tp.observe(obs[i++])).equal(true); // b
-            should.deepEqual(tp.state(), [ 'aBCd_2', 'root_0' ]);
+            var bc = ntAlt.toLowerCase();
+            should(tp.state())
+                .equal(`aBCd_2:[a:0, [${bc}:1]], root_0:[]`);
             should.deepEqual(tp.reduced, [{
                 lhs: ntAlt,
                 rhsData: [ obs[1] ],
@@ -981,7 +983,7 @@
                 .equal(`[a:0, [${ntAlt.toLowerCase()}:1]]`);
 
             should(tp.observe(obs[i++])).equal(true); // d
-            should.deepEqual(tp.state(), [ ]);
+            should(tp.state()).equal('');
             should.deepEqual(tp.reduced[1], {
                 lhs: 'aBCd',
                 rhsData: [ obs[0], [obs[1]], obs[2] ],
@@ -1012,22 +1014,24 @@
 
             tp.clearAll();
             should(tp.observe(obs[i++])).equal(true); // a
-            should.deepEqual(tp.state(), [ 'aBCd_1', 'root_0' ]);
+            should(tp.state()).equal('aBCd_1:[a:0], root_0:[]');
             should.deepEqual(tp.reduced, []);
 
             should(tp.observe(obs[i++])).equal(false); // x
-            should.deepEqual(tp.state(), [ 'aBCd_1', 'root_0' ]);
+            should(tp.state()).equal('aBCd_1:[a:0, null], root_0:[]');
             should.deepEqual(tp.reduced, []);
 
             should(tp.observe(obs[i++])).equal(true); // b
-            should.deepEqual(tp.state(), [ 'aBCd_2', 'root_0' ]);
+            var bc = ntAlt.toLowerCase();
+            should(tp.state())
+                .equal(`aBCd_2:[a:0, [${bc}:2]], root_0:[]`);
             should.deepEqual(tp.reduced, [{
                 lhs: ntAlt,
                 rhsData: [ obs[2] ],
             }]);
 
             should(tp.observe(obs[i++])).equal(true); // d
-            should.deepEqual(tp.state(), [ ]);
+            should(tp.state()).equal('');
             should.deepEqual(tp.reduced[1], {
                 lhs: 'aBCd',
                 rhsData: [ obs[0], [obs[2]], obs[3] ],
@@ -1059,7 +1063,7 @@
         var i = 0;
 
         should(tp.observe(obs[i++])).equal(true); // a
-        should.deepEqual(tp.state(), [ 'ab_1', 'root_0' ]);
+        should(tp.state()).equal('ab_1:[a:1], root_0:[]');
         should(tp.isParsing).equal(true);
 
         // first error is discarded awaiting correct input
@@ -1069,13 +1073,13 @@
 
         // repeated error clears parser 
         should(tp.observe(obs[i++])).equal(true); // accept
-        should.deepEqual(tp.state(), [ 'ab_1', 'root_0' ]);
+        should(tp.state()).equal('ab_1:[a:1], root_0:[]');
         should(tp.obError).equal(undefined);
         should(tp.isParsing).equal(true);
 
         // parsing resumes
         should(tp.observe(obs[i++])).equal(true); // b
-        should.deepEqual(tp.state(), [ ]);
+        should(tp.state()).equal('');
         should(tp.isParsing).equal(false);
     });
 
