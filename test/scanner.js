@@ -176,6 +176,7 @@
         (async function() { try {
             var scanner = new Scanner({
                 map: TESTMAP,
+                logLevel: 'info',
             });
             var ispath = path.join(__dirname, 'data', 'a0001.txt');
             var is = fs.createReadStream(ispath);
@@ -195,7 +196,6 @@
 
             // output stream has one observation per line
             should(fs.existsSync(ospath));
-            os.end();
             var odata = fs.readFileSync(ospath);
             var otext = odata.toString();
             //console.log(`dbg odata`, odata);

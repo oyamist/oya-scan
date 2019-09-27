@@ -6,7 +6,10 @@
         Readable,
         Writable,
     } = require('stream');
-    const { logger } = require('just-simple').JustSimple;
+    const { 
+        js,
+        logger 
+    } = require('just-simple').JustSimple;
     const {
         exec,
     } = require('child_process');
@@ -42,6 +45,7 @@
                 re: PAT_UPCA,
                 value: TAG_UPCA,
             }];
+            this.logLevel = opts.logLevel;
             this.patterns = patterns.map(p => {
                 var re = p.re instanceof RegExp
                     ? p.re : RegExp(`^${p.re}$`);
@@ -109,8 +113,11 @@
                 var that = this;
                 var bytes = 0;
                 var observations = 0;
+                var name = `${this.constructor.name}.transform()`;
 
                 is.on('data', (chunk) => {
+                    this.logLevel && logger[this.logLevel](
+                        `${name} data:${chunk.length}B`);
                     bytes += chunk.length;
                     var lines = (remainder+chunk).split('\n');
                     var n = lines.length-1;
@@ -123,6 +130,8 @@
                 });
                 is.on('end', () => {
                     try {
+                        this.logLevel && logger[this.logLevel](
+                            `${name} end`);
                         remainder = remainder.trim();
                         if (remainder.length) {
                             var odata = that.scan(remainder);
@@ -143,6 +152,7 @@
                 });
 
                 is.on('error', (err) => {
+                    logger.warn(`${name} ${err.stack}`);
                     reject(err);
                 });
 

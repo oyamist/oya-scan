@@ -5,11 +5,22 @@
     const logger = require('just-simple').JustSimple.js.logger;
     const Observation = require('./observation');
     const Grammar = require('./grammar');
-    const STATE = (lhs, index=0, rhsData=[]) => ({ 
-        lhs, 
-        index, 
-        rhsData,
-    });
+    class RuleState {
+        constructor(lhs, index=0, rhsData=[]) {
+            this.lhs = lhs;
+            this.index = index;
+            this.rhsData = rhsData;
+        }
+        toString() {
+            var {
+                lhs,
+                index,
+                rhsData,
+            } = this;
+            return `${lhs}_${index}:${js.simpleString(rhsData)}`;
+        }
+
+    }
 
     const {
         ALT,
@@ -161,7 +172,7 @@
 
             lookahead.push(ob);
             if (stack.length === 0) {
-                stack[0] = STATE("root");
+                stack[0] = new RuleState("root");
             }
             var res = this.step();
             if (res) {
@@ -214,7 +225,7 @@
             var matched = s0.rhsData[index] || [];
             s0.rhsData[index] = matched;
             if (grammar.rhs(arg)) {
-                var s1 = STATE(arg);
+                var s1 = new RuleState(arg);
                 stack.unshift(s1); // depth first guess
                 var ok = this.step();
                 if (ok) {
@@ -269,7 +280,7 @@
             for (var iArg = 0; iArg < args.length; iArg++) {
                 var arg = args[iArg];
                 if (grammar.rhs(arg)) {
-                    var s1 = STATE(arg);
+                    var s1 = new RuleState(arg);
                     stack.unshift(s1); // depth first guess
                     var ok = this.step();
                     if (ok) {
@@ -306,7 +317,7 @@
                 throw new Error(`Parse error: ${lhs}_${index} does not exist`);
             }
             if (grammar.rhs(rhsi)) { // non-terminal
-                stack.unshift(STATE(rhsi));
+                stack.unshift(new RuleState(rhsi));
                 return this.step();
             } 
             if (typeof rhsi === 'string') { // terminal
