@@ -14,12 +14,12 @@
     const enter = 'enter';
     const expr = 'E';
     const factor = 'F';
-    const lpar = 'LP';
-    const minus = 'minus';
+    const lpar = 'C)'; // character
+    const minus = 'C-'; // character
     const number = 'N';
-    const plus = 'plus';
+    const plus = 'C+'; // character
     const root = 'root';
-    const rpar = 'RP';
+    const rpar = 'C('; // character
     const signed_factor = 'SF';
     const signed_number = 'SN';
     const term = 'T';
@@ -107,7 +107,6 @@
         }
 
         onReduce(tos) {
-            super.onReduce(tos);
             var {
                 lhs,
                 rhsData,
@@ -118,6 +117,7 @@
             } else if (lhs === root) {
                 this.answer = rhsData[0];
             }
+            super.onReduce(tos);
         }
     }
 
@@ -166,15 +166,15 @@
     it("parses factor", ()=> {
         var calc = new Calculator({
             grammar: gf.create(gf.add_factor()),
-            logLevel: 'info',
+            logLevel,
         });
         testCalc(calc, '-123=', `${number}:-123`);
         testCalc(calc, '123=', `${number}:123`);
     });
-    it("TESTTESTparses signed_factor", ()=> {
+    it("parses signed_factor", ()=> {
         var calc = new Calculator({
             grammar: gf.create(gf.add_signed_factor()),
-            logLevel: 'info',
+            logLevel,
         });
         testCalc(calc, '-123=', `${number}:-123`);
         testCalc(calc, '123=', `${number}:123`);

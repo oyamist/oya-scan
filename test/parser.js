@@ -17,6 +17,16 @@
         PLUS,
     } = Grammar;
     const logLevel = false;
+    const a = 'a';
+    const b = 'b';
+    const c = 'c';
+    const d = 'd';
+    const A = 'A';
+    const B = 'B';
+    const C = 'C';
+    const D = 'D';
+    const E = 'E';
+    const F = 'F';
 
     class TestParser extends Parser {
         constructor(opts) {
@@ -1081,6 +1091,28 @@
         should(tp.observe(obs[i++])).equal(true); // b
         should(tp.state()).equal('');
         should(tp.isParsing).equal(false);
+    });
+    it("first(sym) => first terminals for sym", ()=>{
+        var tp = new TestParser({
+            grammar: {
+                root: ALT('cd','bc'),
+                aB: [a, B],
+                B: b,
+                cd: [STAR(c), d],
+                abc: [OPT(a), OPT(b), c],
+                bc: [PLUS(b), c],
+            },
+            logLevel,
+        });
+
+        should.deepEqual(tp.first('a'), {a:true});
+        should.deepEqual(tp.first('B'), {b:true});
+        should.deepEqual(tp.first('aB'), {a:true});
+        should.deepEqual(tp.first('cd'), {c:true, d:true});
+        should.deepEqual(tp.first('abc'), {a:true, b:true, c:true});
+        should.deepEqual(tp.first('abc'), {a:true, b:true, c:true});
+        should.deepEqual(tp.first('bc'), {b:true});
+        should.deepEqual(tp.first('root'), {b:true,c:true,d:true});
     });
 
 })

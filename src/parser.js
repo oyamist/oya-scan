@@ -33,6 +33,7 @@
         constructor(opts = {}) {
             this.logLevel = opts.logLevel; // error, warn, info, debug
             this.grammar = new Grammar(opts.grammar);
+            this.firstMap = {};
             this.clearAll();
         }
 
@@ -353,6 +354,55 @@
 
             var s =  sv.join(', ');
             return s;
+        }
+
+        first(sym) {
+            var {
+                grammar,
+                firstMap,
+            } = this;
+            var f = firstMap[sym];
+            if (!f) {
+                var rhs = grammar.rhs(sym);
+                if (rhs) {
+                    f = {};
+                    var ebnf = rhs[0].ebnf;
+                    if (ebnf) {
+                        for (var i = 0; i < rhs.length; i++) {
+                            var rhsi = rhs[i];
+                            var {
+                                ebnf,
+                                args,
+                            } = rhsi;
+                            if (ebnf == null) {
+                                Object.assign(f, this.first(rhsi));
+                                break;
+                            } else if (ebnf === '?') {
+                                Object.assign(f, this.first(rhsi.args[0]));
+                            } else if (ebnf === '*') {
+                                Object.assign(f, this.first(rhsi.args[0]));
+                            } else if (ebnf === '|') {
+                                for (var j = 0; j < args.length; j++) {
+                                    var arg = args[j];
+                                    Object.assign(f, this.first(arg));
+                                }
+                                break;
+                            } else if (ebnf === '+') {
+                                Object.assign(f, this.first(rhsi.args[0]));
+                                break;
+                            } else {
+                                f = this.first(rhsi);
+                                break;
+                            }
+                        }
+                    } else {
+                        firstMap[sym] = Object.assign(f, this.first(rhs[0]));
+                    }
+                } else {
+                    f = firstMap[sym] = {[sym]:true};
+                }
+            }
+            return f;
         }
 
     }
