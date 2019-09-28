@@ -228,8 +228,8 @@
                 if (min1) {
                     return false;
                 }
-                //this.advance(s0, 'stepStar-Opt1');
-                //return true;
+                this.advance(s0, 'stepStar-Opt1');
+                return true;
             }
             var matched = s0.rhsData[index] || [];
             s0.rhsData[index] = matched;
