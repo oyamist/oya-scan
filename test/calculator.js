@@ -14,12 +14,12 @@
     const enter = 'enter';
     const expr = 'E';
     const factor = 'F';
-    const lpar = 'C)'; // character
-    const minus = 'C-'; // character
+    const lpar = '"("'; 
+    const minus = '"-"'; 
     const number = 'N';
-    const plus = 'C+'; // character
+    const plus = '"+"'; 
     const root = 'root';
-    const rpar = 'C('; // character
+    const rpar = '")"'; 
     const signed_factor = 'SF';
     const signed_number = 'SN';
     const term = 'T';
@@ -179,7 +179,7 @@
         testCalc(calc, '-123=', `${number}:-123`);
         testCalc(calc, '123=', `${number}:123`);
     });
-    it("TESTTESTparses term", ()=> {
+    it("parses term", ()=> {
         return; // TODO
         var calc = new Calculator({
             grammar: gf.create(gf.add_term()),

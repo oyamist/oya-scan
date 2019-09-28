@@ -491,14 +491,14 @@
         should.deepEqual(tp.reduced, []);
         should.deepEqual(tp.shifted, [obs[0],obs[1],obs[2]]);
     });
-    it("observe() consumes empty PLUS nonterminal", ()=>{
+    it("TESTTESTobserve() consumes empty PLUS nonterminal", ()=>{
         var tp = new TestParser({
             grammar: {
                 root: 'abc',
                 abc: ['a', PLUS('B'), 'c'], 
                 B: 'b',
             },
-            logLevel,
+            logLevel: 'info',
         });
         var obs = 'ac'.split('').map((tag,i)=>new Observation(tag,i));
         var i = 0;

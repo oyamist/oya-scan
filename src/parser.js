@@ -223,6 +223,14 @@
             var rhsi = rhs[index];
             var arg = rhsi.args[0]; // STAR is monadic
             var sym = lookahead[0] && lookahead[0].tag;
+            if (rhsi.tag && !this.first(rhsi.tag)[sym]) {
+                console.log(`dbg not first ${rhsi} sym:${sym}`);
+                if (min1) {
+                    return false;
+                }
+                //this.advance(s0, 'stepStar-Opt1');
+                //return true;
+            }
             var matched = s0.rhsData[index] || [];
             s0.rhsData[index] = matched;
             if (grammar.rhs(arg)) {
