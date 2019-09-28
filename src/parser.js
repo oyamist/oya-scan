@@ -73,7 +73,7 @@
             if (this.logLevel) {
                 var name = this.constructor.name;
                 logger[this.logLevel](
-                    `${name}.shift(${ob}) [${this.state()}]`);
+                    `${name}.shift(${ob}) [${this.state(0,2)}]`);
             }
         }
 
@@ -347,7 +347,12 @@
             var sv = stack.slice(index, end)
                 .map(s => `${s}`);
 
-            return sv.join(', ');
+            if (end < this.stack.length) {
+                sv.push('...');
+            }
+
+            var s =  sv.join(', ');
+            return s;
         }
 
     }
