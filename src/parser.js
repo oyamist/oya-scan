@@ -223,14 +223,6 @@
             var rhsi = rhs[index];
             var arg = rhsi.args[0]; // STAR is monadic
             var sym = lookahead[0] && lookahead[0].tag;
-            if (rhsi.tag && !this.first(rhsi.tag)[sym]) {
-                console.log(`dbg not first ${rhsi} sym:${sym}`);
-                if (min1) {
-                    return false;
-                }
-                this.advance(s0, 'stepStar-Opt1');
-                return true;
-            }
             var matched = s0.rhsData[index] || [];
             s0.rhsData[index] = matched;
             if (grammar.rhs(arg)) {
@@ -265,7 +257,8 @@
             } else if (min1 && matched.length === 0) {
                 return false;
             }
-            this.advance(stack[0], 'stepStar3');
+
+            this.advance(stack[0], 'stepStarSkip');
             return this.step();
         }
 
@@ -370,44 +363,46 @@
                 firstMap,
             } = this;
             var f = firstMap[sym];
-            if (!f) {
-                var rhs = grammar.rhs(sym);
-                if (rhs) {
-                    f = {};
-                    var ebnf = rhs[0].ebnf;
-                    if (ebnf) {
-                        for (var i = 0; i < rhs.length; i++) {
-                            var rhsi = rhs[i];
-                            var {
-                                ebnf,
-                                args,
-                            } = rhsi;
-                            if (ebnf == null) {
-                                Object.assign(f, this.first(rhsi));
-                                break;
-                            } else if (ebnf === '?') {
-                                Object.assign(f, this.first(rhsi.args[0]));
-                            } else if (ebnf === '*') {
-                                Object.assign(f, this.first(rhsi.args[0]));
-                            } else if (ebnf === '|') {
-                                for (var j = 0; j < args.length; j++) {
-                                    var arg = args[j];
-                                    Object.assign(f, this.first(arg));
-                                }
-                                break;
-                            } else if (ebnf === '+') {
-                                Object.assign(f, this.first(rhsi.args[0]));
-                                break;
-                            } else {
-                                f = this.first(rhsi);
-                                break;
-                            }
-                        }
-                    } else {
-                        firstMap[sym] = Object.assign(f, this.first(rhs[0]));
+            if (f) {
+                return f;
+            }
+
+            var rhs = grammar.rhs(sym);
+            if (!rhs) {
+                return (firstMap[sym] = {[sym]:true});
+            }
+
+            f = {};
+            var ebnf = rhs[0].ebnf;
+            if (!ebnf) {
+                firstMap[sym] = Object.assign(f, this.first(rhs[0]));
+                return f;
+            }
+
+            for (var i = 0; i < rhs.length; i++) {
+                var {
+                    ebnf,
+                    args,
+                } = rhs[i];
+                if (ebnf == null) {
+                    Object.assign(f, this.first(rhs[i]));
+                    break;
+                } else if (ebnf === '?') {
+                    Object.assign(f, this.first(args[0]));
+                } else if (ebnf === '*') {
+                    Object.assign(f, this.first(args[0]));
+                } else if (ebnf === '|') {
+                    for (var j = 0; j < args.length; j++) {
+                        var arg = args[j];
+                        Object.assign(f, this.first(arg));
                     }
+                    break;
+                } else if (ebnf === '+') {
+                    Object.assign(f, this.first(args[0]));
+                    break;
                 } else {
-                    f = firstMap[sym] = {[sym]:true};
+                    f = this.first(rhs[i]);
+                    break;
                 }
             }
             return f;
