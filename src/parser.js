@@ -9,7 +9,7 @@
         constructor(lhs, index=0, rhsData=[]) {
             this.lhs = lhs;
             this.index = index;
-            this.rhsData = rhsData;
+            this.rhsData = rhsData || null;
         }
         toString() {
             var {
@@ -123,7 +123,7 @@
             this.onReduce.call(this, s0);
             stack.shift();
             if (s1 && advance) {
-                s1.rhsData[s1.index] = s0.rhsData;
+                s1.rhsData[s1.index] = s0.rhsData || null;
                 this.advance(s1, 'reduce');
             }
 
@@ -252,13 +252,7 @@
                     }
                     return true;
                 } 
-                // not matched
-                stack.shift(); // discard guess
-                if (min1 && matched.length === 0) {
-                    return false;
-                } 
-                this.advance(stack[0], 'stepStarSkipNT');
-                return this.step();
+                stack.shift(); // match failed, discard guess
             }
 
             if (min1 && matched.length === 0) {

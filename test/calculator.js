@@ -180,7 +180,7 @@
         testCalc(calc, '123=', `${number}:123`);
     });
     it("TESTTESTparses term", ()=> {
-        return;//TODO
+        return;
         var calc = new Calculator({
             grammar: gf.create(gf.add_term()),
             logLevel: 'info',
