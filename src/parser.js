@@ -66,7 +66,7 @@
                 var rhsText = js.simpleString(rhsData);
                 var msg = `${lhs}(${rhsText})`;
                 logger[this.logLevel](
-                    `${name}.reduce ${this.state(0,2)}`);
+                    `${name}.reduce()  ${this.state(0,2)}`);
             }
         }
 
@@ -88,8 +88,9 @@
                 } = this.stack[0];
                 var rule = this.grammar.ruleToString(lhs);
                 logger[this.logLevel](
-                    `${name}.reject(${ob}) at rhs[${index}]\n`+
-                    `    ${rule}`);
+                    `${name}.reject(${ob}) at ${lhs}_${index}\n`+
+                    `${this.grammar}\n`+
+                    `Stack=>${this.state()}`);
             }
         }
 
@@ -102,10 +103,8 @@
                     rhsData,
                 } = state;
                 logger[this.logLevel](
-                    `${name}.advance(`+
-                    `${lhs}_${index-1}.rhsData = `+
-                    `${js.simpleString(rhsData[index-1])})`+
-                    ` at ${label}`);
+                    `${name}.advance() ${this.state(0,2)}`+
+                    ` @${label}`);
             }
         }
 

@@ -130,8 +130,7 @@
         if (logLevel) {
             logger[logLevel](
                 `testCalc expect: "${input}" => "${expected}"\n`+
-                `${calc.grammar}`
-            );
+                ``);
         }
         calc.clearAll();
         obs.forEach(ob => {
@@ -180,7 +179,7 @@
         testCalc(calc, '123=', `${number}:123`);
     });
     it("TESTTESTparses term", ()=> {
-        return;
+        return; // TODO
         var calc = new Calculator({
             grammar: gf.create(gf.add_term()),
             logLevel: 'info',
