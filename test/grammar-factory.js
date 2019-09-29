@@ -21,6 +21,7 @@
     const factor = 'factor';
     const term = 'term';
     const term1 = 'term@1';
+    const addop_term = 'addop_term';
     const signed_factor = 'signed_factor';
     const mulop_factor = 'mulop_factor';
     const enter = 'enter';
@@ -45,14 +46,15 @@
     const rhs_addop = [ ALT(plus, minus) ];
     const rhs_term = [ factor, STAR(mulop_factor) ];
     const rhs_mulop_factor = [ mulop, factor ];
-    const rhs_expr = [ term, STAR(expr1) ];
-    const rhs_expr1 = [ addop, term ];
+    const rhs_expr = [ term, STAR(addop_term) ];
+    const rhs_addop_term = [ addop, term ];
 
     it("default ctor", ()=>{
         var gf = new GrammarFactory();
         should(gf).instanceOf(GrammarFactory);
         should(gf).properties({
             template: {},
+            addop_term,
             digit,
             divide,
             expr,
@@ -95,6 +97,7 @@
 
         var gf = new GrammarFactory({
             addop,
+            addop_term,
             digit,
             divide,
             enter,
@@ -118,6 +121,7 @@
         should(gf).properties({
             template: {},
             addop,
+            addop_term,
             digit,
             divide,
             enter,
@@ -232,7 +236,7 @@
         var g = gf.create(expr);
         should.deepEqual(g.rhs('root'), [expr] );
         should.deepEqual(g.rhs(expr), rhs_expr);
-        should.deepEqual(g.rhs(expr1), rhs_expr1);
+        should.deepEqual(g.rhs(addop_term), rhs_addop_term);
 
         // Default grammar is the expression grammar
         var gdefault = gf.create();

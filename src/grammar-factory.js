@@ -32,6 +32,7 @@
             this.signed_number = opts.signed_number || 'signed_number';
             this.term = opts.term || 'term';
             this.factor = opts.factor || 'factor';
+            this.addop_term = opts.addop_term || 'addop_term';
             this.mulop_factor = opts.mulop_factor || 'mulop_factor';
             this.paren_expr = opts.paren_expr || 'paren_expr';
             this.expr = opts.expr || 'expr';
@@ -73,6 +74,19 @@
             t[paren_expr] || this.add_paren_expr();
             t[signed_number] || this.add_signed_number();
             return factor;
+        }
+
+        add_addop_term(addop_term=this.addop_term) {
+            var {
+                addop,
+                term,
+            } = this;
+            var t = this.template;
+
+            t[addop_term] = [ addop, term];
+            t[addop] || this.add_addop();
+            t[term] || this.add_term();
+            return addop_term;
         }
 
         add_mulop_factor(mulop_factor=this.mulop_factor) {
@@ -140,13 +154,13 @@
 
         add_expr(expr=this.expr) {
             var {
-                addop,
+                addop_term,
                 term,
             } = this;
             var t = this.template;
 
-            t[expr] = [ term, STAR(addop, term) ];
-            t[addop] || this.add_addop();
+            t[expr] = [ term, STAR(addop_term) ];
+            t[addop_term] || this.add_addop_term();
             t[term] || this.add_term();
             return expr;
         }

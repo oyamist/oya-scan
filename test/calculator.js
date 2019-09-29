@@ -18,6 +18,7 @@
     const enter = 'enter';
     const expr = 'E';
     const factor = 'F';
+    const addop_term = 'AT';
     const lpar = '"("'; 
     const minus = '"-"'; 
     const multiply = '*';
@@ -30,6 +31,7 @@
     const term = 'T';
 
     const grammarOpts = {
+        addop_term,
         digit,
         divide,
         enter,
