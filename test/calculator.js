@@ -179,8 +179,8 @@
         testCalc(calc, '-123=', `${number}:-123`);
         testCalc(calc, '123=', `${number}:123`);
     });
-    it("parses term", ()=> {
-        return; // TODO
+    it("TESTTESTparses term", ()=> {
+        return;//TODO
         var calc = new Calculator({
             grammar: gf.create(gf.add_term()),
             logLevel: 'info',

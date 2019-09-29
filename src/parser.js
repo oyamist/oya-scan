@@ -225,7 +225,22 @@
             var sym = lookahead[0] && lookahead[0].tag;
             var matched = s0.rhsData[index] || [];
             s0.rhsData[index] = matched;
-            if (grammar.rhs(arg)) {
+
+            if (arg === sym) { // terminal matches symbol
+                do {
+                    var ob = lookahead.shift();
+                    matched.push(ob);
+                    this.shift(ob);
+                    if (max1) {
+                        this.advance(s0, 'stepStar-OptT');
+                        return true;
+                    }
+                    sym = lookahead[0] && lookahead[0].tag;
+                } while (arg === sym);
+                return true;
+            }
+
+            if (grammar.rhs(arg)) { // nonterminal
                 var s1 = new RuleState(arg);
                 stack.unshift(s1); // depth first guess
                 var ok = this.step();
@@ -242,23 +257,15 @@
                 if (min1 && matched.length === 0) {
                     return false;
                 } 
-            } else if (arg === sym) { // matches current symbol
-                do {
-                    var ob = lookahead.shift();
-                    matched.push(ob);
-                    this.shift(ob);
-                    if (max1) {
-                        this.advance(s0, 'stepStar-OptT');
-                        return true;
-                    }
-                    sym = lookahead[0] && lookahead[0].tag;
-                } while (arg === sym);
-                return true;
-            } else if (min1 && matched.length === 0) {
-                return false;
+                this.advance(stack[0], 'stepStarSkipNT');
+                return this.step();
             }
 
-            this.advance(stack[0], 'stepStarSkip');
+            if (min1 && matched.length === 0) {
+                return false; // mandatory match failed
+            }
+
+            this.advance(stack[0], 'stepStarSkip'); // empty match
             return this.step();
         }
 
