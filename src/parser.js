@@ -88,9 +88,10 @@
                 } = this.stack[0];
                 var rule = this.grammar.ruleToString(lhs);
                 logger[this.logLevel](
-                    `${name}.reject(${ob}) at ${lhs}_${index}\n`+
+                    `${name}.reject(${ob})\n`+
+                    `STACK => ${this.state()}\n`+
                     `${this.grammar}\n`+
-                    `Stack=>${this.state()}`);
+                    ``);
             }
         }
 
@@ -353,7 +354,7 @@
                 sv.push('...');
             }
 
-            var s =  sv.join(', ');
+            var s =  sv.join('; ');
             return s;
         }
 
