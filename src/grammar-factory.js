@@ -32,7 +32,7 @@
             this.signed_number = opts.signed_number || 'signed_number';
             this.term = opts.term || 'term';
             this.factor = opts.factor || 'factor';
-            this.signed_factor = opts.signed_factor || 'signed_factor';
+            this.mulop_factor = opts.mulop_factor || 'mulop_factor';
             this.paren_expr = opts.paren_expr || 'paren_expr';
             this.expr = opts.expr || 'expr';
             this.mulop = opts.mulop || 'mulop';
@@ -75,16 +75,17 @@
             return factor;
         }
 
-        add_signed_factor(signed_factor=this.signed_factor) {
+        add_mulop_factor(mulop_factor=this.mulop_factor) {
             var {
-                minus,
+                mulop,
                 factor,
             } = this;
             var t = this.template;
 
-            t[signed_factor] = [ OPT(minus), factor ];
+            t[mulop_factor] = [ mulop, factor ];
+            t[mulop] || this.add_mulop();
             t[factor] || this.add_factor();
-            return signed_factor;
+            return mulop_factor;
         }
 
         add_mulop(mulop=this.mulop) {
@@ -101,14 +102,14 @@
 
         add_term(term=this.term) {
             var {
-                mulop,
-                signed_factor,
+                factor,
+                mulop_factor,
             } = this;
             var t = this.template;
 
-            t[term] = [ signed_factor, STAR(mulop, signed_factor) ];
-            t[mulop] || this.add_mulop();
-            t[signed_factor] || this.add_signed_factor();
+            t[term] = [ factor, STAR(mulop_factor) ];
+            t[factor] || this.add_factor();
+            t[mulop_factor] || this.add_mulop_factor();
             return term;
         }
 

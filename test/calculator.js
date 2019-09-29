@@ -1,7 +1,10 @@
 (typeof describe === 'function') && describe("calculator", function() {
     const winston = require('winston');
     const should = require("should");
-    const { logger } = require('just-simple').JustSimple;
+    const { 
+        logger,
+        js,
+    } = require('just-simple').JustSimple;
     const {
         Parser,
         Grammar,
@@ -11,29 +14,34 @@
     const logLevel = false;
 
     const digit = 'D';
+    const divide = '/';
     const enter = 'enter';
     const expr = 'E';
     const factor = 'F';
     const lpar = '"("'; 
     const minus = '"-"'; 
+    const multiply = '*';
     const number = 'N';
     const plus = '"+"'; 
     const root = 'root';
     const rpar = '")"'; 
-    const signed_factor = 'SF';
+    const mulop_factor = 'MF';
     const signed_number = 'SN';
     const term = 'T';
+
     const grammarOpts = {
         digit,
+        divide,
         enter,
         expr,
         factor,
         lpar, 
         minus,
+        multiply,
         number,
         plus,
         rpar,
-        signed_factor,
+        mulop_factor,
         signed_number,
         term,
 
@@ -52,6 +60,8 @@
         '7': digit,
         '8': digit,
         '9': digit,
+        '*': multiply,
+        '/': divide,
         '-': minus,
         '+': plus,
         '=': enter,
@@ -86,10 +96,17 @@
             return rhsData[0];
         }
 
-        reduce_signed_factor(lhs, rhsData) {
-            return rhsData[0].length 
-                ? new Observation(number, -rhsData[1].value)
-                : rhsData[1];
+        reduce_mulop(lhs, rhsData) {
+            var d0 = rhsData[0];
+            return d0;
+        }
+
+        reduce_mulop_factor(lhs, rhsData) {
+            var d0 = rhsData[0];
+            var d1 = rhsData[1];
+            return d0.length 
+                ? new Observation(d0.value, d1.value)
+                : d1;
         }
 
         reduce_signed_number(lhs, rhsData) {
@@ -136,6 +153,10 @@
         obs.forEach(ob => {
             should(calc.observe(ob)).equal(true);
         });
+        if (calc.answer !== expected) {
+            logLevel && logger[logLevel] (
+                `testCalc grammar\n${calc.grammar}`);
+        }
         should(`${calc.answer}`).equal(expected);
     }
 
@@ -170,13 +191,14 @@
         testCalc(calc, '-123=', `${number}:-123`);
         testCalc(calc, '123=', `${number}:123`);
     });
-    it("parses signed_factor", ()=> {
+    it("TESTTESTparses mulop_factor", ()=> {
+        return; // TODO
         var calc = new Calculator({
-            grammar: gf.create(gf.add_signed_factor()),
-            logLevel,
+            grammar: gf.create(gf.add_mulop_factor()),
+            logLevel: 'info',
         });
-        testCalc(calc, '-123=', `${number}:-123`);
-        testCalc(calc, '123=', `${number}:123`);
+        testCalc(calc, '*-123=', `${number}:-123`);
+        testCalc(calc, '*123=', `${number}:123`);
     });
     it("TESTTESTparses term", ()=> {
         return; // TODO
