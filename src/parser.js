@@ -11,13 +11,16 @@
             this.index = index;
             this.rhsData = rhsData || null;
         }
+
+        get id() { return `${this.lhs}_${this.index}`; }
+
         toString() {
             var {
                 lhs,
                 index,
                 rhsData,
             } = this;
-            return `${lhs}_${index}:${js.simpleString(rhsData)}`;
+            return `${this.id}:${js.simpleString(rhsData)}`;
         }
 
     }
@@ -33,6 +36,7 @@
         constructor(opts = {}) {
             this.logLevel = opts.logLevel; // error, warn, info, debug
             this.grammar = new Grammar(opts.grammar);
+            this.logStack = opts.logStack || 2; // stack elements to log
             this.clearAll();
         }
 
@@ -64,7 +68,7 @@
                 var name = this.constructor.name;
                 var rhsText = js.simpleString(rhsData);
                 logger[this.logLevel](
-                    `${name}.reduce()  ${this.state(0,2)}`);
+                    `${name}.reduce()  ${this.state(0,this.logStack)}`);
             }
         }
 
@@ -72,7 +76,7 @@
             if (this.logLevel) {
                 var name = this.constructor.name;
                 logger[this.logLevel](
-                    `${name}.shift(${ob}) [${this.state(0,2)}]`);
+                    `${name}.shift(${ob}) [${this.state(0,this.logStack)}]`);
             }
         }
 
@@ -102,12 +106,12 @@
                     rhsData,
                 } = state;
                 logger[this.logLevel](
-                    `${name}.advance() ${this.state(0,2)}`+
+                    `${name}.advance() ${this.state(0,this.logStack)}`+
                     ` @${label}`);
             }
         }
 
-        reduce(advance=true) {
+        reduce(advance=true, required=true) {
             var {
                 stack,
                 grammar,
@@ -115,6 +119,10 @@
             var s0 = stack[0];
             var s1 = stack[1];
             if (!s0 || s0.index < grammar.rhs(s0.lhs).length) {
+                if (required) {
+                    this.cannot(`reduce(${s0.id})`, 
+                        `not end of rule`);
+                }
                 return false; // not at end of rule
             }
 
@@ -123,6 +131,8 @@
             if (s1 && advance) {
                 s1.rhsData[s1.index] = s0.rhsData || null;
                 this.advance(s1, 'reduce');
+            } else {
+                console.log(`dbg reduce() not advancing ${s1} ${advance}`);
             }
 
             return true;
@@ -176,7 +186,7 @@
             var res = this.step();
             if (res) {
                 this.obError = undefined;
-                while (this.reduce()) {}
+                while (this.reduce(true, false)) {}
                 if (!this.isParsing) {
                     this.onReady();
                 }
@@ -199,6 +209,8 @@
             var rhs = grammar.rhs(s0.lhs);
             var rhsi = rhs[s0.index];
             if (rhsi !== sym) {
+                this.cannot(`stepTerminal(${s0.id})`, 
+                    `${sym} !== ${rhsi}`);
                 return false;
             }
             var ob = lookahead.shift();
@@ -225,16 +237,13 @@
             s0.rhsData[index] = matched;
 
             if (arg === sym) { // terminal matches symbol
-                do {
-                    var ob = lookahead.shift();
-                    matched.push(ob);
-                    this.shift(ob);
-                    if (max1) {
-                        this.advance(s0, 'stepStar-OptT');
-                        return true;
-                    }
-                    sym = lookahead[0] && lookahead[0].tag;
-                } while (arg === sym);
+                var ob = lookahead.shift();
+                matched.push(ob);
+                this.shift(ob);
+                if (max1) {
+                    this.advance(s0, 'stepStar-OptT');
+                    return true;
+                }
                 return true;
             }
 
@@ -244,7 +253,7 @@
                     stack.unshift(s1); // depth first guess
                     var ok = this.step();
                     if (ok) {
-                        this.reduce(false);
+                        this.reduce(false, true);
                         matched.push(s1.rhsData);
                         if (max1) {
                             this.advance(s0, 'stepStar-OptNT');
@@ -256,6 +265,8 @@
             }
 
             if (min1 && matched.length === 0) {
+                this.cannot(`stepStar()`, 
+                    `expected at leat one match`);
                 return false; // mandatory match failed
             }
 
@@ -287,7 +298,7 @@
                     stack.unshift(s1); // depth first guess
                     var ok = this.step();
                     if (ok) {
-                        this.reduce(true);
+                        this.reduce(true, true);
                         return true;
                     } 
                     // not matched
@@ -300,16 +311,28 @@
                     return true;
                 }
             }
+            this.cannot(`stepAlt()`, 
+                `${sym} not alternate for ${lhs}`);
             return false;
+        }
+
+        cannot(loc, msg) {
+            if (this.logLevel) {
+                var name = this.constructor.name;
+                logger[this.logLevel](
+                    `${name}.cannot(${loc}) ${msg}`);
+            }
         }
 
         step() {
             var {
                 grammar,
                 stack,
+                logLevel,
             } = this;
-            while (this.reduce()) {}
+            while (this.reduce(true, false)) {}
             if (stack.length === 0) {
+                this.cannot(`step()`, `empty stack`);
                 return false;
             }
             var lhs = stack[0].lhs;
@@ -347,7 +370,7 @@
             var {
                 stack,
             } = this;
-            var sv = stack.slice(index, end)
+            var sv = stack.slice(index, Math.min(this.stack.length, end))
                 .map(s => `${s}`);
 
             if (end < this.stack.length) {

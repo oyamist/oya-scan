@@ -13,25 +13,28 @@
     } = require("../index");
     const logLevel = false;
 
+    const addop = 'AO';
+    const addop_term = 'AT';
     const digit = 'D';
-    const divide = '/';
+    const divide = '"/"';
     const enter = 'enter';
     const expr = 'E';
     const factor = 'F';
-    const addop_term = 'AT';
     const lpar = '"("'; 
     const minus = '"-"'; 
-    const multiply = '*';
+    const mulop = 'MO';
+    const mulop_factor = 'MF';
+    const multiply = '"*"';
+    const paren_expr = 'PE';
     const number = 'N';
     const plus = '"+"'; 
     const root = 'root';
     const rpar = '")"'; 
-    const mulop = 'mulop';
-    const mulop_factor = 'MF';
     const signed_number = 'SN';
     const term = 'T';
 
     const grammarOpts = {
+        addop,
         addop_term,
         digit,
         divide,
@@ -41,11 +44,12 @@
         lpar, 
         minus,
         mulop,
+        mulop_factor,
         multiply,
         number,
+        paren_expr,
         plus,
         rpar,
-        mulop_factor,
         signed_number,
         term,
 
@@ -81,8 +85,9 @@
             Object.keys(grammarOpts).forEach(k => {
                 var fname = `reduce_${k}`;
                 var freduce = this[fname];
+                var gok = grammarOpts[k];
                 if (typeof freduce === 'function') {
-                    this.reduceMap[grammarOpts[k]] = freduce;
+                    this.reduceMap[gok] = freduce;
                 }
             });
 
@@ -108,13 +113,14 @@
         }
 
         reduce_mulop(lhs, rhsData) {
-            console.log(`dbg mulop`, rhsData[0]);
+            console.log(`dbg mulop ${rhsData[0]}`);
             return rhsData[0];
         }
 
         reduce_mulop_factor(lhs, rhsData) {
             var d0 = rhsData[0];
             var d1 = rhsData[1];
+            console.log(`dbg reduce_mulop_factor ${d0} ${d1}`);
             return new Observation(d0.value, d1.value);
         }
 
@@ -139,9 +145,13 @@
             } = tos;
             var freduce = this.reduceMap[lhs];
             if (freduce) {
+                console.log(`dbg onReduce calling ${freduce}`);
                 tos.rhsData = freduce(lhs, rhsData);
-            } else if (lhs === root) {
-                this.answer = rhsData[0];
+            } else {
+                console.log(`dbg default reduce(${tos.id})`);
+                if (lhs === root) {
+                    this.answer = rhsData[0];
+                }
             }
             super.onReduce(tos);
         }
@@ -208,12 +218,14 @@
         testCalc(calc, '*-123=', `*:-123`);
         testCalc(calc, '*123=', `*:123`);
     });
-    it("parses term", ()=> {
+    it("TESTTESTparses term", ()=> {
+    return;
         var calc = new Calculator({
             grammar: gf.create(gf.add_term()),
-            logLevel,
+            logLevel: 'info',
+            logStack: 4,
         });
-        //testCalc(calc, '2*3=', `${number}:123`);
+        testCalc(calc, '2*3=', `${number}:123`);
         testCalc(calc, '-123=', `${number}:-123`);
         testCalc(calc, '123=', `${number}:123`);
     });
