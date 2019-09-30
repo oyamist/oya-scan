@@ -106,4 +106,41 @@
         should.deepEqual(g.nonterminals.sort(), 
             [ "root", "ab", "ab@1", ].sort());
     });
+    it("TESTTESTfirst(sym) => first terminals for sym", ()=>{
+        var g = new Grammar({
+            root: ALT('cd','bc'),
+            aB: ['a', 'B'],
+            B: 'b',
+            cd: [STAR('c'), 'd'],
+            abc: [OPT('a'), OPT('b'), 'c'],
+            bc: [PLUS('b'), 'c'],
+        });
+
+        should.deepEqual(g.first('a'), {a:true});
+        should.deepEqual(g.first('B'), {b:true});
+        should.deepEqual(g.first('aB'), {a:true});
+        should.deepEqual(g.first('cd'), {c:true, d:true});
+        should.deepEqual(g.first('abc'), {a:true, b:true, c:true});
+        should.deepEqual(g.first('abc'), {a:true, b:true, c:true});
+        should.deepEqual(g.first('bc'), {b:true});
+        should.deepEqual(g.first('root'), {b:true,c:true,d:true});
+    });
+    it("TESTTESTisFirst(sym, lhs) true if sym in first(lhs)", ()=>{
+        var g = new Grammar({
+            root: ALT('cd','bc'),
+            aB: ['a', 'B'],
+            B: 'b',
+            cd: [STAR('c'), 'd'],
+            abc: [OPT('a'), OPT('b'), 'c'],
+            bc: [PLUS('b'), 'c'],
+        });
+        var test = (lhs) => 'abcd'.split('')
+            .map(sym => g.isFirst(sym,lhs) ? sym : '-')
+            .join('');
+        should(test('aB')).equal('a---');
+        should(test('B')).equal('-b--');
+        should(test('cd')).equal('--cd');
+        should(test('abc')).equal('abc-');
+        should(test('bc')).equal('-b--');
+    });
 })

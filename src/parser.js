@@ -33,7 +33,6 @@
         constructor(opts = {}) {
             this.logLevel = opts.logLevel; // error, warn, info, debug
             this.grammar = new Grammar(opts.grammar);
-            this.firstMap = {};
             this.clearAll();
         }
 
@@ -355,62 +354,6 @@
 
             var s =  sv.join('; ');
             return s;
-        }
-
-        first(sym) {
-            var {
-                grammar,
-                firstMap,
-            } = this;
-            var f = firstMap[sym];
-            if (f) {
-                return f;
-            }
-
-            var rhs = grammar.rhs(sym);
-            if (!rhs) {
-                return (firstMap[sym] = {[sym]:true});
-            }
-
-            f = {};
-            var ebnf = rhs[0].ebnf;
-            if (!ebnf) {
-                firstMap[sym] = Object.assign(f, this.first(rhs[0]));
-                return f;
-            }
-
-            for (var i = 0; i < rhs.length; i++) {
-                var {
-                    ebnf,
-                    args,
-                } = rhs[i];
-                if (ebnf == null) {
-                    Object.assign(f, this.first(rhs[i]));
-                    break;
-                } else if (ebnf === '?') {
-                    Object.assign(f, this.first(args[0]));
-                } else if (ebnf === '*') {
-                    Object.assign(f, this.first(args[0]));
-                } else if (ebnf === '|') {
-                    for (var j = 0; j < args.length; j++) {
-                        var arg = args[j];
-                        Object.assign(f, this.first(arg));
-                    }
-                    break;
-                } else if (ebnf === '+') {
-                    Object.assign(f, this.first(args[0]));
-                    break;
-                } else {
-                    f = this.first(rhs[i]);
-                    break;
-                }
-            }
-            return f;
-        }
-
-        isFirst(sym, lhs) {
-            var f = this.first(lhs);
-            return f && f[sym] === true;
         }
 
     }

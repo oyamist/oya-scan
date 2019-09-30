@@ -202,7 +202,7 @@
         testCalc(calc, '*123=', `*:123`);
     });
     it("TESTTESTparses term", ()=> {
-    return; // TODO
+        return; // TODO
         var calc = new Calculator({
             grammar: gf.create(gf.add_term()),
             logLevel: 'info',
