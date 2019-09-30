@@ -26,6 +26,7 @@
     const plus = '"+"'; 
     const root = 'root';
     const rpar = '")"'; 
+    const mulop = 'mulop';
     const mulop_factor = 'MF';
     const signed_number = 'SN';
     const term = 'T';
@@ -39,6 +40,7 @@
         factor,
         lpar, 
         minus,
+        mulop,
         multiply,
         number,
         plus,
@@ -99,16 +101,14 @@
         }
 
         reduce_mulop(lhs, rhsData) {
-            var d0 = rhsData[0];
-            return d0;
+            console.log(`dbg mulop`, rhsData[0]);
+            return rhsData[0];
         }
 
         reduce_mulop_factor(lhs, rhsData) {
             var d0 = rhsData[0];
             var d1 = rhsData[1];
-            return d0.length 
-                ? new Observation(d0.value, d1.value)
-                : d1;
+            return new Observation(d0.value, d1.value);
         }
 
         reduce_signed_number(lhs, rhsData) {
@@ -193,17 +193,16 @@
         testCalc(calc, '-123=', `${number}:-123`);
         testCalc(calc, '123=', `${number}:123`);
     });
-    it("TESTTESTparses mulop_factor", ()=> {
-        return; // TODO
+    it("parses mulop_factor", ()=> {
         var calc = new Calculator({
             grammar: gf.create(gf.add_mulop_factor()),
-            logLevel: 'info',
+            logLevel,
         });
-        testCalc(calc, '*-123=', `${number}:-123`);
-        testCalc(calc, '*123=', `${number}:123`);
+        testCalc(calc, '*-123=', `*:-123`);
+        testCalc(calc, '*123=', `*:123`);
     });
     it("TESTTESTparses term", ()=> {
-        return; // TODO
+    return; // TODO
         var calc = new Calculator({
             grammar: gf.create(gf.add_term()),
             logLevel: 'info',

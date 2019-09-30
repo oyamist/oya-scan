@@ -1114,5 +1114,26 @@
         should.deepEqual(tp.first('bc'), {b:true});
         should.deepEqual(tp.first('root'), {b:true,c:true,d:true});
     });
+    it("TESTTESTisFirst(sym, lhs) true if sym in first(lhs)", ()=>{
+        var tp = new TestParser({
+            grammar: {
+                root: ALT('cd','bc'),
+                aB: [a, B],
+                B: b,
+                cd: [STAR(c), d],
+                abc: [OPT(a), OPT(b), c],
+                bc: [PLUS(b), c],
+            },
+            logLevel,
+        });
+        var test = (lhs) => 'abcd'.split('')
+            .map(sym => tp.isFirst(sym,lhs) ? sym : '-')
+            .join('');
+        should(test('aB')).equal('a---');
+        should(test('B')).equal('-b--');
+        should(test('cd')).equal('--cd');
+        should(test('abc')).equal('abc-');
+        should(test('bc')).equal('-b--');
+    });
 
 })

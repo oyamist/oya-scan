@@ -64,7 +64,6 @@
                 } = tos;
                 var name = this.constructor.name;
                 var rhsText = js.simpleString(rhsData);
-                var msg = `${lhs}(${rhsText})`;
                 logger[this.logLevel](
                     `${name}.reduce()  ${this.state(0,2)}`);
             }
@@ -407,6 +406,11 @@
                 }
             }
             return f;
+        }
+
+        isFirst(sym, lhs) {
+            var f = this.first(lhs);
+            return f && f[sym] === true;
         }
 
     }
