@@ -106,7 +106,7 @@
         should.deepEqual(g.nonterminals.sort(), 
             [ "root", "ab", "ab@1", ].sort());
     });
-    it("TESTTESTfirst(sym) => first terminals for sym", ()=>{
+    it("first(sym) => first terminals for sym", ()=>{
         var g = new Grammar({
             root: ALT('cd','bc'),
             aB: ['a', 'B'],
@@ -125,7 +125,7 @@
         should.deepEqual(g.first('bc'), {b:true});
         should.deepEqual(g.first('root'), {b:true,c:true,d:true});
     });
-    it("TESTTESTisFirst(sym, lhs) true if sym in first(lhs)", ()=>{
+    it("isFirst(sym, lhs) true if sym in first(lhs)", ()=>{
         var g = new Grammar({
             root: ALT('cd','bc'),
             aB: ['a', 'B'],

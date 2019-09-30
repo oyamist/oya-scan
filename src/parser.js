@@ -239,18 +239,20 @@
             }
 
             if (grammar.rhs(arg)) { // nonterminal
-                var s1 = new RuleState(arg);
-                stack.unshift(s1); // depth first guess
-                var ok = this.step();
-                if (ok) {
-                    this.reduce(false);
-                    matched.push(s1.rhsData);
-                    if (max1) {
-                        this.advance(s0, 'stepStar-OptNT');
-                    }
-                    return true;
-                } 
-                stack.shift(); // match failed, discard guess
+                if (grammar.isFirst(sym, arg)) {
+                    var s1 = new RuleState(arg);
+                    stack.unshift(s1); // depth first guess
+                    var ok = this.step();
+                    if (ok) {
+                        this.reduce(false);
+                        matched.push(s1.rhsData);
+                        if (max1) {
+                            this.advance(s0, 'stepStar-OptNT');
+                        }
+                        return true;
+                    } 
+                    stack.shift(); // match failed, discard guess
+                }
             }
 
             if (min1 && matched.length === 0) {

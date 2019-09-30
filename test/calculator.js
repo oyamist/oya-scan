@@ -96,6 +96,13 @@
             return opts;
         }
 
+        reduce_term(lhs, rhsData) {
+            if (!(rhsData[1] instanceof Observation)) {
+                return rhsData[0];
+            }
+            return rhsData;
+        }
+
         reduce_factor(lhs, rhsData) {
             return rhsData[0];
         }
@@ -201,12 +208,12 @@
         testCalc(calc, '*-123=', `*:-123`);
         testCalc(calc, '*123=', `*:123`);
     });
-    it("TESTTESTparses term", ()=> {
-        return; // TODO
+    it("parses term", ()=> {
         var calc = new Calculator({
             grammar: gf.create(gf.add_term()),
-            logLevel: 'info',
+            logLevel,
         });
+        //testCalc(calc, '2*3=', `${number}:123`);
         testCalc(calc, '-123=', `${number}:-123`);
         testCalc(calc, '123=', `${number}:123`);
     });

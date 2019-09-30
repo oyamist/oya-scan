@@ -332,14 +332,14 @@
             rhsData: [[ obs[0], [], obs[1], ]],
         }]);
     });
-    it("observe() consumes STAR nonterminals ", ()=>{
+    it("TESTTESTobserve() consumes STAR nonterminals ", ()=>{
         var tp = new TestParser({
             grammar: {
                 root: 'aBc',
                 aBc: ['a', STAR('B'), 'c'], 
                 B: 'b',
             },
-            logLevel,
+            logLevel: 'info',
         });
         var obs = 'abbc'.split('').map((tag,i)=>new Observation(tag,i));
         var i = 0;
@@ -498,7 +498,7 @@
                 abc: ['a', PLUS('B'), 'c'], 
                 B: 'b',
             },
-            logLevel: 'info',
+            logLevel,
         });
         var obs = 'ac'.split('').map((tag,i)=>new Observation(tag,i));
         var i = 0;
@@ -968,7 +968,7 @@
                 B: 'b',
                 C: 'c',
             },
-            logLevel: 'info',
+            logLevel,
         });
         var test = (text, ntAlt) => {
             var obs = text.split('').map((tag,i)=>new Observation(tag,i));
