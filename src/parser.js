@@ -71,7 +71,8 @@
                 var a = advance ? 'A' : 'a';
                 var r = required ? 'R' : 'r';
                 logger[this.logLevel](
-                    `${name}.reduce(${a},${r}) ${this.state(0,this.logStack)}`);
+                    `${name}.reduce(${a},${r}) `+
+                    `${this.state(0,this.logStack)}`);
             }
         }
 
@@ -129,8 +130,8 @@
                 return false; // not at end of rule
             }
 
-            this.onReduce.call(this, s0, advance, required);
             stack.shift();
+            this.onReduce.call(this, s0, advance, required);
             if (s1 && advance) {
                 s1.rhsData[s1.index] = s0.rhsData || null;
                 this.advance(s1, 'reduce');
@@ -254,15 +255,18 @@
                 if (grammar.isFirst(sym, arg)) {
                     var s1 = new RuleState(arg);
                     stack.unshift(s1); // depth first guess
+                    console.log(`dbg stepStar${arg} + ${this.state()}`);
                     var ok = this.step();
                     if (ok) {
                         this.reduce(false, true);
                         matched.push(s1.rhsData);
+                    console.log(`dbg stepStar${arg} - ${this.state()}`);
                         if (max1) {
                             this.advance(s0, 'stepStar-OptNT');
                         }
                         return true;
                     } 
+                    console.log(`dbg stepStar${arg} ! ${this.state()}`);
                     stack.shift(); // match failed, discard guess
                 }
             }
