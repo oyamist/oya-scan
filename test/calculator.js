@@ -119,8 +119,32 @@
             return rhsData[0];
         }
 
+        reduce_addop(lhs, rhsData) {
+            return rhsData[0];
+        }
+
         reduce_mulop(lhs, rhsData) {
             return rhsData[0];
+        }
+
+        reduce_expr(lhs, rhsData) {
+            var d0 = rhsData[0];
+            var d1 = rhsData[1];
+            if (d1 instanceof Observation) {
+                var v0 = Number(d0.value);
+                var v1 = Number(d1.value);
+                return d1.tag === "+" 
+                    ? new Observation(number, v0 + v1)
+                    : new Observation(number, v0 - v1);
+            } else {
+                return rhsData[0];
+            }
+        }
+
+        reduce_addop_term(lhs, rhsData) {
+            var d0 = rhsData[0];
+            var d1 = rhsData[1];
+            return new Observation(d0.value, d1.value);
         }
 
         reduce_mulop_factor(lhs, rhsData) {
@@ -226,6 +250,19 @@
             logLevel,
         });
         testCalc(calc, '2*3=', `${number}:6`);
+        testCalc(calc, '-12*3=', `${number}:-36`);
+        testCalc(calc, '12*-3=', `${number}:-36`);
+        testCalc(calc, '12/-3=', `${number}:-4`);
+        testCalc(calc, '-123=', `${number}:-123`);
+        testCalc(calc, '123=', `${number}:123`);
+    });
+    it("TESTTESTparses expr", ()=> {
+        var calc = new Calculator({
+            grammar: gf.create(gf.add_expr()),
+            logLevel,
+        });
+        testCalc(calc, '2+3=', `${number}:5`);
+        testCalc(calc, '2-3=', `${number}:-1`);
         testCalc(calc, '-12*3=', `${number}:-36`);
         testCalc(calc, '12*-3=', `${number}:-36`);
         testCalc(calc, '12/-3=', `${number}:-4`);
