@@ -34,6 +34,7 @@
 
     class Parser {
         constructor(opts = {}) {
+            this.name = opts.name || this.constructor.name;
             this.logLevel = opts.logLevel; // error, warn, info, debug
             this.grammar = new Grammar(opts.grammar);
             this.logStack = opts.logStack || 2; // stack elements to log
@@ -53,36 +54,38 @@
 
         onReady() {
             if (this.logLevel) {
-                var name = this.constructor.name;
+                var name = this.name;
                 var msg = `${name} awaiting input`;
                 logger[this.logLevel](msg);
             }
         }
 
-        onReduce(tos) { 
+        onReduce(tos, advance, required) { 
             if (this.logLevel) {
                 var {
                     lhs,
                     rhsData,
                 } = tos;
-                var name = this.constructor.name;
+                var name = this.name;
                 var rhsText = js.simpleString(rhsData);
+                var a = advance ? 'A' : 'a';
+                var r = required ? 'R' : 'r';
                 logger[this.logLevel](
-                    `${name}.reduce()  ${this.state(0,this.logStack)}`);
+                    `${name}.reduce(${a},${r}) ${this.state(0,this.logStack)}`);
             }
         }
 
         onShift(ob) {
             if (this.logLevel) {
-                var name = this.constructor.name;
+                var name = this.name;
                 logger[this.logLevel](
-                    `${name}.shift(${ob}) [${this.state(0,this.logStack)}]`);
+                    `${name}.shift(${ob}) ${this.state(0,this.logStack)}`);
             }
         }
 
         onReject(ob) {
             if (this.logLevel) {
-                var name = this.constructor.name;
+                var name = this.name;
                 var {
                     lhs,
                     args,
@@ -99,14 +102,14 @@
 
         onAdvance(state, label) {
             if (this.logLevel) {
-                var name = this.constructor.name;
+                var name = this.name;
                 var {
                     lhs,
                     index,
                     rhsData,
                 } = state;
                 logger[this.logLevel](
-                    `${name}.advance() ${this.state(0,this.logStack)}`+
+                    `${name}.advance()   ${this.state(0,this.logStack)}`+
                     ` @${label}`);
             }
         }
@@ -126,7 +129,7 @@
                 return false; // not at end of rule
             }
 
-            this.onReduce.call(this, s0);
+            this.onReduce.call(this, s0, advance, required);
             stack.shift();
             if (s1 && advance) {
                 s1.rhsData[s1.index] = s0.rhsData || null;
@@ -174,7 +177,7 @@
             } = this;
 
             if (logLevel) {
-                var name = this.constructor.name;
+                var name = this.name;
                 logger[logLevel](
                     `----- ${name}.observe(${ob}) -----`);
             }
@@ -318,7 +321,7 @@
 
         cannot(loc, msg) {
             if (this.logLevel) {
-                var name = this.constructor.name;
+                var name = this.name;
                 logger[this.logLevel](
                     `${name}.cannot(${loc}) ${msg}`);
             }

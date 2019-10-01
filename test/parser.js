@@ -332,7 +332,7 @@
             rhsData: [[ obs[0], [], obs[1], ]],
         }]);
     });
-    it("TESTTESTobserve() consumes STAR nonterminals ", ()=>{
+    it("observe() consumes STAR nonterminals ", ()=>{
         var tp = new TestParser({
             grammar: {
                 root: 'aBc',
@@ -1091,6 +1091,26 @@
         should(tp.observe(obs[i++])).equal(true); // b
         should(tp.state()).equal('');
         should(tp.isParsing).equal(false);
+    });
+    it("TESTTESTobserve() repeated error is accepted", ()=>{
+        var tp = new TestParser({
+            grammar: {
+                root: [ 'F', STAR('MF'), '=' ],
+                F: 'N',
+                MF: [ '*', 'F' ], // works
+                //MF: [ 'MO', 'F' ], // fails
+                MO: "*",
+            },
+            logLevel: 'info',
+            logStack: 3,
+        });
+        var obs = 'N*N='.split('')
+            .map((c,i)=>new Observation(c,i));
+        var i = 0;
+        should(tp.observe(obs[i++])).equal(true);
+        should(tp.observe(obs[i++])).equal(true);
+        should(tp.observe(obs[i++])).equal(true);
+        should(tp.observe(obs[i++])).equal(true);
     });
 
 })

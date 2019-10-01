@@ -113,14 +113,14 @@
         }
 
         reduce_mulop(lhs, rhsData) {
-            console.log(`dbg mulop ${rhsData[0]}`);
+            //console.log(`dbg mulop ${rhsData[0]}`);
             return rhsData[0];
         }
 
         reduce_mulop_factor(lhs, rhsData) {
             var d0 = rhsData[0];
             var d1 = rhsData[1];
-            console.log(`dbg reduce_mulop_factor ${d0} ${d1}`);
+            //console.log(`dbg reduce_mulop_factor ${d0} ${d1}`);
             return new Observation(d0.value, d1.value);
         }
 
@@ -138,22 +138,22 @@
             return new Observation(number, Number(digits));
         }
 
-        onReduce(tos) {
+        onReduce(tos, advance, required) {
             var {
                 lhs,
                 rhsData,
             } = tos;
             var freduce = this.reduceMap[lhs];
             if (freduce) {
-                console.log(`dbg onReduce calling ${freduce}`);
+                //console.log(`dbg onReduce calling ${freduce}`);
                 tos.rhsData = freduce(lhs, rhsData);
             } else {
-                console.log(`dbg default reduce(${tos.id})`);
+                //console.log(`dbg default reduce(${tos.id})`);
                 if (lhs === root) {
                     this.answer = rhsData[0];
                 }
             }
-            super.onReduce(tos);
+            super.onReduce(tos, advance, required);
         }
     }
 
@@ -224,6 +224,7 @@
             grammar: gf.create(gf.add_term()),
             logLevel: 'info',
             logStack: 4,
+            name: 'c',
         });
         testCalc(calc, '2*3=', `${number}:123`);
         testCalc(calc, '-123=', `${number}:-123`);
