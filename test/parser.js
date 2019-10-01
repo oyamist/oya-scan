@@ -1093,17 +1093,14 @@
         should(tp.isParsing).equal(false);
     });
     it("TESTTESTobserve() repeated error is accepted", ()=>{
-        return;
         var tp = new TestParser({
             grammar: {
                 root: [ 'F', STAR('MF'), '=' ],
                 F: 'N',
-                //MF: [ '*', 'F' ], // works
-                MF: [ 'MO', 'F' ], // fails
+                MF: [ 'MO', 'F' ], 
                 MO: "*",
             },
-            logLevel: 'info',
-            logStack: 3,
+            logLevel,
         });
         var obs = 'N*N='.split('')
             .map((c,i)=>new Observation(c,i));

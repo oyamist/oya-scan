@@ -71,7 +71,7 @@
                 var a = advance ? 'A' : 'a';
                 var r = required ? 'R' : 'r';
                 logger[this.logLevel](
-                    `${name}.reduce(${a},${r}) `+
+                    `${name}.reduce(${tos.lhs},${a},${r}) `+
                     `${this.state(0,this.logStack)}`);
             }
         }
@@ -135,8 +135,6 @@
             if (s1 && advance) {
                 s1.rhsData[s1.index] = s0.rhsData || null;
                 this.advance(s1, 'reduce');
-            } else {
-                console.log(`dbg reduce() not advancing ${s1} ${advance}`);
             }
 
             return true;
@@ -255,12 +253,15 @@
                 if (grammar.isFirst(sym, arg)) {
                     var s1 = new RuleState(arg);
                     stack.unshift(s1); // depth first guess
-                    console.log(`dbg stepStar${arg} + ${this.state()}`);
                     var ok = this.step();
                     if (ok) {
+                        while (stack[0] !== s1) {
+                            if (!this.reduce(true, false)) {
+                                break;
+                            }
+                        }
                         this.reduce(false, true);
                         matched.push(s1.rhsData);
-                    console.log(`dbg stepStar${arg} - ${this.state()}`);
                         if (max1) {
                             this.advance(s0, 'stepStar-OptNT');
                         }
@@ -373,19 +374,18 @@
             throw new Error(`${lhs} has invalid rhs:${rhs}`);
         }
 
-        state(index=0, end=this.stack.length) {
+        state(index=0, n=this.stack.length-index) {
             var {
                 stack,
             } = this;
-            var sv = stack.slice(index, Math.min(this.stack.length, end))
-                .map(s => `${s}`);
+            var end = Math.min(this.stack.length, index+n);
+            var sv = stack.slice(index, end).map(s => `${s}`);
 
             if (end < this.stack.length) {
                 sv.push('...');
             }
 
-            var s =  sv.join('; ');
-            return s;
+            return sv.join('; ');
         }
 
     }

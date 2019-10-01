@@ -102,10 +102,17 @@
         }
 
         reduce_term(lhs, rhsData) {
-            if (!(rhsData[1] instanceof Observation)) {
+            var d0 = rhsData[0];
+            var d1 = rhsData[1];
+            if (d1 instanceof Observation) {
+                var v0 = Number(d0.value);
+                var v1 = Number(d1.value);
+                return d1.tag === "*" 
+                    ? new Observation(number, v0 * v1)
+                    : new Observation(number, v0 / v1);
+            } else {
                 return rhsData[0];
             }
-            return rhsData;
         }
 
         reduce_factor(lhs, rhsData) {
@@ -113,14 +120,12 @@
         }
 
         reduce_mulop(lhs, rhsData) {
-            //console.log(`dbg mulop ${rhsData[0]}`);
             return rhsData[0];
         }
 
         reduce_mulop_factor(lhs, rhsData) {
             var d0 = rhsData[0];
             var d1 = rhsData[1];
-            //console.log(`dbg reduce_mulop_factor ${d0} ${d1}`);
             return new Observation(d0.value, d1.value);
         }
 
@@ -145,10 +150,8 @@
             } = tos;
             var freduce = this.reduceMap[lhs];
             if (freduce) {
-                //console.log(`dbg onReduce calling ${freduce}`);
                 tos.rhsData = freduce(lhs, rhsData);
             } else {
-                //console.log(`dbg default reduce(${tos.id})`);
                 if (lhs === root) {
                     this.answer = rhsData[0];
                 }
@@ -165,14 +168,13 @@
         var logLevel = calc.logLevel;
         if (logLevel) {
             logger[logLevel](
-                `testCalc expect: "${input}" => "${expected}"\n`+
-                ``);
+                `testCalc expect: "${input}" => "${expected}"`);
         }
         calc.clearAll();
         obs.forEach(ob => {
             should(calc.observe(ob)).equal(true);
         });
-        if (calc.answer !== expected) {
+        if (`${calc.answer}` !== expected) {
             logLevel && logger[logLevel] (
                 `testCalc grammar\n${calc.grammar}`);
         }
@@ -218,15 +220,15 @@
         testCalc(calc, '*-123=', `*:-123`);
         testCalc(calc, '*123=', `*:123`);
     });
-    it("TESTTESTparses term", ()=> {
-    return;
+    it("parses term", ()=> {
         var calc = new Calculator({
             grammar: gf.create(gf.add_term()),
-            logLevel: 'info',
-            logStack: 4,
-            name: 'c',
+            logLevel,
         });
-        testCalc(calc, '2*3=', `${number}:123`);
+        testCalc(calc, '2*3=', `${number}:6`);
+        testCalc(calc, '-12*3=', `${number}:-36`);
+        testCalc(calc, '12*-3=', `${number}:-36`);
+        testCalc(calc, '12/-3=', `${number}:-4`);
         testCalc(calc, '-123=', `${number}:-123`);
         testCalc(calc, '123=', `${number}:123`);
     });
