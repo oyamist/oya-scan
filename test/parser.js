@@ -1092,7 +1092,7 @@
         should(tp.state()).equal('');
         should(tp.isParsing).equal(false);
     });
-    it("TESTTESTobserve() repeated error is accepted", ()=>{
+    it("observe() repeated error is accepted", ()=>{
         var tp = new TestParser({
             grammar: {
                 root: [ 'F', STAR('MF'), '=' ],

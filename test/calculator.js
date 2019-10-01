@@ -115,6 +115,10 @@
             }
         }
 
+        reduce_paren_expr(lhs, rhsData) {
+            return rhsData[1];
+        }
+
         reduce_factor(lhs, rhsData) {
             return rhsData[0];
         }
@@ -244,11 +248,12 @@
         testCalc(calc, '*-123=', `*:-123`);
         testCalc(calc, '*123=', `*:123`);
     });
-    it("parses term", ()=> {
+    it("TESTTESTparses term", ()=> {
         var calc = new Calculator({
             grammar: gf.create(gf.add_term()),
-            logLevel,
+            logLevel:'info',
         });
+        //testCalc(calc, '1*2*3=', `${number}:6`);
         testCalc(calc, '2*3=', `${number}:6`);
         testCalc(calc, '-12*3=', `${number}:-36`);
         testCalc(calc, '12*-3=', `${number}:-36`);
@@ -256,11 +261,14 @@
         testCalc(calc, '-123=', `${number}:-123`);
         testCalc(calc, '123=', `${number}:123`);
     });
-    it("TESTTESTparses expr", ()=> {
+    it("parses expr", ()=> {
+        this.timeout(5*1000);
         var calc = new Calculator({
             grammar: gf.create(gf.add_expr()),
-            logLevel,
+            logLevel: 'info',
         });
+        //testCalc(calc, '(1+1+3)*(2-3)=', `${number}:-5`);
+        testCalc(calc, '5*(2-3)=', `${number}:-5`);
         testCalc(calc, '2+3=', `${number}:5`);
         testCalc(calc, '2-3=', `${number}:-1`);
         testCalc(calc, '-12*3=', `${number}:-36`);

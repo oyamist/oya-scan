@@ -302,15 +302,17 @@
             for (var iArg = 0; iArg < args.length; iArg++) {
                 var arg = args[iArg];
                 if (grammar.rhs(arg)) {
-                    var s1 = new RuleState(arg);
-                    stack.unshift(s1); // depth first guess
-                    var ok = this.step();
-                    if (ok) {
-                        this.reduce(true, true);
-                        return true;
-                    } 
-                    // not matched
-                    stack.shift(); // discard guess
+                    if (grammar.isFirst(sym, arg)) {
+                        var s1 = new RuleState(arg);
+                        stack.unshift(s1); // depth first guess
+                        var ok = this.step();
+                        if (ok) {
+                            this.reduce(true, true);
+                            return true;
+                        } 
+                        // not matched
+                        stack.shift(); // discard guess
+                    }
                 } else if (arg === sym) { // matches current symbol
                     var ob = lookahead.shift();
                     s0.rhsData[index] = ob;
