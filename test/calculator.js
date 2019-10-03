@@ -265,10 +265,10 @@
         testCalc(calc, '-123=', `${number}:-123`);
         testCalc(calc, '123=', `${number}:123`);
     });
-    it("TESTTESTparses mulop_factor", ()=> {
+    it("parses mulop_factor", ()=> {
         var calc = new Calculator({
             grammar: gf.create(gf.add_mulop_factor()),
-            logLevel: 'info',
+            logLevel,
         });
         testCalc(calc, '*-123=', `"*":-123`);
         testCalc(calc, '*123=', `"*":123`);

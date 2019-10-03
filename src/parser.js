@@ -61,7 +61,7 @@
         }
 
         onReduce(tos) { 
-            // override this to change what is returned
+            // override this to change what is returned on reduce
             return tos.rhsData;
         }
 
@@ -143,7 +143,7 @@
                     ? 'R' 
                     : required === false ? 'r' : '?';
                 logger[logLevel](
-                    `${name}.reduce(${s0},${a},${r}) `+
+                    `${name}.reduce(${s0.lhs},${a},${r}) `+
                     `${this.state(0,logStack)}`);
             }
 

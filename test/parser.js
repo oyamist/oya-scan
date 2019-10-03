@@ -45,7 +45,7 @@
                 lhs: tos.lhs,
                 rhsData: tos.rhsData,
             });
-            return tos.rhsData;
+            return super.onReduce(tos);
         }
 
         onShift(ob) {
@@ -1092,7 +1092,7 @@
         should(tp.state()).equal('');
         should(tp.isParsing).equal(false);
     });
-    it("observe() STAR nonterminal", ()=>{
+    it("TESTTESTobserve() STAR nonterminal", ()=>{
         var tp = new TestParser({
             grammar: {
                 root: [ 'F', STAR('MF'), '=' ],
@@ -1100,7 +1100,7 @@
                 MF: [ 'MO', 'F' ], 
                 MO: "*",
             },
-            logLevel,
+            logLevel: 'info',
         });
         var obs = 'N*N*N='.split('')
             .map((c,i)=>new Observation(c,i));
