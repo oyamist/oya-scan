@@ -104,14 +104,36 @@
         reduce_term(lhs, rhsData) {
             var d0 = rhsData[0];
             var d1 = rhsData[1];
+            var v0 = Number(d0.value);
+            if (d1 instanceof Array) {
+                for (var i = 0; i < d1.length; i++) {
+                    var d1i = d1[i];
+                    var ebnf = d1i.ebnf;
+                    if (ebnf === multiply) {
+                        v0 *= d1i.value;
+                    } else if (ebnf === divide) {
+                        v0 /= d1i.value;
+                    } else {
+                        console.log( new Error(
+                            `Invalid rhsData[1]:${JSON.stringify(d1)}`));
+                        return d0;
+                    }
+                }
+            }
+            return new Observation(number, v0);
             if (d1 instanceof Observation) {
                 var v0 = Number(d0.value);
                 var v1 = Number(d1.value);
+                console.log(`dbg term ${d0} ${d1}`);
                 return d1.tag === "*" 
                     ? new Observation(number, v0 * v1)
                     : new Observation(number, v0 / v1);
+            } else if (d1 instanceof Array) {
+                console.log(`dbg reduce_term array`,
+                    `${js.simpleString(d1)}`);
+                return d0;
             } else {
-                return rhsData[0];
+                return d0;
             }
         }
 
@@ -154,7 +176,9 @@
         reduce_mulop_factor(lhs, rhsData) {
             var d0 = rhsData[0];
             var d1 = rhsData[1];
-            return new Observation(d0.value, d1.value);
+            var ob = new Observation(d0.tag, d1.value);
+            console.log(`dbg MF ${d0} ${d1} => ${ob}`);
+            return ob;
         }
 
         reduce_signed_number(lhs, rhsData) {
@@ -171,20 +195,21 @@
             return new Observation(number, Number(digits));
         }
 
-        onReduce(tos, advance, required) {
+        onReduce(tos) {
             var {
                 lhs,
                 rhsData,
             } = tos;
+            var result = rhsData;
             var freduce = this.reduceMap[lhs];
             if (freduce) {
-                tos.rhsData = freduce(lhs, rhsData);
+                result = tos.rhsData = freduce(lhs, rhsData);
             } else {
                 if (lhs === root) {
                     this.answer = rhsData[0];
                 }
             }
-            super.onReduce(tos, advance, required);
+            return result;
         }
     }
 
@@ -240,20 +265,21 @@
         testCalc(calc, '-123=', `${number}:-123`);
         testCalc(calc, '123=', `${number}:123`);
     });
-    it("parses mulop_factor", ()=> {
+    it("TESTTESTparses mulop_factor", ()=> {
         var calc = new Calculator({
             grammar: gf.create(gf.add_mulop_factor()),
-            logLevel,
+            logLevel: 'info',
         });
-        testCalc(calc, '*-123=', `*:-123`);
-        testCalc(calc, '*123=', `*:123`);
+        testCalc(calc, '*-123=', `"*":-123`);
+        testCalc(calc, '*123=', `"*":123`);
     });
     it("TESTTESTparses term", ()=> {
+    return;
         var calc = new Calculator({
             grammar: gf.create(gf.add_term()),
-            logLevel:'info',
+            logLevel,
         });
-        //testCalc(calc, '1*2*3=', `${number}:6`);
+        testCalc(calc, '1*2*3=', `${number}:6`);
         testCalc(calc, '2*3=', `${number}:6`);
         testCalc(calc, '-12*3=', `${number}:-36`);
         testCalc(calc, '12*-3=', `${number}:-36`);
@@ -261,17 +287,18 @@
         testCalc(calc, '-123=', `${number}:-123`);
         testCalc(calc, '123=', `${number}:123`);
     });
-    it("parses expr", ()=> {
+    it("TESTTESTparses expr", ()=> {
+        return; // TODO
         this.timeout(5*1000);
         var calc = new Calculator({
             grammar: gf.create(gf.add_expr()),
             logLevel: 'info',
         });
         //testCalc(calc, '(1+1+3)*(2-3)=', `${number}:-5`);
-        testCalc(calc, '5*(2-3)=', `${number}:-5`);
-        testCalc(calc, '2+3=', `${number}:5`);
+        //testCalc(calc, '5*(2-3)=', `${number}:-5`);
+        //testCalc(calc, '2+3=', `${number}:5`);
         testCalc(calc, '2-3=', `${number}:-1`);
-        testCalc(calc, '-12*3=', `${number}:-36`);
+        testCalc(calc, '-2*3=', `${number}:-6`);
         testCalc(calc, '12*-3=', `${number}:-36`);
         testCalc(calc, '12/-3=', `${number}:-4`);
         testCalc(calc, '-123=', `${number}:-123`);

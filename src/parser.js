@@ -60,20 +60,9 @@
             }
         }
 
-        onReduce(tos, advance, required) { 
-            if (this.logLevel) {
-                var {
-                    lhs,
-                    rhsData,
-                } = tos;
-                var name = this.name;
-                var rhsText = js.simpleString(rhsData);
-                var a = advance ? 'A' : 'a';
-                var r = required ? 'R' : 'r';
-                logger[this.logLevel](
-                    `${name}.reduce(${tos.lhs},${a},${r}) `+
-                    `${this.state(0,this.logStack)}`);
-            }
+        onReduce(tos) { 
+            // override this to change what is returned
+            return tos.rhsData;
         }
 
         onShift(ob) {
@@ -115,11 +104,17 @@
             }
         }
 
-        reduce(advance=true, required=true) {
+        reduce(advance, required) {
             var {
                 stack,
                 grammar,
+                logLevel,
+                logStack,
+                name,
             } = this;
+            if (advance == null || required == null) {
+                throw new Error("reduce(advance?, required?)");
+            }
             var s0 = stack[0];
             var s1 = stack[1];
             if (!s0 || s0.index < grammar.rhs(s0.lhs).length) {
@@ -130,11 +125,26 @@
                 return false; // not at end of rule
             }
 
+            if (advance !== this.advanceOnReduce(s1)) {
+                //throw new Error(`advance mismatch ${advance} ${s1}\n${grammar}`);
+            }
             stack.shift();
-            this.onReduce.call(this, s0, advance, required);
+            var rhsData = this.onReduce.call(this, s0);
             if (s1 && advance) {
-                s1.rhsData[s1.index] = s0.rhsData || null;
-                this.advance(s1, 'reduce');
+                s1.rhsData[s1.index] = rhsData || null;
+                this.advance(s1, `reduce(${s0.lhs})`);
+            }
+
+            if (logLevel) {
+                var a = advance 
+                    ? 'A' 
+                    : advance === false ? 'a' : '?';
+                var r = required 
+                    ? 'R' 
+                    : required === false ? 'r' : '?';
+                logger[logLevel](
+                    `${name}.reduce(${s0},${a},${r}) `+
+                    `${this.state(0,logStack)}`);
             }
 
             return true;
@@ -188,7 +198,10 @@
             var res = this.step();
             if (res) {
                 this.obError = undefined;
-                while (this.reduce(true, false)) {}
+                var advance = this.advanceOnReduce(stack[1]);
+                while (this.reduce(advance, false)) {
+                    advance = this.advanceOnReduce(stack[1]);
+                }
                 if (!this.isParsing) {
                     this.onReady();
                 }
@@ -253,21 +266,22 @@
                 if (grammar.isFirst(sym, arg)) {
                     var s1 = new RuleState(arg);
                     stack.unshift(s1); // depth first guess
+                    var stackLen = stack.length;
                     var ok = this.step();
                     if (ok) {
-                        while (stack[0] !== s1) {
+                        while (stack.length > stackLen) {
                             if (!this.reduce(true, false)) {
                                 break;
                             }
                         }
-                        this.reduce(false, true);
+                        var rqd = (grammar.rhs(arg).length === 1);
+                        this.reduce(false, rqd);
                         matched.push(s1.rhsData);
                         if (max1) {
                             this.advance(s0, 'stepStar-OptNT');
                         }
                         return true;
                     } 
-                    console.log(`dbg stepStar${arg} ! ${this.state()}`);
                     stack.shift(); // match failed, discard guess
                 }
             }
@@ -280,6 +294,20 @@
 
             this.advance(stack[0], 'stepStarSkip'); // empty match
             return this.step();
+        }
+
+        advanceOnReduce(state) {
+            var advance = true;
+            if (state) {
+                var rhs = this.grammar.rhs(state.lhs);
+                var rhsi = rhs[state.index];
+                if (rhsi == null) {
+                    throw new Error(`Invalid state:${state}`);
+                }
+                var ebnf = rhsi.ebnf;
+                advance =  ebnf !== '*' && ebnf !== '+';
+            }
+            return advance;
         }
 
         stepAlt() { 

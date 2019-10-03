@@ -45,7 +45,7 @@
                 lhs: tos.lhs,
                 rhsData: tos.rhsData,
             });
-            super.onReduce(tos);
+            return tos.rhsData;
         }
 
         onShift(ob) {
@@ -339,7 +339,7 @@
                 aBc: ['a', STAR('B'), 'c'], 
                 B: 'b',
             },
-            logLevel:'info',
+            logLevel,
         });
         var obs = 'abbc'.split('').map((tag,i)=>new Observation(tag,i));
         var i = 0;
@@ -1092,7 +1092,7 @@
         should(tp.state()).equal('');
         should(tp.isParsing).equal(false);
     });
-    it("observe() repeated error is accepted", ()=>{
+    it("observe() STAR nonterminal", ()=>{
         var tp = new TestParser({
             grammar: {
                 root: [ 'F', STAR('MF'), '=' ],
@@ -1102,13 +1102,17 @@
             },
             logLevel,
         });
-        var obs = 'N*N='.split('')
+        var obs = 'N*N*N='.split('')
             .map((c,i)=>new Observation(c,i));
         var i = 0;
         should(tp.observe(obs[i++])).equal(true);
         should(tp.observe(obs[i++])).equal(true);
         should(tp.observe(obs[i++])).equal(true);
         should(tp.observe(obs[i++])).equal(true);
+        should(tp.observe(obs[i++])).equal(true);
+        console.log(`dbg state:${tp.state()}`);
+        should(tp.observe(obs[i++])).equal(true);
+        should(tp.state()).equal('');
     });
 
 })

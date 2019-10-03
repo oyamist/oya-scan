@@ -176,7 +176,6 @@
         (async function() { try {
             var scanner = new Scanner({
                 map: TESTMAP,
-                logLevel: 'info',
             });
             var ispath = path.join(__dirname, 'data', 'a0001.txt');
             var is = fs.createReadStream(ispath);
