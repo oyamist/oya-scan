@@ -984,23 +984,23 @@
             should(tp.observe(obs[i++])).equal(true); // b
             var bc = ntAlt.toLowerCase();
             should(tp.state())
-                .equal(`aBCd_2:[a:0, [${bc}:1]]; root_0:[]`);
+                .equal(`aBCd_2:[a:0, ${bc}:1]; root_0:[]`);
             should.deepEqual(tp.reduced, [{
                 lhs: ntAlt,
                 rhsData: [ obs[1] ],
             }]);
             should(js.simpleString(tp.stack[0].rhsData))
-                .equal(`[a:0, [${ntAlt.toLowerCase()}:1]]`);
+                .equal(`[a:0, ${ntAlt.toLowerCase()}:1]`);
 
             should(tp.observe(obs[i++])).equal(true); // d
             should(tp.state()).equal('');
             should.deepEqual(tp.reduced[1], {
                 lhs: 'aBCd',
-                rhsData: [ obs[0], [obs[1]], obs[2] ],
+                rhsData: [ obs[0], obs[1], obs[2] ],
             });
             should.deepEqual(tp.reduced[2], {
                 lhs: 'root',
-                rhsData: [[ obs[0], [obs[1]], obs[2] ]],
+                rhsData: [[ obs[0], obs[1], obs[2] ]],
             });
             should(tp.reduced.length).equal(3);
         }
@@ -1034,7 +1034,7 @@
             should(tp.observe(obs[i++])).equal(true); // b
             var bc = ntAlt.toLowerCase();
             should(tp.state())
-                .equal(`aBCd_2:[a:0, [${bc}:2]]; root_0:[]`);
+                .equal(`aBCd_2:[a:0, ${bc}:2]; root_0:[]`);
             should.deepEqual(tp.reduced, [{
                 lhs: ntAlt,
                 rhsData: [ obs[2] ],
@@ -1044,11 +1044,11 @@
             should(tp.state()).equal('');
             should.deepEqual(tp.reduced[1], {
                 lhs: 'aBCd',
-                rhsData: [ obs[0], [obs[2]], obs[3] ],
+                rhsData: [ obs[0], obs[2], obs[3] ],
             });
             should.deepEqual(tp.reduced[2], {
                 lhs: 'root',
-                rhsData: [[ obs[0], [obs[2]], obs[3] ]],
+                rhsData: [[ obs[0], obs[2], obs[3] ]],
             });
             should(tp.reduced.length).equal(3);
         }

@@ -62,7 +62,9 @@
 
         onReduce(tos) { 
             // override this to change what is returned on reduce
-            return tos.rhsData;
+            var d = tos.rhsData;
+            return d instanceof Array && d.length===1
+                ? d[0] : d;
         }
 
         onShift(ob) {
