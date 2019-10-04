@@ -121,20 +121,6 @@
                 }
             }
             return new Observation(number, v0);
-            if (d1 instanceof Observation) {
-                var v0 = Number(d0.value);
-                var v1 = Number(d1.value);
-                console.log(`dbg term ${d0} ${d1}`);
-                return d1.tag === "*" 
-                    ? new Observation(number, v0 * v1)
-                    : new Observation(number, v0 / v1);
-            } else if (d1 instanceof Array) {
-                console.log(`dbg reduce_term array`,
-                    `${js.simpleString(d1)}`);
-                return d0;
-            } else {
-                return d0;
-            }
         }
 
         reduce_paren_expr(lhs, rhsData) {
@@ -227,11 +213,11 @@
         obs.forEach(ob => {
             should(calc.observe(ob)).equal(true);
         });
-        if (`${calc.answer}` !== expected) {
+        if (`${calc.answers[0]}` !== expected) {
             logLevel && logger[logLevel] (
                 `testCalc grammar\n${calc.grammar}`);
         }
-        should(`${calc.answer}`).equal(expected);
+        should(`${calc.answers[0]}`).equal(expected);
     }
 
     it("default ctor", ()=>{
@@ -247,31 +233,31 @@
             grammar: gf.create(gf.add_number()),
             logLevel,
         });
-        testCalc(calc, '123=', `${number}:123`);
+        testCalc(calc, '123=', `${number}:123,enter:=`);
     });
     it("parses signed_number", ()=> {
         var calc = new Calculator({
             grammar: gf.create(gf.add_signed_number()),
             logLevel,
         });
-        testCalc(calc, '-123=', `${number}:-123`);
-        testCalc(calc, '123=', `${number}:123`);
+        testCalc(calc, '-123=', `${number}:-123,enter:=`);
+        testCalc(calc, '123=', `${number}:123,enter:=`);
     });
     it("parses factor", ()=> {
         var calc = new Calculator({
             grammar: gf.create(gf.add_factor()),
             logLevel,
         });
-        testCalc(calc, '-123=', `${number}:-123`);
-        testCalc(calc, '123=', `${number}:123`);
+        testCalc(calc, '-123=', `${number}:-123,enter:=`);
+        testCalc(calc, '123=', `${number}:123,enter:=`);
     });
     it("parses mulop_factor", ()=> {
         var calc = new Calculator({
             grammar: gf.create(gf.add_mulop_factor()),
             logLevel,
         });
-        testCalc(calc, '*-123=', `"*":-123`);
-        testCalc(calc, '*123=', `"*":123`);
+        testCalc(calc, '*-123=', `"*":-123,enter:=`);
+        testCalc(calc, '*123=', `"*":123,enter:=`);
     });
     it("TESTTESTparses term", ()=> {
     return;
