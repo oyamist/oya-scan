@@ -38,6 +38,8 @@
             this.logLevel = opts.logLevel; // error, warn, info, debug
             this.grammar = new Grammar(opts.grammar);
             this.logStack = opts.logStack || 2; // stack elements to log
+            this.answers = [];
+            this.maxAnswers = opts.maxAnswers || 3;
             this.clearAll();
         }
 
@@ -113,6 +115,8 @@
                 logLevel,
                 logStack,
                 name,
+                maxAnswers,
+                answers,
             } = this;
             if (advance == null || required == null) {
                 throw new Error("reduce(advance?, required?)");
@@ -131,10 +135,17 @@
                 //throw new Error(`advance mismatch ${advance} ${s1}\n${grammar}`);
             }
             stack.shift();
-            var rhsData = this.onReduce.call(this, s0);
-            if (s1 && advance) {
-                s1.rhsData[s1.index] = rhsData || null;
-                this.advance(s1, `reduce(${s0.lhs})`);
+            var s0Data = this.onReduce.call(this, s0);
+            if (advance) {
+                if (s1) {
+                    s1.rhsData[s1.index] = s0Data;
+                    this.advance(s1, `reduce(${s0.lhs})`);
+                } else {
+                    answers.unshift(s0Data);
+                    if (answers.length > maxAnswers) {
+                        this.answers = answers.slice(0, maxAnswers);
+                    }
+                }
             }
 
             if (logLevel) {

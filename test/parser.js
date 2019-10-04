@@ -73,6 +73,8 @@
         should(typeof parser.onReduce).equal('function');
 
         should(parser.state()).equal('');
+        should(parser.answers.length).equal(0);
+        should(parser.maxAnswers).equal(3);
     });
     it("custom ctor", ()=>{
         const gdef = {
@@ -1092,7 +1094,7 @@
         should(tp.state()).equal('');
         should(tp.isParsing).equal(false);
     });
-    it("TESTTESTobserve() STAR nonterminal", ()=>{
+    it("TESTTESTanswers stores last results", ()=>{
         var tp = new TestParser({
             grammar: {
                 root: [ 'F', STAR('MF'), '=' ],
@@ -1100,19 +1102,34 @@
                 MF: [ 'MO', 'F' ], 
                 MO: "*",
             },
-            logLevel: 'info',
+            logLevel,
+            maxAnswers: 2,
         });
-        var obs = 'N*N*N='.split('')
-            .map((c,i)=>new Observation(c,i));
-        var i = 0;
-        should(tp.observe(obs[i++])).equal(true);
-        should(tp.observe(obs[i++])).equal(true);
-        should(tp.observe(obs[i++])).equal(true);
-        should(tp.observe(obs[i++])).equal(true);
-        should(tp.observe(obs[i++])).equal(true);
-        console.log(`dbg state:${tp.state()}`);
-        should(tp.observe(obs[i++])).equal(true);
+        var answers = [
+            '[N:0, [], =:1]',
+            '[N:0, [[*:1, N:2]], =:3]',
+            '[N:0, [[*:1, N:2], [*:3, N:4]], =:5]',
+        ];
+
+        var obs = 'N='.split('').map((c,i)=>new Observation(c,i));
+        obs.forEach(ob => should(tp.observe(ob)).equal(true));
         should(tp.state()).equal('');
+        should(js.simpleString(tp.answers[0])).equal(answers[0]);
+        should(tp.answers.length).equal(1); // maxAnswers
+
+        var obs = 'N*N='.split('').map((c,i)=>new Observation(c,i));
+        obs.forEach(ob => should(tp.observe(ob)).equal(true));
+        should(tp.state()).equal('');
+        should(js.simpleString(tp.answers[0])).equal(answers[1]);
+        should(js.simpleString(tp.answers[1])).equal(answers[0]);
+        should(tp.answers.length).equal(2); // maxAnswers
+
+        var obs = 'N*N*N='.split('').map((c,i)=>new Observation(c,i));
+        obs.forEach(ob => should(tp.observe(ob)).equal(true));
+        should(tp.state()).equal('');
+        should(js.simpleString(tp.answers[0])).equal(answers[2]);
+        should(js.simpleString(tp.answers[1])).equal(answers[1]);
+        should(tp.answers.length).equal(2); // discard first answer
     });
 
 })
