@@ -104,8 +104,7 @@
         reduce_term(lhs, rhsData) {
             var d0 = rhsData[0];
             var d1 = rhsData[1];
-            console.log(`dbg term ${js.simpleString(d0)} ${js.simpleString(d1)}`);
-            var v0 = Number(d0.value);
+            var v0 = this.numberOf(d0.value);
             if (d1 instanceof Array) {
                 for (var i = 0; i < d1.length; i++) {
                     var d1i = d1[i];
@@ -127,17 +126,6 @@
             return rhsData[1];
         }
 
-        reduce_factor(lhs, rhsData) {
-            return rhsData[0];
-        }
-
-        reduce_addop(lhs, rhsData) {
-            return rhsData[0];
-        }
-
-        reduce_mulop(lhs, rhsData) {
-            return rhsData[0];
-        }
 
         numberOf(v) {
             return Number(v.tag === number ? v.value : v);
@@ -146,7 +134,7 @@
         reduce_expr(lhs, rhsData) {
             var d0 = rhsData[0];
             var d1 = rhsData[1];
-            var v0 = Number(d0.value);
+            var v0 = this.numberOf(d0.value);
             if (d1 instanceof Array) {
                 for (var i = 0; i < d1.length; i++) {
                     var d1i = d1[i];
@@ -204,7 +192,6 @@
                     this.answer = rhsData[0];
                 }
             }
-            console.log(`dbg onReduce => ${result}`);
             return result;
         }
     }
@@ -300,13 +287,13 @@
         testCalc(calc, '-123=', `${number}:-123`);
         testCalc(calc, '123=', `${number}:123`);
     });
-    it("TESTTESTparses expr", ()=> {
-        this.timeout(5*1000);
+    it("parses expr", ()=> {
         var calc = new Calculator({
             grammar: gf.create(gf.add_expr()),
-            logLevel: 'info',
+            logLevel,
         });
         testCalc(calc, '(1+1+3)*(2-3)=', `${number}:-5`);
+        testCalc(calc, '(1+1+1+1+1)*(2-3)=', `${number}:-5`);
         testCalc(calc, '5*(2-3)=', `${number}:-5`);
         testCalc(calc, '2+3=', `${number}:5`);
         testCalc(calc, '2-3=', `${number}:-1`);
