@@ -111,13 +111,12 @@
                     var d1i = d1[i];
                     var tag = d1i.tag;
                     if (tag === multiply) {
-                        v0 *= d1i.value.value;
+                        v0 *= this.numberOf(d1i.value);
                     } else if (tag === divide) {
-                        v0 /= d1i.value.value;
+                        v0 /= this.numberOf(d1i.value);
                     } else {
-                        console.log( new Error(
-                            `Invalid rhsData[1]:${JSON.stringify(d1i)}`));
-                        return d0;
+                        throw new Error(
+                            `Invalid rhsData[1]:${JSON.stringify(d1i)}`);
                     }
                 }
             }
@@ -140,31 +139,40 @@
             return rhsData[0];
         }
 
+        numberOf(v) {
+            return Number(v.tag === number ? v.value : v);
+        }
+
         reduce_expr(lhs, rhsData) {
             var d0 = rhsData[0];
             var d1 = rhsData[1];
-            if (d1 instanceof Observation) {
-                var v0 = Number(d0.value);
-                var v1 = Number(d1.value);
-                return d1.tag === "+" 
-                    ? new Observation(number, v0 + v1)
-                    : new Observation(number, v0 - v1);
-            } else {
-                return rhsData[0];
+            var v0 = Number(d0.value);
+            if (d1 instanceof Array) {
+                for (var i = 0; i < d1.length; i++) {
+                    var d1i = d1[i];
+                    if (d1i.tag === plus) {
+                        v0 += this.numberOf(d1i.value);
+                    } else if (d1i.tag === minus) {
+                        v0 -= this.numberOf(d1i.value);
+                    } else {
+                        throw new Error(
+                            `Invalid rhsData[1]:${JSON.stringify(d1i)}`);
+                    }
+                }
             }
+            return new Observation(number, v0);
         }
 
         reduce_addop_term(lhs, rhsData) {
             var d0 = rhsData[0];
             var d1 = rhsData[1];
-            return new Observation(d0.value, d1.value);
+            return new Observation(d0.tag, d1);
         }
 
         reduce_mulop_factor(lhs, rhsData) {
             var d0 = rhsData[0];
             var d1 = rhsData[1];
             var ob = new Observation(d0.tag, d1);
-            console.log(`dbg MF ${d0} ${d1} => ${ob}`);
             return ob;
         }
 
@@ -190,7 +198,7 @@
             var result = super.onReduce(tos);
             var freduce = this.reduceMap[lhs];
             if (freduce) {
-                result = freduce(lhs, rhsData);
+                result = freduce.call(this, lhs, rhsData);
             } else {
                 if (lhs === root) {
                     this.answer = rhsData[0];
@@ -293,15 +301,14 @@
         testCalc(calc, '123=', `${number}:123`);
     });
     it("TESTTESTparses expr", ()=> {
-        return;//
         this.timeout(5*1000);
         var calc = new Calculator({
             grammar: gf.create(gf.add_expr()),
             logLevel: 'info',
         });
-        //testCalc(calc, '(1+1+3)*(2-3)=', `${number}:-5`);
-        //testCalc(calc, '5*(2-3)=', `${number}:-5`);
-        //testCalc(calc, '2+3=', `${number}:5`);
+        testCalc(calc, '(1+1+3)*(2-3)=', `${number}:-5`);
+        testCalc(calc, '5*(2-3)=', `${number}:-5`);
+        testCalc(calc, '2+3=', `${number}:5`);
         testCalc(calc, '2-3=', `${number}:-1`);
         testCalc(calc, '-2*3=', `${number}:-6`);
         testCalc(calc, '12*-3=', `${number}:-36`);
