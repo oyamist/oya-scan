@@ -136,9 +136,15 @@
             }
             stack.shift();
             var s0Data = this.onReduce.call(this, s0);
+            if (s1) {
+                if (advance) {
+                    s1.rhsData[s1.index] = s0Data;
+                } else {
+                    s1.rhsData[s1.index].push(s0Data);
+                }
+            }
             if (advance) {
                 if (s1) {
-                    s1.rhsData[s1.index] = s0Data;
                     this.advance(s1, `reduce(${s0.lhs})`);
                 } else {
                     answers.unshift(s0Data);
@@ -187,6 +193,16 @@
             this.onReady();
         }
 
+        reduceMaybe() {
+            var {
+                stack,
+            } = this;
+            var advance = this.advanceOnReduce(stack[1]);
+            while (this.reduce(advance, false)) {
+                advance = this.advanceOnReduce(stack[1]);
+            }
+        }
+
         observe(ob) {
             var obError = this.obError;
             if (obError && ob.toString() === obError.toString()) {
@@ -211,10 +227,7 @@
             var res = this.step();
             if (res) {
                 this.obError = undefined;
-                var advance = this.advanceOnReduce(stack[1]);
-                while (this.reduce(advance, false)) {
-                    advance = this.advanceOnReduce(stack[1]);
-                }
+                this.reduceMaybe();
                 if (!this.isParsing) {
                     this.onReady();
                 }
@@ -289,7 +302,6 @@
                         }
                         var rqd = (grammar.rhs(arg).length === 1);
                         this.reduce(false, rqd);
-                        matched.push(s1.rhsData);
                         if (max1) {
                             this.advance(s0, 'stepStar-OptNT');
                         }
@@ -381,7 +393,7 @@
                 stack,
                 logLevel,
             } = this;
-            while (this.reduce(true, false)) {}
+            this.reduceMaybe();
             if (stack.length === 0) {
                 this.cannot(`step()`, `empty stack`);
                 return false;

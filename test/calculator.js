@@ -104,6 +104,7 @@
         reduce_term(lhs, rhsData) {
             var d0 = rhsData[0];
             var d1 = rhsData[1];
+            console.log(`dbg term ${js.simpleString(d0)} ${js.simpleString(d1)}`);
             var v0 = Number(d0.value);
             if (d1 instanceof Array) {
                 for (var i = 0; i < d1.length; i++) {
@@ -186,18 +187,21 @@
                 lhs,
                 rhsData,
             } = tos;
-            var result = rhsData;
+            var result = super.onReduce(tos);
             var freduce = this.reduceMap[lhs];
             if (freduce) {
-                result = tos.rhsData = freduce(lhs, rhsData);
+                result = freduce(lhs, rhsData);
             } else {
                 if (lhs === root) {
                     this.answer = rhsData[0];
                 }
             }
+            console.log(`dbg onReduce => ${result}`);
             return result;
         }
     }
+
+    var testAssert = true;
 
     function testCalc(calc, input, expected) {
         var obs = input.split('').map(c => {
@@ -210,14 +214,29 @@
                 `testCalc expect: "${input}" => "${expected}"`);
         }
         calc.clearAll();
-        obs.forEach(ob => {
-            should(calc.observe(ob)).equal(true);
-        });
+        for (var i = 0;  i < obs.length; i++) {
+            var ob = obs[i];
+            var res = calc.observe(ob);
+            if (res) {
+                continue;
+            }
+            if (!testAssert) {
+                return false;
+            }
+            should(res).equal(true);
+        }
         if (`${calc.answers[0]}` !== expected) {
             logLevel && logger[logLevel] (
                 `testCalc grammar\n${calc.grammar}`);
         }
+        if (`${calc.answers[0]}` !== expected) {
+            if (!testAssert) {
+                return false;
+            }
+        }
+
         should(`${calc.answers[0]}`).equal(expected);
+        return true;
     }
 
     it("default ctor", ()=>{
@@ -260,18 +279,21 @@
         testCalc(calc, '*123=', `"*":123,enter:=`);
     });
     it("TESTTESTparses term", ()=> {
-    return;
+        return;//
         var calc = new Calculator({
             grammar: gf.create(gf.add_term()),
-            logLevel,
+            logLevel: 'info',
+            logStack: 4,
         });
-        testCalc(calc, '1*2*3=', `${number}:6`);
-        testCalc(calc, '2*3=', `${number}:6`);
-        testCalc(calc, '-12*3=', `${number}:-36`);
-        testCalc(calc, '12*-3=', `${number}:-36`);
-        testCalc(calc, '12/-3=', `${number}:-4`);
-        testCalc(calc, '-123=', `${number}:-123`);
-        testCalc(calc, '123=', `${number}:123`);
+        testAssert = false;
+        testCalc(calc, '1*2*3=', `${number}:6`) &&
+        testCalc(calc, '2*3=', `${number}:6`) &&
+        testCalc(calc, '-12*3=', `${number}:-36`) &&
+        testCalc(calc, '12*-3=', `${number}:-36`) &&
+        testCalc(calc, '12/-3=', `${number}:-4`) &&
+        testCalc(calc, '-123=', `${number}:-123`) &&
+        testCalc(calc, '123=', `${number}:123`) &&
+        true;
     });
     it("TESTTESTparses expr", ()=> {
         return; // TODO
