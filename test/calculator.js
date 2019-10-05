@@ -109,14 +109,14 @@
             if (d1 instanceof Array) {
                 for (var i = 0; i < d1.length; i++) {
                     var d1i = d1[i];
-                    var ebnf = d1i.ebnf;
-                    if (ebnf === multiply) {
-                        v0 *= d1i.value;
-                    } else if (ebnf === divide) {
-                        v0 /= d1i.value;
+                    var tag = d1i.tag;
+                    if (tag === multiply) {
+                        v0 *= d1i.value.value;
+                    } else if (tag === divide) {
+                        v0 /= d1i.value.value;
                     } else {
                         console.log( new Error(
-                            `Invalid rhsData[1]:${JSON.stringify(d1)}`));
+                            `Invalid rhsData[1]:${JSON.stringify(d1i)}`));
                         return d0;
                     }
                 }
@@ -163,7 +163,7 @@
         reduce_mulop_factor(lhs, rhsData) {
             var d0 = rhsData[0];
             var d1 = rhsData[1];
-            var ob = new Observation(d0.tag, d1.value);
+            var ob = new Observation(d0.tag, d1);
             console.log(`dbg MF ${d0} ${d1} => ${ob}`);
             return ob;
         }
@@ -204,6 +204,7 @@
     var testAssert = true;
 
     function testCalc(calc, input, expected) {
+        expected = `${expected},enter:=`;
         var obs = input.split('').map(c => {
             var tag = TERMINALS[c] || 'unknown';
             return new Observation(tag, c);
@@ -252,51 +253,47 @@
             grammar: gf.create(gf.add_number()),
             logLevel,
         });
-        testCalc(calc, '123=', `${number}:123,enter:=`);
+        testCalc(calc, '123=', `${number}:123`);
     });
     it("parses signed_number", ()=> {
         var calc = new Calculator({
             grammar: gf.create(gf.add_signed_number()),
             logLevel,
         });
-        testCalc(calc, '-123=', `${number}:-123,enter:=`);
-        testCalc(calc, '123=', `${number}:123,enter:=`);
+        testCalc(calc, '-123=', `${number}:-123`);
+        testCalc(calc, '123=', `${number}:123`);
     });
     it("parses factor", ()=> {
         var calc = new Calculator({
             grammar: gf.create(gf.add_factor()),
             logLevel,
         });
-        testCalc(calc, '-123=', `${number}:-123,enter:=`);
-        testCalc(calc, '123=', `${number}:123,enter:=`);
+        testCalc(calc, '-123=', `${number}:-123`);
+        testCalc(calc, '123=', `${number}:123`);
     });
     it("parses mulop_factor", ()=> {
         var calc = new Calculator({
             grammar: gf.create(gf.add_mulop_factor()),
-            logLevel,
+            logLevel:'info',
         });
-        testCalc(calc, '*-123=', `"*":-123,enter:=`);
-        testCalc(calc, '*123=', `"*":123,enter:=`);
+        testCalc(calc, '*-123=', `"*":N:-123`);
+        testCalc(calc, '*123=', `"*":N:123`);
     });
-    it("TESTTESTparses term", ()=> {
-        return;//
+    it("parses term", ()=> {
         var calc = new Calculator({
             grammar: gf.create(gf.add_term()),
-            logLevel: 'info',
-            logStack: 4,
+            logLevel,
         });
-        testAssert = false;
-        testCalc(calc, '1*2*3=', `${number}:6`) &&
-        testCalc(calc, '2*3=', `${number}:6`) &&
-        testCalc(calc, '-12*3=', `${number}:-36`) &&
-        testCalc(calc, '12*-3=', `${number}:-36`) &&
-        testCalc(calc, '12/-3=', `${number}:-4`) &&
-        testCalc(calc, '-123=', `${number}:-123`) &&
-        testCalc(calc, '123=', `${number}:123`) &&
-        true;
+        testCalc(calc, '1*2*3=', `${number}:6`);
+        testCalc(calc, '2*3=', `${number}:6`);
+        testCalc(calc, '-12*3=', `${number}:-36`);
+        testCalc(calc, '12*-3=', `${number}:-36`);
+        testCalc(calc, '12/-3=', `${number}:-4`);
+        testCalc(calc, '-123=', `${number}:-123`);
+        testCalc(calc, '123=', `${number}:123`);
     });
     it("TESTTESTparses expr", ()=> {
-        return; // TODO
+        return;//
         this.timeout(5*1000);
         var calc = new Calculator({
             grammar: gf.create(gf.add_expr()),

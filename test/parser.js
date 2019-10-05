@@ -334,7 +334,7 @@
             rhsData: [[ obs[0], [], obs[1], ]],
         }]);
     });
-    it("TESTTESTobserve() consumes STAR nonterminals ", ()=>{
+    it("observe() consumes STAR nonterminals ", ()=>{
         var tp = new TestParser({
             grammar: {
                 root: 'aBc',
@@ -381,7 +381,7 @@
             rhsData: [[ obs[0], [obs[1], obs[2]], obs[3] ]],
         });
     });
-    it("TESTTESTobserve() consumes trailing STAR nonterminals ", ()=>{
+    it("observe() consumes trailing STAR nonterminals ", ()=>{
         // Rules with trailing STARs should be avoided since
         // they have no termination
         var tp = new TestParser({
@@ -513,7 +513,7 @@
         should(tp.state()).equal(`abc_1:[a:0, []]; root_0:[]`);
         should.deepEqual(tp.reduced, []);
     });
-    it("TESTTESTobserve() consumes PLUS nonterminals ", ()=>{
+    it("observe() consumes PLUS nonterminals ", ()=>{
         var tp = new TestParser({
             grammar: {
                 root: 'aBc',
@@ -560,7 +560,7 @@
             rhsData: [[ obs[0], [obs[1], obs[2]], obs[3] ]],
         });
     });
-    it("TESTTESTobserve() consumes trailing PLUS nonterminals ", ()=>{
+    it("observe() consumes trailing PLUS nonterminals ", ()=>{
         // Rules with trailing STARs should be avoided since
         // they have no termination
         var tp = new TestParser({
@@ -743,7 +743,7 @@
         should(tp.state()).equal(`ab_0:[]; root_0:[]`);
         should.deepEqual(tp.shifted, [obs[0],obs[1]]);
     });
-    it("TESTTESTobserve() consumes empty OPT nonterminal", ()=>{
+    it("observe() consumes empty OPT nonterminal", ()=>{
         var tp = new TestParser({
             grammar: {
                 root: 'abc',
@@ -769,7 +769,7 @@
             rhsData: [[ obs[0], [], obs[1], ]],
         }]);
     });
-    it("TESTTESTobserve() consumes OPT nonterminals ", ()=>{
+    it("observe() consumes OPT nonterminals ", ()=>{
         var tp = new TestParser({
             grammar: {
                 root: 'aBc',
@@ -805,7 +805,7 @@
             rhsData: [[ obs[0], [ obs[1] ], obs[2] ]],
         }]);
     });
-    it("TESTTESTobserve() rejects excessive OPT nonterminals ", ()=>{
+    it("observe() rejects excessive OPT nonterminals ", ()=>{
         var tp = new TestParser({
             grammar: {
                 root: 'aBc',
@@ -1094,7 +1094,7 @@
         should(tp.state()).equal('');
         should(tp.isParsing).equal(false);
     });
-    it("TESTTESTanswers stores last results", ()=>{
+    it("answers stores last results", ()=>{
         var tp = new TestParser({
             grammar: {
                 root: [ 'F', STAR('MF'), '=' ],
