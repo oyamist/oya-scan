@@ -8,60 +8,16 @@
     const GrammarFactory = require('./grammar-factory');
     const Observation = require('./observation');
 
-    const addop = 'AO';
-    const addop_term = 'AT';
-    const digit = 'D';
-    const divide = '"/"';
-    const enter = 'enter';
-    const expr = 'E';
-    const factor = 'F';
-    const lpar = '"("'; 
-    const minus = '"-"'; 
-    const mulop = 'MO';
-    const mulop_factor = 'MF';
-    const multiply = '"*"';
-    const paren_expr = 'PE';
-    const number = 'N';
-    const plus = '"+"'; 
-    const root = 'root';
-    const rpar = '")"'; 
-    const signed_number = 'SN';
-    const term = 'T';
-
-    const grammarOpts = {
-        addop,
-        addop_term,
-        digit,
-        divide,
-        enter,
-        expr,
-        factor,
-        lpar, 
-        minus,
-        mulop,
-        mulop_factor,
-        multiply,
-        number,
-        paren_expr,
-        plus,
-        rpar,
-        signed_number,
-        term,
-
-    };
-
-    const gf = new GrammarFactory(grammarOpts);
-
     class Calculator extends Parser {
         constructor(opts) {
-            super(Calculator.options(opts));
-            this.answer = new Observation(number, 0);
+            super((opts = Calculator.options(opts)));
             this.reduceMap = {};
-            console.log(`dbg calc keys:`, Object.keys(this));
-            Object.keys(grammarOpts).forEach(k => {
+            var gf = this.grammarFactory = opts.grammarFactory;
+            this.answer = new Observation(gf.number, 0);
+            Object.keys(gf).forEach(k => {
                 var fname = `reduce_${k}`;
                 var freduce = this[fname];
-                var gok = grammarOpts[k];
+                var gok = gf[k];
                 if (typeof freduce === 'function') {
                     this.reduceMap[gok] = freduce;
                 }
@@ -70,14 +26,23 @@
         }
 
         static options(options={}) {
-            var opts = Object.assign({}, options);
+            var opts = Object.assign({
+                grammarFactory: new GrammarFactory({
+                    enter: options.enter || 'enter',
+                }),
+            }, options);
 
-            opts.grammar = opts.grammar || gf.create();
+            opts.grammar = opts.grammar || opts.grammarFactory.create();
 
             return opts;
         }
 
         reduce_term(lhs, rhsData) {
+            var {
+                multiply,
+                divide,
+                number,
+            } = this.grammarFactory;
             var d0 = rhsData[0];
             var d1 = rhsData[1];
             var v0 = this.numberOf(d0.value);
@@ -104,10 +69,18 @@
 
 
         numberOf(v) {
+            var {
+                number,
+            } = this.grammarFactory;
             return Number(v.tag === number ? v.value : v);
         }
 
         reduce_expr(lhs, rhsData) {
+            var {
+                plus,
+                minus,
+                number,
+            } = this.grammarFactory;
             var d0 = rhsData[0];
             var d1 = rhsData[1];
             var v0 = this.numberOf(d0.value);
@@ -141,12 +114,18 @@
         }
 
         reduce_signed_number(lhs, rhsData) {
+            var {
+                number,
+            } = this.grammarFactory;
             return rhsData[0].length 
                 ? new Observation(number, -rhsData[1].value)
                 : rhsData[1];
         }
 
         reduce_number(lhs, rhsData) {
+            var {
+                number,
+            } = this.grammarFactory;
             rhsData = rhsData.reduce((a,v) => a.concat(v),[]); // flat(1)
             var digits = rhsData.reduce( 
                 (acc,ob) => `${acc}${ob.value}`, 

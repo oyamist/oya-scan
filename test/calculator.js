@@ -56,7 +56,7 @@
 
     };
 
-    const gf = new GrammarFactory(grammarOpts);
+    const grammarFactory = new GrammarFactory(grammarOpts);
 
     const TERMINALS = {
         '0': digit,
@@ -117,24 +117,35 @@
         return true;
     }
 
-    it("default ctor", ()=>{
+    it("TESTTESTdefault ctor", ()=>{
         var calc = new Calculator();
         var g = calc.grammar;
 
         should(g).instanceOf(Grammar);
-        should.deepEqual(g.rhs(root), [expr, enter]);
+        should.deepEqual(g.rhs(root), ['expr', 'enter']);
+    });
+    it("TESTTESTcustom ctor", ()=>{
+        var calc = new Calculator({
+            grammarFactory, // custom GrammarFactory with short tokens
+        });
+        var g = calc.grammar;
+
+        should(g).instanceOf(Grammar);
+        should.deepEqual(g.rhs(root), [expr, 'enter']);
     });
     it("parses number", ()=> {
-        gf.add_number();
+        grammarFactory.add_number();
         var calc = new Calculator({
-            grammar: gf.create(gf.add_number()),
+            grammar: grammarFactory.create(grammarFactory.add_number()),
+            grammarFactory,
             logLevel,
         });
         testCalc(calc, '123=', `${number}:123`);
     });
     it("parses signed_number", ()=> {
         var calc = new Calculator({
-            grammar: gf.create(gf.add_signed_number()),
+            grammar: grammarFactory.create(grammarFactory.add_signed_number()),
+            grammarFactory,
             logLevel,
         });
         testCalc(calc, '-123=', `${number}:-123`);
@@ -142,7 +153,8 @@
     });
     it("parses factor", ()=> {
         var calc = new Calculator({
-            grammar: gf.create(gf.add_factor()),
+            grammar: grammarFactory.create(grammarFactory.add_factor()),
+            grammarFactory,
             logLevel,
         });
         testCalc(calc, '-123=', `${number}:-123`);
@@ -150,15 +162,17 @@
     });
     it("parses mulop_factor", ()=> {
         var calc = new Calculator({
-            grammar: gf.create(gf.add_mulop_factor()),
-            logLevel:'info',
+            grammar: grammarFactory.create(grammarFactory.add_mulop_factor()),
+            grammarFactory,
+            logLevel,
         });
         testCalc(calc, '*-123=', `"*":N:-123`);
         testCalc(calc, '*123=', `"*":N:123`);
     });
     it("parses term", ()=> {
         var calc = new Calculator({
-            grammar: gf.create(gf.add_term()),
+            grammar: grammarFactory.create(grammarFactory.add_term()),
+            grammarFactory,
             logLevel,
         });
         testCalc(calc, '1*2*3=', `${number}:6`);
@@ -171,7 +185,8 @@
     });
     it("TESTTESTparses expr", ()=> {
         var calc = new Calculator({
-            grammar: gf.create(gf.add_expr()),
+            grammar: grammarFactory.create(grammarFactory.add_expr()),
+            grammarFactory,
             logLevel,
         });
         testCalc(calc, '(1+1+3)*(2-3)=', `${number}:-5`);
