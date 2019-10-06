@@ -23,6 +23,7 @@ function createBarcode(text) {
     'divide',
     'plus',
     'minus',
+    'point',
     'equals',
     'clear',
     'all_clear',
