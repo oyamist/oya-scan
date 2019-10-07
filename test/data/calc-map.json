@@ -1,0 +1,74 @@
+{
+    "  0  " : {
+        "tag": "digit",
+        "value": 0
+    },
+    "  1  " : {
+        "tag": "digit",
+        "value": 1
+    },
+    "  2  " : {
+        "tag": "digit",
+        "value": 2
+    },
+    "  3  " : {
+        "tag": "digit",
+        "value": 3
+    },
+    "  4  " : {
+        "tag": "digit",
+        "value": 4
+    },
+    "  5  " : {
+        "tag": "digit",
+        "value": 5
+    },
+    "  6  " : {
+        "tag": "digit",
+        "value": 6
+    },
+    "  7  " : {
+        "tag": "digit",
+        "value": 7
+    },
+    "  8  " : {
+        "tag": "digit",
+        "value": 8
+    },
+    "  9  " : {
+        "tag": "digit",
+        "value": 9
+    },
+    "  .  " : {
+        "tag": "point",
+        "value": "."
+    },
+    "  *  " : {
+        "tag": "times",
+        "value": "*"
+    },
+    "  /  " : {
+        "tag": "divide",
+        "value": "/"
+    },
+    "  +  " : {
+        "tag": "plus",
+        "value": "+"
+    },
+    "  -  " : {
+        "tag": "minus",
+        "value": "-"
+    },
+    "  =  " : {
+        "tag": "equals",
+        "value": "="
+    },
+    "  C  " : {
+        "tag": "clear",
+        "value": "C"
+    },
+    "  AC  " : {
+        "tag": "all-clear",
+        "value": "AC"
+    }
+}

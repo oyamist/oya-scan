@@ -40,6 +40,8 @@
             this.mulop = opts.mulop || 'mulop';
             this.addop = opts.addop || 'addop';
             this.decimal = opts.decimal || 'decimal';
+            this.clear = opts.clear || 'clear';
+            this.allClear = opts.allClear || 'all-clear';
         }
 
         add_number(number = this.number) {

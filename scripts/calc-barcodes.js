@@ -26,16 +26,12 @@ function createBarcode(text, name=text.trim()) {
     });
 }
 
-try {
-    "0123456789".split('').forEach(d => createBarcode(`  ${d}  `));
-    createBarcode('  *  ', 'times');
-    createBarcode('  /  ', 'divide');
-    createBarcode('  +  ', 'plus');
-    createBarcode('  -  ', 'minus');
-    createBarcode('  .  ', 'point');
-    createBarcode('  =  ', 'equals');
-    createBarcode('  C  ', 'clear');
-    createBarcode('  AC  ', 'all_clear');
-} catch(e) {
-    logger.error(e.stack);
-}
+var calcMapPath = path.join(__dirname, '..', 'test', 'data', 'calc-map.json');
+var calcMap = JSON.parse(fs.readFileSync(calcMapPath));
+Object.keys(calcMap).forEach(k => {
+    var label = calcMap[k].tag;
+    if (label === 'digit') {
+        label = calcMap[k].value;
+    }
+    createBarcode(k, label);
+});
