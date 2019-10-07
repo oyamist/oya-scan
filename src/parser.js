@@ -1,8 +1,10 @@
 (function(exports) {
     const fs = require('fs');
     const path = require('path');
-    const js = require('just-simple').JustSimple.js;
-    const logger = require('just-simple').JustSimple.js.logger;
+    const {
+        js,
+        logger,
+    } = require('just-simple').JustSimple;
     const Observation = require('./observation');
     const Grammar = require('./grammar');
     class RuleState {
@@ -35,7 +37,7 @@
     class Parser {
         constructor(opts = {}) {
             this.name = opts.name || this.constructor.name;
-            this.logLevel = opts.logLevel; // error, warn, info, debug
+            logger.logInstance(this, opts);
             this.grammar = new Grammar(opts.grammar);
             this.logStack = opts.logStack || 2; // stack elements to log
             this.answers = [];
@@ -55,11 +57,7 @@
         }
 
         onReady() {
-            if (this.logLevel) {
-                var name = this.name;
-                var msg = `${name} awaiting input`;
-                logger[this.logLevel](msg);
-            }
+            this.log(`${this.name} awaiting input`);
         }
 
         onReduce(tos) { 
@@ -70,42 +68,52 @@
         }
 
         onShift(ob) {
-            if (this.logLevel) {
-                var name = this.name;
-                logger[this.logLevel](
-                    `${name}.shift(${ob}) ${this.state(0,this.logStack)}`);
-            }
+            var {
+                name,
+                logStack,
+            } = this;
+            this.log(`${name}.shift(${ob}) ${this.state(0,logStack)}`);
         }
 
         onReject(ob) {
-            if (this.logLevel) {
-                var name = this.name;
-                var {
-                    lhs,
-                    args,
-                    index,
-                } = this.stack[0];
-                var rule = this.grammar.ruleToString(lhs);
-                logger[this.logLevel](
-                    `${name}.reject(${ob})\n`+
-                    `STACK => ${this.state()}\n`+
-                    `${this.grammar}\n`+
-                    ``);
+            if (!this.logLevel) {
+                return;
             }
+
+            var {
+                name,
+                grammar,
+                stack,
+            } = this;
+            var name = this.name;
+            var {
+                lhs,
+                args,
+                index,
+            } = stack[0];
+            var rule = grammar.ruleToString(lhs);
+            this.log([
+                `${name}.reject(${ob})`,
+                `STACK => ${this.state()}`,
+                `${grammar}`,
+            ].join('\n'));
         }
 
         onAdvance(state, label) {
-            if (this.logLevel) {
-                var name = this.name;
-                var {
-                    lhs,
-                    index,
-                    rhsData,
-                } = state;
-                logger[this.logLevel](
-                    `${name}.advance()   ${this.state(0,this.logStack)}`+
-                    ` @${label}`);
+            if (!this.logLevel) {
+                return;
             }
+            var {
+                name,
+                logStack,
+            } = this;
+            var {
+                lhs,
+                index,
+                rhsData,
+            } = state;
+            this.log(`${name}.advance()   `+
+                `${this.state(0,logStack)} @${label}`);
         }
 
         reduce(advance, required) {
@@ -155,14 +163,9 @@
             }
 
             if (logLevel) {
-                var a = advance 
-                    ? 'A' 
-                    : advance === false ? 'a' : '?';
-                var r = required 
-                    ? 'R' 
-                    : required === false ? 'r' : '?';
-                logger[logLevel](
-                    `${name}.reduce(${s0.lhs},${a},${r}) `+
+                var a = advance ? 'A' : (advance === false ? 'a' : '?');
+                var r = required ? 'R' : (required === false ? 'r' : '?');
+                this.log(`${name}.reduce(${s0.lhs},${a},${r}) `+
                     `${this.state(0,logStack)}`);
             }
 
@@ -212,13 +215,10 @@
                 lookahead,
                 logLevel,
                 stack,
+                name,
             } = this;
 
-            if (logLevel) {
-                var name = this.name;
-                logger[logLevel](
-                    `----- ${name}.observe(${ob}) -----`);
-            }
+            this.log(`----- ${name}.observe(${ob}) -----`);
 
             lookahead.push(ob);
             if (stack.length === 0) {
@@ -380,11 +380,7 @@
         }
 
         cannot(loc, msg) {
-            if (this.logLevel) {
-                var name = this.name;
-                logger[this.logLevel](
-                    `${name}.cannot(${loc}) ${msg}`);
-            }
+            this.log(`${this.name}.cannot(${loc}) ${msg}`);
         }
 
         step() {

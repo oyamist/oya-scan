@@ -14,11 +14,13 @@
     } = require("../index");
     const logLevel = false;
 
+    // Override default nonterminals with short, mnemonic names
+    // that facilitate testing and debuggin.
     const addop = 'AO';
     const addop_term = 'AT';
     const digit = 'D';
     const divide = '"/"';
-    const enter = 'enter';
+    const enter = '"="';
     const expr = 'E';
     const factor = 'F';
     const lpar = '"("'; 
@@ -58,30 +60,34 @@
 
     const grammarFactory = new GrammarFactory(grammarOpts);
 
-    const TERMINALS = {
-        '0': digit,
-        '1': digit,
-        '2': digit,
-        '3': digit,
-        '4': digit,
-        '5': digit,
-        '6': digit,
-        '7': digit,
-        '8': digit,
-        '9': digit,
-        '*': multiply,
-        '/': divide,
-        '-': minus,
-        '+': plus,
-        '=': enter,
-        '(': lpar,
-        ')': rpar,
-    };
-
     var testAssert = true;
 
     function testCalc(calc, input, expected) {
-        expected = `${expected},enter:=`;
+        // Test the given Calculator by converting the
+        // input test string into a sequence of Observations that
+        // are fed to the Calculator. Each Observation must be
+        // successfully parsed and the Calculator must be stateless
+        // and ready for input after consuming the last Observation.
+        const TERMINALS = {
+            '0': digit,
+            '1': digit,
+            '2': digit,
+            '3': digit,
+            '4': digit,
+            '5': digit,
+            '6': digit,
+            '7': digit,
+            '8': digit,
+            '9': digit,
+            '*': multiply,
+            '/': divide,
+            '-': minus,
+            '+': plus,
+            '=': enter,
+            '(': lpar,
+            ')': rpar,
+        };
+        expected = `${expected},${enter}:=`;
         var obs = input.split('').map(c => {
             var tag = TERMINALS[c] || 'unknown';
             return new Observation(tag, c);
@@ -119,19 +125,32 @@
 
     it("TESTTESTdefault ctor", ()=>{
         var calc = new Calculator();
-        var g = calc.grammar;
+        should(calc).properties({
+            logLevel: 'info',
+        });
 
+        // default grammar has long, legible nonterminals
+        var g = calc.grammar;
         should(g).instanceOf(Grammar);
         should.deepEqual(g.rhs(root), ['expr', 'enter']);
     });
     it("TESTTESTcustom ctor", ()=>{
+        var logStack = 3; // How much of the stack to display for state
         var calc = new Calculator({
             grammarFactory, // custom GrammarFactory with short tokens
+            logLevel: 'warn',
+            logStack,
         });
-        var g = calc.grammar;
+        should(calc).properties({
+            logLevel: 'warn',
+            grammarFactory,
+            logStack,
+        });
 
+        // custom grammar has short, mnemonic nonterminals
+        var g = calc.grammar;
         should(g).instanceOf(Grammar);
-        should.deepEqual(g.rhs(root), [expr, 'enter']);
+        should.deepEqual(g.rhs(root), ['E', '"="']);
     });
     it("parses number", ()=> {
         grammarFactory.add_number();
@@ -199,5 +218,6 @@
         testCalc(calc, '12/-3=', `${number}:-4`);
         testCalc(calc, '-123=', `${number}:-123`);
         testCalc(calc, '123=', `${number}:123`);
+        testCalc(calc, '1+3/20=', `${number}:1.15`);
     });
 })
