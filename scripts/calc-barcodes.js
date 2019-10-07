@@ -14,7 +14,7 @@ const ASSETS = path.join(__dirname, '..', 'src', 'assets');
 
 function createBarcode(text, name=text.trim()) {
     var canvas = createCanvas(100,40);
-    var fname = `barcode-${name}.png`;
+    var fname = `calc-${name}.png`;
     var pngPath = path.join(ASSETS, fname);
     var out = fs.createWriteStream(pngPath);
     var stream = canvas.createPNGStream();
