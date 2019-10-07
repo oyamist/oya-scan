@@ -22,7 +22,7 @@ function createBarcode(text, name=text.trim()) {
     out.on('finish', () =>  console.log(`Created ${pngPath}`));
     out.on('error', e => logger.error(e.stack));
     JsBarcode(canvas, text, {
-        height: 40,
+        height: 20,
     });
 }
 
