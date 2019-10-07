@@ -21,11 +21,13 @@ function createBarcode(text, name=text.trim()) {
     stream.pipe(out);
     out.on('finish', () =>  console.log(`Created ${pngPath}`));
     out.on('error', e => logger.error(e.stack));
-    JsBarcode(canvas, text);
+    JsBarcode(canvas, text, {
+        height: 40,
+    });
 }
 
 try {
-    "0123456789".split('').forEach(d => createBarcode(`  d  `));
+    "0123456789".split('').forEach(d => createBarcode(`  ${d}  `));
     createBarcode('  *  ', 'times');
     createBarcode('  /  ', 'divide');
     createBarcode('  +  ', 'plus');
