@@ -112,7 +112,7 @@
                 index,
                 rhsData,
             } = state;
-            this.log(`${name}.advance()   `+
+            this.log(`${name}.advance(${state.id}) `+
                 `${this.state(0,logStack)} @${label}`);
         }
 
@@ -301,9 +301,9 @@
                             }
                         }
                         var rqd = (grammar.rhs(arg).length === 1);
-                        this.reduce(false, rqd);
-                        if (max1) {
-                            this.advance(s0, 'stepStar-OptNT');
+                        var reduced = this.reduce(false, rqd);
+                        if (reduced && max1) {
+                            this.advance(s0, `stepStar-OptNT${reduced}`);
                         }
                         return true;
                     } 

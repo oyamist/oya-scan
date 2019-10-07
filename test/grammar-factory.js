@@ -16,7 +16,9 @@
     } = Grammar;
 
     const digit = 'digit';
+    const decimal = 'decimal';
     const number = 'number';
+    const period = '.';
     const signed_number = 'signed_number';
     const factor = 'factor';
     const term = 'term';
@@ -37,7 +39,7 @@
     const multiply = '*';
     const divide = '/';
     const paren_expr = 'paren_expr';
-    const rhs_number = [ digit, STAR(digit) ];
+    const rhs_number = [ digit, STAR(digit), OPT(decimal) ];
     const rhs_signed_number = [ OPT(minus), number ];
     const rhs_factor = [ ALT(paren_expr, signed_number) ];
     //const rhs_signed_factor = [ OPT(minus), factor ];
@@ -55,6 +57,7 @@
         should(gf).properties({
             template: {},
             addop_term,
+            decimal,
             digit,
             divide,
             expr,
@@ -63,10 +66,11 @@
             lpar,
             minus,
             mulop,
-            multiply,
             mulop_factor,
+            multiply,
             number,
             paren_expr,
+            period,
             plus,
             rpar,
             signed_number,
@@ -76,6 +80,7 @@
     });
     it("custom ctor", ()=>{
         let addOp = 'AO';
+        let decimal = 'DF';
         let digit = 'D';
         let divide = '|';
         let enter = '=';
@@ -89,6 +94,7 @@
         let multiply = 'x';
         let number = 'N';
         let paren_expr = 'PE';
+        let period = ',';
         let plus = '#';
         let root = 'ROOT';
         let rpar = ']';
@@ -98,6 +104,7 @@
         var gf = new GrammarFactory({
             addop,
             addop_term,
+            decimal,
             digit,
             divide,
             enter,
@@ -111,6 +118,7 @@
             mulop_factor,
             number,
             paren_expr,
+            period,
             plus,
             rpar,
             signed_number,
@@ -251,11 +259,12 @@
             root,
             number,
             digit,
+            decimal,
         });
         should(gf.add_number()).equal(number);
         var g = gf.create(number);
         should.deepEqual(g.rhs('root'), [number] );
-        should.deepEqual(g.rhs(number), [ digit, STAR(digit) ]);
+        should.deepEqual(g.rhs(number), [ digit, STAR(digit), OPT(decimal) ]);
     });
 
 })

@@ -569,7 +569,7 @@
         var t2 = new Date(t1.getTime() + days2);
         thing.observe(HARVESTED, 1, t2); // Harvested 1 tomato
         var elapsed = Date.now() - t2;
-        should(thing.ageSinceTag(HARVESTED)).equal(elapsed);
+        should(thing.ageSinceTag(HARVESTED)-elapsed).above(-2).below(2);
 
         // Multiple observations uses most recent
         var t3 = new Date(t2.getTime() + days1);

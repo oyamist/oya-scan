@@ -18,6 +18,7 @@
     // that facilitate testing and debuggin.
     const addop = 'AO';
     const addop_term = 'AT';
+    const decimal = 'DF';
     const digit = 'D';
     const divide = '"/"';
     const enter = '"="';
@@ -28,6 +29,7 @@
     const mulop = 'MO';
     const mulop_factor = 'MF';
     const multiply = '"*"';
+    const period = '"."';
     const paren_expr = 'PE';
     const number = 'N';
     const plus = '"+"'; 
@@ -39,6 +41,7 @@
     const grammarOpts = {
         addop,
         addop_term,
+        decimal,
         digit,
         divide,
         enter,
@@ -51,6 +54,7 @@
         multiply,
         number,
         paren_expr,
+        period,
         plus,
         rpar,
         signed_number,
@@ -58,7 +62,7 @@
 
     };
 
-    const grammarFactory = new GrammarFactory(grammarOpts);
+    const gf = new GrammarFactory(grammarOpts);
 
     var testAssert = true;
 
@@ -79,6 +83,7 @@
             '7': digit,
             '8': digit,
             '9': digit,
+            '.': period,
             '*': multiply,
             '/': divide,
             '-': minus,
@@ -137,13 +142,13 @@
     it("TESTTESTcustom ctor", ()=>{
         var logStack = 3; // How much of the stack to display for state
         var calc = new Calculator({
-            grammarFactory, // custom GrammarFactory with short tokens
+            grammarFactory: gf, // custom GrammarFactory with short tokens
             logLevel: 'warn',
             logStack,
         });
         should(calc).properties({
             logLevel: 'warn',
-            grammarFactory,
+            grammarFactory: gf,
             logStack,
         });
 
@@ -152,28 +157,31 @@
         should(g).instanceOf(Grammar);
         should.deepEqual(g.rhs(root), ['E', '"="']);
     });
-    it("parses number", ()=> {
-        grammarFactory.add_number();
+    it("TESTTESTparses number", ()=> {
+        gf.add_number();
         var calc = new Calculator({
-            grammar: grammarFactory.create(grammarFactory.add_number()),
-            grammarFactory,
+            grammar: gf.create(gf.add_number()),
+            grammarFactory: gf,
             logLevel,
         });
+        testCalc(calc, '1.23=', `${number}:1.23`);
+        testCalc(calc, '12.3=', `${number}:12.3`);
         testCalc(calc, '123=', `${number}:123`);
     });
-    it("parses signed_number", ()=> {
+    it("TESTTESTparses signed_number", ()=> {
         var calc = new Calculator({
-            grammar: grammarFactory.create(grammarFactory.add_signed_number()),
-            grammarFactory,
+            grammar: gf.create(gf.add_signed_number()),
+            grammarFactory: gf,
             logLevel,
         });
+        testCalc(calc, '-123.456=', `${number}:-123.456`);
         testCalc(calc, '-123=', `${number}:-123`);
         testCalc(calc, '123=', `${number}:123`);
     });
     it("parses factor", ()=> {
         var calc = new Calculator({
-            grammar: grammarFactory.create(grammarFactory.add_factor()),
-            grammarFactory,
+            grammar: gf.create(gf.add_factor()),
+            grammarFactory: gf,
             logLevel,
         });
         testCalc(calc, '-123=', `${number}:-123`);
@@ -181,8 +189,8 @@
     });
     it("parses mulop_factor", ()=> {
         var calc = new Calculator({
-            grammar: grammarFactory.create(grammarFactory.add_mulop_factor()),
-            grammarFactory,
+            grammar: gf.create(gf.add_mulop_factor()),
+            grammarFactory: gf,
             logLevel,
         });
         testCalc(calc, '*-123=', `"*":N:-123`);
@@ -190,8 +198,8 @@
     });
     it("parses term", ()=> {
         var calc = new Calculator({
-            grammar: grammarFactory.create(grammarFactory.add_term()),
-            grammarFactory,
+            grammar: gf.create(gf.add_term()),
+            grammarFactory: gf,
             logLevel,
         });
         testCalc(calc, '1*2*3=', `${number}:6`);
@@ -202,10 +210,10 @@
         testCalc(calc, '-123=', `${number}:-123`);
         testCalc(calc, '123=', `${number}:123`);
     });
-    it("TESTTESTparses expr", ()=> {
+    it("parses expr", ()=> {
         var calc = new Calculator({
-            grammar: grammarFactory.create(grammarFactory.add_expr()),
-            grammarFactory,
+            grammar: gf.create(gf.add_expr()),
+            grammarFactory: gf,
             logLevel,
         });
         testCalc(calc, '(1+1+3)*(2-3)=', `${number}:-5`);

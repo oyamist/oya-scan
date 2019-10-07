@@ -17,6 +17,7 @@
             // Define terminals for input Observation tags.
             this.digit = opts.digit || 'digit';
             this.id = opts.id || 'id';
+            this.period = opts.period || '.';
             this.minus = opts.minus || '-';
             this.plus = opts.plus || '+';
             this.multiply = opts.multiply || '*';
@@ -38,17 +39,32 @@
             this.expr = opts.expr || 'expr';
             this.mulop = opts.mulop || 'mulop';
             this.addop = opts.addop || 'addop';
+            this.decimal = opts.decimal || 'decimal';
         }
 
         add_number(number = this.number) {
             var {
                 digit,
+                decimal,
             } = this;
             var t = this.template;
 
-            t[number] = [ digit, STAR(digit) ];
+            t[number] = [ digit, STAR(digit), OPT(decimal) ];
+            t[decimal] || this.add_decimal();
 
             return number;
+        }
+
+        add_decimal(decimal = this.decimal) {
+            var {
+                digit,
+                period,
+            } = this;
+            var t = this.template;
+
+            t[decimal] = [ period, PLUS(digit) ];
+
+            return decimal;
         }
 
         add_signed_number(signed_number=this.signed_number) {

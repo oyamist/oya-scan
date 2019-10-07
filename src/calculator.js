@@ -126,11 +126,15 @@
             var {
                 number,
             } = this.grammarFactory;
-            rhsData = rhsData.reduce((a,v) => a.concat(v),[]); // flat(1)
-            var digits = rhsData.reduce( 
-                (acc,ob) => `${acc}${ob.value}`, 
-                '0');
-            return new Observation(number, Number(digits));
+            var d0 = rhsData[0];
+            var d1 = rhsData[1];
+            var d2 = rhsData[2];
+            var decimal = d2.length
+                ? d2[1].reduce((a,d) => ((a+=d.value),a), '.')
+                : ''; 
+            var digits = d1.reduce((a,ob) => ((a+=ob.value),a), 
+                `${d0.value}`); 
+            return new Observation(number, Number(digits+decimal));
         }
 
         onReduce(tos) {
