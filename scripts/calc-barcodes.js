@@ -13,7 +13,6 @@ logger.info('1');
 const ASSETS = path.join(__dirname, '..', 'src', 'assets');
 
 function createBarcode(text, name=text.trim()) {
-logger.info(`2 ${text}`);
     var canvas = createCanvas(100,40);
     var fname = `barcode-${name}.png`;
     var pngPath = path.join(ASSETS, fname);
@@ -31,6 +30,7 @@ try {
     createBarcode('  /  ', 'divide');
     createBarcode('  +  ', 'plus');
     createBarcode('  -  ', 'minus');
+    createBarcode('  .  ', 'point');
     createBarcode('  =  ', 'equals');
     createBarcode('  C  ', 'clear');
     createBarcode('  AC  ', 'all_clear');
