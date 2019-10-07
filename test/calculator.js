@@ -227,5 +227,6 @@
         testCalc(calc, '-123=', `${number}:-123`);
         testCalc(calc, '123=', `${number}:123`);
         testCalc(calc, '1+3/20=', `${number}:1.15`);
+        testCalc(calc, '1.1+3/20=', `${number}:1.25`);
     });
 })
