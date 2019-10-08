@@ -110,10 +110,12 @@
 
         transform(is, os) {
             if (!(is instanceof Readable)) {
-                return Promise.reject(new Error('Expected Readable input stream'));
+                return Promise.reject(new Error(
+                    'Expected Readable input stream'));
             }
             if (!(os instanceof Writable)) {
-                return Promise.reject(new Error('Expected Writable output stream'));
+                return Promise.reject(new Error(
+                    'Expected Writable output stream'));
             }
             var started = new Date();
             return new Promise((resolve, reject) => {
@@ -125,7 +127,7 @@
                 var name = `${this.constructor.name}.transform()`;
 
                 is.on('data', (chunk) => {
-                    this.log(`${name} data:${chunk.length}B`);
+                    //this.log(`${name} data:${chunk.length}B`);
                     bytes += chunk.length;
                     var lines = (remainder+chunk).split('\n');
                     var n = lines.length-1;
@@ -138,7 +140,7 @@
                 });
                 is.on('end', () => {
                     try {
-                        this.log(`${name} end`);
+                        //this.log(`${name} end`);
                         remainder = remainder.trim();
                         if (remainder.length) {
                             var odata = that.scan(remainder);

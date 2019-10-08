@@ -31,16 +31,38 @@ OPTIONS
             the mapped barcodes and whose values are Javascript 
             objects with replacement values for: "tag" and "value".
 
+    -n, --number
+            Match numbers with up to 7 digits of precision
+            as Observations with "number" tag.
+
+    --ean13
+            Match thirteen digits as Observations with "EAN13" tag.
+
+    --upca
+            Match twelve digits as Observations with "UPCA-A" tag.
+
+    --upce_ean8
+            Match eight digits as Observations with "UPC-E/EAN-8" tag
+
 `);
     process.exit(0);
 }
 
 var mpath = null;
 var map = {};
+var patterns = [];
 for (var i=0; i<process.argv.length; i++) {
     var arg = process.argv[i];
     if (arg === '-h' || arg === '--help') {
         help();
+    } else if (arg === '-n' || arg === '--number') {
+        patterns.push(Scanner.MATCH_NUMBER);
+    } else if (arg === '--ean13') {
+        patterns.push(Scanner.MATCH_EAN13);
+    } else if (arg === '--upca') {
+        patterns.push(Scanner.MATCH_UPCA);
+    } else if (arg === '--upce_ean8') {
+        patterns.push(Scanner.MATCH_UPCE_EAN8);
     } else if (arg === '-m' || arg === '--map') {
         mpath = process.argv[++i];
         if (!fs.existsSync(mpath)) {
@@ -56,6 +78,7 @@ for (var i=0; i<process.argv.length; i++) {
 
 var scanner = new Scanner({
     map,
+    patterns,
 });
 var promise = scanner.transform(process.stdin, process.stdout);
 
