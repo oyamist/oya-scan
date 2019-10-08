@@ -11,10 +11,12 @@
 
     class Workspace extends GuidStore {
         constructor(opts) {
-            super(Workspace.options(opts));
-            var indexPath = this.indexPath = path.join(this.storePath, INDEXFILE);
+            super((opts = Workspace.options(opts)));
+            var indexPath = 
+                this.indexPath = path.join(this.storePath, INDEXFILE);
             if (fs.existsSync(this.indexPath)) {
-                this.index = JSON.parse(fs.readFileSync(this.indexPath));
+                this.index = JSON.parse(
+                    fs.readFileSync(this.indexPath));
             } else {
                 var index = this.index = {
                     type: this.constructor.name,
@@ -26,6 +28,7 @@
 
             this.scanner = new Scanner({
                 map: this,
+                patterns: opts.patterns,
             });
         }
 

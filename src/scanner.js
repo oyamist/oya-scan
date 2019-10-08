@@ -8,13 +8,14 @@
     } = require('stream');
     const { 
         js,
-        logger 
+        logger,
     } = require('just-simple').JustSimple;
     const {
         exec,
     } = require('child_process');
     const Observation = require('./observation');
     const TAG_SCANNED = "scanned";
+    const TAG_CODE128 = "CODE128";
     const TAG_UPCA = "UPC-A";
     const TAG_EAN13 = "EAN13";
     const TAG_UPCE_EAN8 = "UPC-E/EAN-8";
@@ -29,23 +30,32 @@
     ].join('|')+')';
 
     class Scanner {
+        static get MATCH_NUMBER() { return {
+                re: PAT_NUMBER,
+                value: 'number',
+            };
+        }
+        static get MATCH_UPCE_EAN8() { return {
+                re: PAT_UPCE_EAN8,
+                value: TAG_UPCE_EAN8,
+            };
+        }
+        static get MATCH_EAN13() { return {
+                re: PAT_EAN13,
+                value: TAG_EAN13,
+            };
+        }
+        static get MATCH_UPCA() { return {
+                re: PAT_UPCA,
+                value: TAG_UPCA,
+            };
+        }
+
         constructor(opts = {}) {
             this.map = opts.map || {};
             this.tag = opts.tag || TAG_SCANNED;  // default tag
-            var patterns = opts.patterns || [{
-                re: PAT_NUMBER,
-                value: 'number',
-            },{
-                re: PAT_UPCE_EAN8,
-                value: TAG_UPCE_EAN8,
-            },{
-                re: PAT_EAN13,
-                value: TAG_EAN13,
-            },{
-                re: PAT_UPCA,
-                value: TAG_UPCA,
-            }];
-            this.logLevel = opts.logLevel;
+            var patterns = opts.patterns || [];
+            logger.logInstance(this, opts);
             this.patterns = patterns.map(p => {
                 var re = p.re instanceof RegExp
                     ? p.re : RegExp(`^${p.re}$`);
@@ -62,9 +72,8 @@
         static get TAG_NUMBER() { return "number"; }
         static get TAG_SCANNED() { return TAG_SCANNED; }
 
-        scan(data) {
+        scan(barcode) {
             var t = new Date();
-            var barcode = data.trim();
             for (var i = 0; i < this.patterns.length; i++) {
                 var p = this.patterns[i];
                 if (p.re.test(barcode)) {
@@ -85,7 +94,7 @@
             } else {
                 var m = mapper[barcode];
             }
-            var value = data;
+            var value = barcode;
             var tag = this.tag;
             if (m) {
                 value = m.value;
@@ -116,8 +125,7 @@
                 var name = `${this.constructor.name}.transform()`;
 
                 is.on('data', (chunk) => {
-                    this.logLevel && logger[this.logLevel](
-                        `${name} data:${chunk.length}B`);
+                    this.log(`${name} data:${chunk.length}B`);
                     bytes += chunk.length;
                     var lines = (remainder+chunk).split('\n');
                     var n = lines.length-1;
@@ -130,8 +138,7 @@
                 });
                 is.on('end', () => {
                     try {
-                        this.logLevel && logger[this.logLevel](
-                            `${name} end`);
+                        this.log(`${name} end`);
                         remainder = remainder.trim();
                         if (remainder.length) {
                             var odata = that.scan(remainder);

@@ -2,6 +2,10 @@
 
 const fs = require('fs');
 const path = require('path');
+const {
+    js,
+    logger,
+} = require('just-simple').JustSimple;
 
 var {
     Scanner,
@@ -43,6 +47,7 @@ for (var i=0; i<process.argv.length; i++) {
             throw new Error(`Map file not found:${mpath}`);
         }
         map = JSON.parse(fs.readFileSync(mpath).toString());
+        logger.info(`loaded scan map from:${mpath}`);
     } else if (arg.startsWith('-')) {
         help();
     }

@@ -31,23 +31,24 @@
         },
     };
 
-    it("default ctor", () => {
+    it("TESTTESTdefault ctor", () => {
         var scanner = new Scanner();
         should(scanner).instanceOf(Scanner);
         should.deepEqual(scanner.map, {});
         should(scanner).properties({
             tag: Scanner.TAG_SCANNED,
+            patterns: [],
         });
 
         // floating point number
         var ob = scanner.scan('1');
-        should.deepEqual(ob, new Observation("number", 1, ob.t));
+        should.deepEqual(ob, new Observation("scanned", "1", ob.t));
         var ob = scanner.scan('42');
-        should.deepEqual(ob, new Observation("number", 42, ob.t));
+        should.deepEqual(ob, new Observation("scanned", "42", ob.t));
         var ob = scanner.scan('123.456');
-        should.deepEqual(ob, new Observation("number", 123.456, ob.t));
+        should.deepEqual(ob, new Observation("scanned", "123.456", ob.t));
         var ob = scanner.scan('-123.456');
-        should.deepEqual(ob, new Observation("number", -123.456, ob.t));
+        should.deepEqual(ob, new Observation("scanned", "-123.456", ob.t));
 
         // not a number
         var ob = scanner.scan('123,456');
@@ -106,8 +107,8 @@
         should(dataout.value).equal('red');
         should(dataout.tag).equal('color');
 
-        // mapped keys are trimmed
-        var dataout = scanner.scan(" a0003\n  \n");
+        // mapped data
+        var dataout = scanner.scan("a0003");
         should(Date.now() - dataout.t).above(-1).below(5);
         should(dataout.value).equal(5);
         should(dataout.tag).equal('height');
@@ -145,12 +146,22 @@
         should(dataout.value).equal('red');
         should(dataout.tag).equal('color');
     });
-    it("scan(data) returns number", () => {
-        var scanner = new Scanner();
+    it("TESTTESTscan(data) returns number", () => {
+        var scanner = new Scanner({
+            patterns: [ Scanner.MATCH_NUMBER ],
+        });
 
         // default number pattern
         var ob = scanner.scan("123.456");
         should.deepEqual(ob, new Observation("number", 123.456, ob.t));
+        var ob = scanner.scan('1');
+        should.deepEqual(ob, new Observation("number", 1, ob.t));
+        var ob = scanner.scan('42');
+        should.deepEqual(ob, new Observation("number", 42, ob.t));
+        var ob = scanner.scan('123.456');
+        should.deepEqual(ob, new Observation("number", 123.456, ob.t));
+        var ob = scanner.scan('-123.456');
+        should.deepEqual(ob, new Observation("number", -123.456, ob.t));
 
         // custom number
         var patterns = [{
@@ -223,25 +234,40 @@
             done();
         } catch(e) {done(e)} })();
     });
-    it("scan(barcode) recognizes UPC/EAN codes", () => {
-        var scanner = new Scanner();
+    it("TESTTESTscan(barcode) recognizes UPC/EAN codes", () => {
+        var scanner = new Scanner({
+            patterns: [
+                Scanner.MATCH_UPCA,
+                Scanner.MATCH_EAN13,
+                Scanner.MATCH_UPCE_EAN8,
+                Scanner.MATCH_NUMBER,
+            ],
+        });
 
         var code = "614141000036";
         var ob = scanner.scan(code);
-        should.deepEqual(ob, new Observation(Scanner.TAG_UPCA, code, ob.t));
+        should.deepEqual(ob, 
+            new Observation(Scanner.TAG_UPCA, code, ob.t));
 
         var code = "9501101530003";
         var ob = scanner.scan(code);
-        should.deepEqual(ob, new Observation(Scanner.TAG_EAN13, code, ob.t));
+        should.deepEqual(ob, 
+            new Observation(Scanner.TAG_EAN13, code, ob.t));
 
         var code = "95050003";
         var ob = scanner.scan(code);
-        should.deepEqual(ob, new Observation(Scanner.TAG_UPCE_EAN8, code, ob.t));
+        should.deepEqual(ob, 
+            new Observation(Scanner.TAG_UPCE_EAN8, code, ob.t));
 
         var code = "06141939";
         var ob = scanner.scan(code);
-        should.deepEqual(ob, new Observation(Scanner.TAG_UPCE_EAN8, code, ob.t));
+        should.deepEqual(ob, 
+            new Observation(Scanner.TAG_UPCE_EAN8, code, ob.t));
 
+        var code = "1234";
+        var ob = scanner.scan(code);
+        should.deepEqual(ob, 
+            new Observation(Scanner.TAG_NUMBER, 1234, ob.t));
     });
 
 })

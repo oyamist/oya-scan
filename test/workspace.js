@@ -14,6 +14,7 @@
     var storeDir = tmp.tmpNameSync();
     var wstest = new Workspace({
         storeDir,
+        patterns: [ Scanner.MATCH_NUMBER ],
     });
     console.log(`test scanning storeDir:`, storeDir);
 
