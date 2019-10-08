@@ -256,13 +256,13 @@
         calc.observe(testOb('='));
         should(js.simpleString(calc.display)).equal('{text:182}');
     });
-    it("TESTTESTdisplay shows current state 4+3+2+1", ()=>{
+    it("TESTTESTdisplay shows running sum 4+3-2+1", ()=>{
         var calc = new Calculator({
             grammar: gf.create(gf.add_expr()),
             grammarFactory: gf,
             logLevel,
         });
-        //console.log(js.simpleString(calc.grammar));
+        // successive addops
         should(js.simpleString(calc.display)).equal('{text:0}');
         calc.observe(testOb('4'));
         should(js.simpleString(calc.display)).equal('{text:4}');
@@ -270,15 +270,15 @@
         should(js.simpleString(calc.display)).equal('{text:4,op:+}');
         calc.observe(testOb('3'));
         should(js.simpleString(calc.display)).equal('{text:3}');
-        calc.observe(testOb('+'));
-        should(js.simpleString(calc.display)).equal('{text:7,op:+}');
+        calc.observe(testOb('-'));
+        should(js.simpleString(calc.display)).equal('{text:7,op:-}');
         calc.observe(testOb('2'));
         should(js.simpleString(calc.display)).equal('{text:2}');
         calc.observe(testOb('+'));
-        should(js.simpleString(calc.display)).equal('{text:9,op:+}');
+        should(js.simpleString(calc.display)).equal('{text:5,op:+}');
         calc.observe(testOb('1'));
         should(js.simpleString(calc.display)).equal('{text:1}');
         calc.observe(testOb('='));
-        should(js.simpleString(calc.display)).equal('{text:10}');
+        should(js.simpleString(calc.display)).equal('{text:6}');
     });
 })
