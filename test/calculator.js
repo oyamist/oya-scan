@@ -15,7 +15,7 @@
     const logLevel = false;
 
     // Override default nonterminals with short, mnemonic names
-    // that facilitate testing and debuggin.
+    // that facilitate testing and debugging.
     const addop = 'AO';
     const addop_term = 'AT';
     const decimal = 'DF';
@@ -66,12 +66,7 @@
 
     var testAssert = true;
 
-    function testCalc(calc, input, expected) {
-        // Test the given Calculator by converting the
-        // input test string into a sequence of Observations that
-        // are fed to the Calculator. Each Observation must be
-        // successfully parsed and the Calculator must be stateless
-        // and ready for input after consuming the last Observation.
+    function testOb(c) {
         const TERMINALS = {
             '0': digit,
             '1': digit,
@@ -92,11 +87,19 @@
             '(': lpar,
             ')': rpar,
         };
+
+        var tag = TERMINALS[c] || 'unknown';
+        return new Observation(tag, c);
+    }
+
+    function testCalc(calc, input, expected) {
+        // Test the given Calculator by converting the
+        // input test string into a sequence of Observations that
+        // are fed to the Calculator. Each Observation must be
+        // successfully parsed and the Calculator must be stateless
+        // and ready for input after consuming the last Observation.
         expected = `${expected},${enter}:=`;
-        var obs = input.split('').map(c => {
-            var tag = TERMINALS[c] || 'unknown';
-            return new Observation(tag, c);
-        });
+        var obs = input.split('').map(c => testOb(c));
         var logLevel = calc.logLevel;
         if (logLevel) {
             logger[logLevel](
@@ -128,7 +131,7 @@
         return true;
     }
 
-    it("TESTTESTdefault ctor", ()=>{
+    it("default ctor", ()=>{
         var calc = new Calculator();
         should(calc).properties({
             logLevel: 'info',
@@ -139,8 +142,8 @@
         should(g).instanceOf(Grammar);
         should.deepEqual(g.rhs(root), ['expr', 'enter']);
     });
-    it("TESTTESTcustom ctor", ()=>{
-        var logStack = 3; // How much of the stack to display for state
+    it("custom ctor", ()=>{
+        var logStack = 3; // Stack logging depth
         var calc = new Calculator({
             grammarFactory: gf, // custom GrammarFactory with short tokens
             logLevel: 'warn',
@@ -157,7 +160,7 @@
         should(g).instanceOf(Grammar);
         should.deepEqual(g.rhs(root), ['E', '"="']);
     });
-    it("TESTTESTparses number", ()=> {
+    it("parses number", ()=> {
         gf.add_number();
         var calc = new Calculator({
             grammar: gf.create(gf.add_number()),
@@ -168,7 +171,7 @@
         testCalc(calc, '12.3=', `${number}:12.3`);
         testCalc(calc, '123=', `${number}:123`);
     });
-    it("TESTTESTparses signed_number", ()=> {
+    it("parses signed_number", ()=> {
         var calc = new Calculator({
             grammar: gf.create(gf.add_signed_number()),
             grammarFactory: gf,
@@ -228,5 +231,54 @@
         testCalc(calc, '123=', `${number}:123`);
         testCalc(calc, '1+3/20=', `${number}:1.15`);
         testCalc(calc, '1.1+3/20=', `${number}:1.25`);
+    });
+    it("TESTTESTdisplay shows current state 12+34*5", ()=>{
+        var calc = new Calculator({
+            grammar: gf.create(gf.add_expr()),
+            grammarFactory: gf,
+            logLevel,
+        });
+        should(js.simpleString(calc.display)).equal('{text:0}');
+        calc.observe(testOb('1'));
+        should(js.simpleString(calc.display)).equal('{text:1}');
+        calc.observe(testOb('2'));
+        should(js.simpleString(calc.display)).equal('{text:12}');
+        calc.observe(testOb('+'));
+        should(js.simpleString(calc.display)).equal('{text:12,op:+}');
+        calc.observe(testOb('3'));
+        should(js.simpleString(calc.display)).equal('{text:3}');
+        calc.observe(testOb('4'));
+        should(js.simpleString(calc.display)).equal('{text:34}');
+        calc.observe(testOb('*'));
+        should(js.simpleString(calc.display)).equal('{text:34,op:*}');
+        calc.observe(testOb('5'));
+        should(js.simpleString(calc.display)).equal('{text:5}');
+        calc.observe(testOb('='));
+        should(js.simpleString(calc.display)).equal('{text:182}');
+    });
+    it("TESTTESTdisplay shows current state 4+3+2+1", ()=>{
+        var calc = new Calculator({
+            grammar: gf.create(gf.add_expr()),
+            grammarFactory: gf,
+            logLevel,
+        });
+        //console.log(js.simpleString(calc.grammar));
+        should(js.simpleString(calc.display)).equal('{text:0}');
+        calc.observe(testOb('4'));
+        should(js.simpleString(calc.display)).equal('{text:4}');
+        calc.observe(testOb('+'));
+        should(js.simpleString(calc.display)).equal('{text:4,op:+}');
+        calc.observe(testOb('3'));
+        should(js.simpleString(calc.display)).equal('{text:3}');
+        calc.observe(testOb('+'));
+        should(js.simpleString(calc.display)).equal('{text:7,op:+}');
+        calc.observe(testOb('2'));
+        should(js.simpleString(calc.display)).equal('{text:2}');
+        calc.observe(testOb('+'));
+        should(js.simpleString(calc.display)).equal('{text:9,op:+}');
+        calc.observe(testOb('1'));
+        should(js.simpleString(calc.display)).equal('{text:1}');
+        calc.observe(testOb('='));
+        should(js.simpleString(calc.display)).equal('{text:10}');
     });
 })

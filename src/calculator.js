@@ -8,12 +8,25 @@
     const GrammarFactory = require('./grammar-factory');
     const Observation = require('./observation');
 
+    // root ::= E "="
+    // E ::= T STAR( AT )
+    // T ::= F STAR( MF )
+    // AT ::= AO T
+    // AO ::= ALT( "+" | "-" )
+    // F ::= ALT( PE | SN )
+    // PE ::= "(" E ")"
+    // DF ::= "." PLUS( D )
+    // MF ::= MO F
+    // MO ::= ALT( "*" | "/" )
+    // SN ::= OPT( "-" ) N
+    // N ::= D STAR( D ) OPT( DF )
+
     class Calculator extends Parser {
         constructor(opts) {
             super((opts = Calculator.options(opts)));
             this.reduceMap = {};
             var gf = this.grammarFactory = opts.grammarFactory;
-            this.answer = new Observation(gf.number, 0);
+            //this.answer = new Observation(gf.number, 0);
             Object.keys(gf).forEach(k => {
                 var fname = `reduce_${k}`;
                 var freduce = this[fname];
@@ -35,6 +48,13 @@
             opts.grammar = opts.grammar || opts.grammarFactory.create();
 
             return opts;
+        }
+
+        clearAll() {
+            super.clearAll();
+            this.display = {
+                text: '0',
+            };
         }
 
         reduce_term(lhs, rhsData) {
@@ -122,6 +142,32 @@
                 : rhsData[1];
         }
 
+        reduce_addop(lhs, rhsData, result) {
+            var s0 = this.stack[0];
+            var s1 = this.stack[1];
+            var {
+                expr,
+                plus,
+                minus,
+            } = this.grammarFactory;
+            if (s1.lhs === expr && s1.rhsData[1].length) {
+                // Evaluate successive addops
+                var v0 = this.numberOf(s1.rhsData[0].value);
+                var s1d1 = s1.rhsData[1][0];
+                var v1 = this.numberOf(s1d1.value);
+                if (s1d1.tag === plus) {
+                    s1.rhsData[0].value += v1;
+                    s1.rhsData[1].shift();
+                    this.display.text = s1.rhsData[0].value;
+                } else if (s1d1.tag === minus) {
+                    s1.rhsData[0].value -= v1;
+                    s1.rhsData[1].shift();
+                    this.display.text = s1.rhsData[0].value;
+                }
+            }
+            return result;
+        }
+
         reduce_number(lhs, rhsData) {
             var {
                 number,
@@ -137,6 +183,24 @@
             return new Observation(number, Number(digits+decimal));
         }
 
+        onShift(ob) {
+            super.onShift(ob);
+            var {
+                display,
+                grammar,
+                grammarFactory,
+            } = this;
+            if (ob.tag === grammarFactory.digit) {
+                var text = display.text + ob.value;
+                display.text = display.op
+                    ? ob.value
+                    : text.replace(/^0*/,'');
+                delete display.op;
+            } else {
+                display.op = ob.value;
+            }
+        }
+
         onReduce(tos) {
             var {
                 lhs,
@@ -145,11 +209,11 @@
             var result = super.onReduce(tos);
             var freduce = this.reduceMap[lhs];
             if (freduce) {
-                result = freduce.call(this, lhs, rhsData);
-            } else {
-                if (lhs === root) {
-                    this.answer = rhsData[0];
-                }
+                result = freduce.call(this, lhs, rhsData, result);
+            }
+            if (lhs === 'root') {
+                this.display.text = rhsData[0].value;
+                delete this.display.op;
             }
             return result;
         }

@@ -31,7 +31,7 @@
         },
     };
 
-    it("TESTTESTdefault ctor", () => {
+    it("default ctor", () => {
         var scanner = new Scanner();
         should(scanner).instanceOf(Scanner);
         should.deepEqual(scanner.map, {});
@@ -146,7 +146,7 @@
         should(dataout.value).equal('red');
         should(dataout.tag).equal('color');
     });
-    it("TESTTESTscan(data) returns number", () => {
+    it("scan(data) returns number", () => {
         var scanner = new Scanner({
             patterns: [ Scanner.MATCH_NUMBER ],
         });
@@ -234,7 +234,7 @@
             done();
         } catch(e) {done(e)} })();
     });
-    it("TESTTESTscan(barcode) recognizes UPC/EAN codes", () => {
+    it("scan(barcode) recognizes UPC/EAN codes", () => {
         var scanner = new Scanner({
             patterns: [
                 Scanner.MATCH_UPCA,
