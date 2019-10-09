@@ -6,6 +6,7 @@
     const Parser = require('./parser');
     const Grammar = require('./grammar');
     const GrammarFactory = require('./grammar-factory');
+    const LineFilter = require('./line-filter');
     const Observation = require('./observation');
 
     // root ::= E "="
@@ -25,6 +26,7 @@
         constructor(opts) {
             super((opts = Calculator.options(opts)));
             this.reduceMap = {};
+            this.displayTag = opts.displayTag || 'display';
             var gf = this.grammarFactory = opts.grammarFactory;
             //this.answer = new Observation(gf.number, 0);
             Object.keys(gf).forEach(k => {
@@ -158,11 +160,11 @@
                 if (s1d1.tag === plus) {
                     s1.rhsData[0].value += v1;
                     s1.rhsData[1].shift();
-                    this.display.text = s1.rhsData[0].value;
+                    this.display.text = ''+s1.rhsData[0].value;
                 } else if (s1d1.tag === minus) {
                     s1.rhsData[0].value -= v1;
                     s1.rhsData[1].shift();
-                    this.display.text = s1.rhsData[0].value;
+                    this.display.text = ''+s1.rhsData[0].value;
                 }
             }
             return result;
@@ -184,11 +186,11 @@
                 if (s1d1.tag === multiply) {
                     s1.rhsData[0].value *= v1;
                     s1.rhsData[1].shift();
-                    this.display.text = s1.rhsData[0].value;
+                    this.display.text = ''+s1.rhsData[0].value;
                 } else if (s1d1.tag === divide) {
                     s1.rhsData[0].value /= v1;
                     s1.rhsData[1].shift();
-                    this.display.text = s1.rhsData[0].value;
+                    this.display.text = ''+s1.rhsData[0].value;
                 }
             }
 
@@ -220,7 +222,7 @@
             if (ob.tag === grammarFactory.digit) {
                 var text = display.text + ob.value;
                 display.text = display.op
-                    ? ob.value
+                    ? `${ob.value}`
                     : text.replace(/^0*/,'');
                 delete display.op;
             } else {
@@ -239,11 +241,29 @@
                 result = freduce.call(this, lhs, rhsData, result);
             }
             if (lhs === 'root') {
-                this.display.text = rhsData[0].value;
+                this.display.text = `${rhsData[0].value}`;
                 delete this.display.op;
             }
             return result;
         }
+
+        transform(is, os, opts={}) {
+            var consume = (line, os) => {
+                var obIn = new Observation(JSON.parse(line));
+                var res = this.observe(obIn);
+                var jsonOut = JSON.stringify(
+                    new Observation(this.displayTag, this.display));
+                os.write(jsonOut+'\n');
+            };
+            var logLevel = opts.logLevel || this.logLevel;
+            var lf = new LineFilter({
+                logLevel,
+                consume,
+            });
+
+            return lf.transform(is, os);
+        }
+
     }
 
     module.exports = exports.Calculator = Calculator;

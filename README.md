@@ -59,6 +59,15 @@ An Observation is a timestamped key/value pair:
 
 Observations are serializable.
 
+### LineFilter
+A line filter takes an input stream of lines and produces
+an output stream of lines. The lines are typically 
+Observation serializations.  Clients invoke a line filter as follows:
+
+```js
+lf.transform(is,os); // Promise
+```
+
 ### Scanner
 The Scanner class converts scanned lines into Observations: 
 
@@ -88,9 +97,7 @@ scanner.scan('A0002'); // {"t":"2019-09-13T17:25:26.023","tag":"color","value":"
 scanner.scan('A0003'); // {"t":"2019-09-13T17:25:27.912Z","tag":"scanned","value":"A0003"}
 ```
 
-The Scanner class also provides a streaming method that returns a Promise.
-The returned promise resolves upon input stream end with a summary 
-of the transformation. 
+Scanner instances implement LineFilter.
 
 ```JS
 var promise = scanner.transform(process.stdin, process.stdout);
@@ -114,6 +121,9 @@ have one line for each serialized Observation.
 {"t":"2019-09-13T17:25:26.023","tag":"color","value":"blue"}
 {"t":"2019-09-13T17:25:27.912Z","tag":"scanned","value":"A0003"}
 ```
+
+### Calculator
+Calculator is a four-function calculator that implements LineFilter.
 
 ### Scripts
 Executable scripts are in `scripts`:

@@ -5,12 +5,17 @@
         logger,
         js,
     } = require('just-simple').JustSimple;
+    const tmp = require('tmp');
+    const fs = require('fs');
+    const path = require('path');
+    const Stream = require('stream');
     const {
         Calculator,
-        Parser,
         Grammar,
         GrammarFactory,
         Observation,
+        Parser,
+
     } = require("../index");
     const logLevel = false;
 
@@ -332,5 +337,59 @@
         should(js.simpleString(calc.display)).equal('{text:2}');
         calc.observe(testOb('='));
         should(js.simpleString(calc.display)).equal('{text:1}');
+    });
+    it("TESTTESTtransform(...) implements LineFilter", (done)=>{
+        (async function() { try {
+            var calc = new Calculator({
+                grammar: gf.create(gf.add_expr()),
+                grammarFactory: gf,
+                logLevel,
+            });
+            var is = new Stream.Readable();
+            var ospath = tmp.tmpNameSync();
+            var os = fs.createWriteStream(ospath, {
+                emitClose: true,
+            });
+            var promise = calc.transform(is, os, {
+                logLevel,
+            });
+            var obs = [
+                new Observation(gf.digit, 1),
+                new Observation(gf.plus, '+'),
+                new Observation(gf.digit, 2),
+                new Observation(gf.enter, '='),
+            ];
+            obs.forEach(ob => {
+                is.push(JSON.stringify(ob)+'\n');
+            });
+            os.on('close', () => {
+                try { // check output
+                    should(fs.existsSync(ospath));
+                    var odata = fs.readFileSync(ospath);
+                    var olines = odata.toString().split('\n');
+                    var i = 0;
+                    should(olines[i++]).match(/{"text":"1"}/);
+                    should(olines[i++]).match(/{"text":"1","op":"\+"}/);
+                    should(olines[i++]).match(/{"text":"2"}/);
+                    should(olines[i++]).match(/{"text":"3"}/);
+                    fs.unlinkSync(ospath);
+                    done();
+                } catch (e) {
+                    done(e);
+                }
+            });
+
+            is.push(null);
+            var result = await promise;
+            os.end();
+            should(result).properties(['started', 'ended']);
+            should(result).properties({
+                bytes: 224,
+                observations: 4,
+            });
+            should(result.started).instanceOf(Date);
+            should(result.ended).instanceOf(Date);
+
+        } catch(e) { done(e); }})();
     });
 })
