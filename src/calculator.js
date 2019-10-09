@@ -168,6 +168,33 @@
             return result;
         }
 
+        reduce_mulop(lhs, rhsData, result) {
+            var s0 = this.stack[0];
+            var s1 = this.stack[1];
+            var {
+                term,
+                multiply,
+                divide,
+            } = this.grammarFactory;
+            if (s1.lhs === term && s1.rhsData[1].length) {
+                // Evaluate succesive mulops
+                var v0 = this.numberOf(s1.rhsData[0].value);
+                var s1d1 = s1.rhsData[1][0];
+                var v1 = this.numberOf(s1d1.value);
+                if (s1d1.tag === multiply) {
+                    s1.rhsData[0].value *= v1;
+                    s1.rhsData[1].shift();
+                    this.display.text = s1.rhsData[0].value;
+                } else if (s1d1.tag === divide) {
+                    s1.rhsData[0].value /= v1;
+                    s1.rhsData[1].shift();
+                    this.display.text = s1.rhsData[0].value;
+                }
+            }
+
+            return result;
+        }
+
         reduce_number(lhs, rhsData) {
             var {
                 number,

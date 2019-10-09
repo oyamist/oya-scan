@@ -281,4 +281,56 @@
         calc.observe(testOb('='));
         should(js.simpleString(calc.display)).equal('{text:6}');
     });
+    it("TESTTESTdisplay shows running product 5*4*3*2", ()=>{
+        var calc = new Calculator({
+            grammar: gf.create(gf.add_expr()),
+            grammarFactory: gf,
+            logLevel,
+        });
+        // successive addops
+        should(js.simpleString(calc.display)).equal('{text:0}');
+        calc.observe(testOb('5'));
+        should(js.simpleString(calc.display)).equal('{text:5}');
+        calc.observe(testOb('*'));
+        should(js.simpleString(calc.display)).equal('{text:5,op:*}');
+        calc.observe(testOb('4'));
+        should(js.simpleString(calc.display)).equal('{text:4}');
+        calc.observe(testOb('*'));
+        should(js.simpleString(calc.display)).equal('{text:20,op:*}');
+        calc.observe(testOb('3'));
+        should(js.simpleString(calc.display)).equal('{text:3}');
+        calc.observe(testOb('*'));
+        should(js.simpleString(calc.display)).equal('{text:60,op:*}');
+        calc.observe(testOb('2'));
+        should(js.simpleString(calc.display)).equal('{text:2}');
+        calc.observe(testOb('='));
+        should(js.simpleString(calc.display)).equal('{text:120}');
+    });
+    it("TESTTESTdisplay shows running division 24/4/3/2", ()=>{
+        var calc = new Calculator({
+            grammar: gf.create(gf.add_expr()),
+            grammarFactory: gf,
+            logLevel,
+        });
+        // successive addops
+        should(js.simpleString(calc.display)).equal('{text:0}');
+        calc.observe(testOb('2'));
+        should(js.simpleString(calc.display)).equal('{text:2}');
+        calc.observe(testOb('4'));
+        should(js.simpleString(calc.display)).equal('{text:24}');
+        calc.observe(testOb('/'));
+        should(js.simpleString(calc.display)).equal('{text:24,op:/}');
+        calc.observe(testOb('4'));
+        should(js.simpleString(calc.display)).equal('{text:4}');
+        calc.observe(testOb('/'));
+        should(js.simpleString(calc.display)).equal('{text:6,op:/}');
+        calc.observe(testOb('3'));
+        should(js.simpleString(calc.display)).equal('{text:3}');
+        calc.observe(testOb('/'));
+        should(js.simpleString(calc.display)).equal('{text:2,op:/}');
+        calc.observe(testOb('2'));
+        should(js.simpleString(calc.display)).equal('{text:2}');
+        calc.observe(testOb('='));
+        should(js.simpleString(calc.display)).equal('{text:1}');
+    });
 })
