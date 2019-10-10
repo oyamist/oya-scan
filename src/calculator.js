@@ -46,8 +46,9 @@
                     enter: options.enter || 'enter',
                 }),
             }, options);
+            var gf = opts.grammarFactory;
 
-            opts.grammar = opts.grammar || opts.grammarFactory.create();
+            opts.grammar = opts.grammar || gf.create(gf.add_expr());
 
             return opts;
         }
@@ -57,6 +58,29 @@
             this.display = {
                 text: '0',
             };
+        }
+
+        setDisplay(...args) {
+            if (typeof args[0] === 'string') {
+                var opts = {
+                    text: args[0],
+                };
+            } else {
+                opts = args[0] || {};
+            }
+            var {
+                display,
+            } = this;
+            opts.text && (display.text = opts.text);
+            opts.op && (display.op = opts.op);
+            opts.error == null && delete display.error;
+        }
+
+        onReject(ob) {
+            super.onReject(ob);
+            this.setDisplay({
+                error: `${ob}`,
+            });
         }
 
         reduce_term(lhs, rhsData) {
@@ -161,10 +185,11 @@
                     s1.rhsData[0].value += v1;
                     s1.rhsData[1].shift();
                     this.display.text = ''+s1.rhsData[0].value;
+                    this.setDisplay(''+s1.rhsData[0].value);
                 } else if (s1d1.tag === minus) {
                     s1.rhsData[0].value -= v1;
                     s1.rhsData[1].shift();
-                    this.display.text = ''+s1.rhsData[0].value;
+                    this.setDisplay(''+s1.rhsData[0].value);
                 }
             }
             return result;
@@ -186,11 +211,11 @@
                 if (s1d1.tag === multiply) {
                     s1.rhsData[0].value *= v1;
                     s1.rhsData[1].shift();
-                    this.display.text = ''+s1.rhsData[0].value;
+                    this.setDisplay(''+s1.rhsData[0].value);
                 } else if (s1d1.tag === divide) {
                     s1.rhsData[0].value /= v1;
                     s1.rhsData[1].shift();
-                    this.display.text = ''+s1.rhsData[0].value;
+                    this.setDisplay(''+s1.rhsData[0].value);
                 }
             }
 
@@ -221,12 +246,13 @@
             } = this;
             if (ob.tag === grammarFactory.digit) {
                 var text = display.text + ob.value;
-                display.text = display.op
+                this.setDisplay(display.op
                     ? `${ob.value}`
-                    : text.replace(/^0*/,'');
+                    : text.replace(/^0*/,'')
+                );
                 delete display.op;
             } else {
-                display.op = ob.value;
+                this.setDisplay({op: ob.value});
             }
         }
 

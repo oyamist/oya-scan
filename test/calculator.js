@@ -237,7 +237,7 @@
         testCalc(calc, '1+3/20=', `${number}:1.15`);
         testCalc(calc, '1.1+3/20=', `${number}:1.25`);
     });
-    it("TESTTESTdisplay shows current state 12+34*5", ()=>{
+    it("display shows current state 12+34*5", ()=>{
         var calc = new Calculator({
             grammar: gf.create(gf.add_expr()),
             grammarFactory: gf,
@@ -261,7 +261,7 @@
         calc.observe(testOb('='));
         should(js.simpleString(calc.display)).equal('{text:182}');
     });
-    it("TESTTESTdisplay shows running sum 4+3-2+1", ()=>{
+    it("display shows running sum 4+3-2+1", ()=>{
         var calc = new Calculator({
             grammar: gf.create(gf.add_expr()),
             grammarFactory: gf,
@@ -286,7 +286,7 @@
         calc.observe(testOb('='));
         should(js.simpleString(calc.display)).equal('{text:6}');
     });
-    it("TESTTESTdisplay shows running product 5*4*3*2", ()=>{
+    it("display shows running product 5*4*3*2", ()=>{
         var calc = new Calculator({
             grammar: gf.create(gf.add_expr()),
             grammarFactory: gf,
@@ -311,7 +311,7 @@
         calc.observe(testOb('='));
         should(js.simpleString(calc.display)).equal('{text:120}');
     });
-    it("TESTTESTdisplay shows running division 24/4/3/2", ()=>{
+    it("display shows running division 24/4/3/2", ()=>{
         var calc = new Calculator({
             grammar: gf.create(gf.add_expr()),
             grammarFactory: gf,
@@ -391,5 +391,39 @@
             should(result.ended).instanceOf(Date);
 
         } catch(e) { done(e); }})();
+    });
+    it("TESTTESTdefault ctor calculates", ()=>{
+        var calc = new Calculator({
+            logLevel,
+        });
+        var gf = calc.grammarFactory;
+        var g = calc.grammar;
+        //console.log(js.simpleString(g));
+        var {
+            digit,
+            plus,
+            enter,
+        } = gf;
+        var obs = [
+            new Observation(digit, '1'),
+            new Observation(plus, '+'),
+            new Observation(digit, '2'),
+            new Observation(plus, '+'),
+            new Observation(digit, 3),
+            new Observation(enter, 'enter'),
+        ];
+        var i = 0;
+        should(calc.observe(obs[i++])).equal(true); // 1
+        should(js.simpleString(calc.display)).equal('{text:1}');
+        should(calc.observe(obs[i++])).equal(true); // +
+        should(js.simpleString(calc.display)).equal('{text:1,op:+}');
+        should(calc.observe(obs[i++])).equal(true); // 2
+        should(js.simpleString(calc.display)).equal('{text:2}');
+        should(calc.observe(obs[i++])).equal(true); // +
+        should(js.simpleString(calc.display)).equal('{text:3,op:+}');
+        should(calc.observe(obs[i++])).equal(true); // 3
+        should(js.simpleString(calc.display)).equal('{text:3}');
+        should(calc.observe(obs[i++])).equal(true); // enter
+        should(js.simpleString(calc.display)).equal('{text:6}');
     });
 })
