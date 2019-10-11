@@ -65,10 +65,10 @@
     },
     "  C  " : {
         "tag": "C",
-        "value": "clear"
+        "value": "undo"
     },
     "  AC  " : {
         "tag": "AC",
-        "value": "all-clear"
+        "value": "clear"
     }
 }

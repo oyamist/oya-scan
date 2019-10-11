@@ -28,6 +28,13 @@
     const E = 'E';
     const F = 'F';
 
+    const GRAMMAR_FACTOR = {
+        root: [ 'F', STAR('MF'), '=' ],
+        F: 'N',
+        MF: [ 'MO', 'F' ], 
+        MO: "*",
+    };
+
     class TestParser extends Parser {
         constructor(opts) {
             super(opts);
@@ -1130,6 +1137,73 @@
         should(js.simpleString(tp.answers[0])).equal(answers[2]);
         should(js.simpleString(tp.answers[1])).equal(answers[1]);
         should(tp.answers.length).equal(2); // discard first answer
+    });
+    it("TESTTESTundo() clears observation", ()=>{
+        var tp = new TestParser({
+            grammar: GRAMMAR_FACTOR,
+            logLevel,
+        });
+        var states = []; 
+
+        var obs = 'N*N*N='.split('').map((c,i)=>new Observation(c,i));
+        obs.forEach(ob => {
+            should(tp.observe(ob)).equal(true);
+            states.unshift(tp.state());
+        });
+        var i = obs.length;
+        while(states.length) {
+            should.deepEqual(tp.state(), states[0]);
+            var ob = tp.undo();
+            should(ob).equal(obs[--i]);
+            states.shift();
+        }
+        should.deepEqual(tp.state(), '');
+    });
+    it("TESTTESTundo observation", ()=>{
+        var tagUndo = 'TESTUNDO';
+        var tp = new TestParser({
+            grammar: GRAMMAR_FACTOR,
+            tagUndo,
+            logLevel,
+        });
+
+        // observe(obUndo) invokes undo()
+        var obUndo = new Observation(tagUndo); 
+
+        var states = []; 
+        var obs = 'N*N*N='.split('').map((c,i)=>new Observation(c,i));
+        obs.forEach(ob => {
+            should(tp.observe(ob)).equal(true);
+            states.unshift(tp.state());
+        });
+        var i = obs.length;
+        while(states.length) {
+            should.deepEqual(tp.state(), states[0]);
+            should(tp.observe(obUndo)).equal(true);
+            states.shift();
+        }
+        should.deepEqual(tp.state(), '');
+    });
+    it("TESTTESTclear() resets state", ()=>{
+        var tp = new TestParser({
+            grammar: GRAMMAR_FACTOR,
+            logLevel,
+        });
+
+        var states = []; 
+        var obs = 'N*N*N='.split('').map((c,i)=>new Observation(c,i));
+        obs.forEach(ob => {
+            should(tp.observe(ob)).equal(true);
+            states.unshift(tp.state());
+        });
+        tp.clear();
+        should(tp).properties({
+            stack: [],
+            lookahead: [],
+            observations: [],
+            answers: [],
+            obError: undefined,
+        });
     });
 
 })

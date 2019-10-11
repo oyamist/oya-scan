@@ -42,6 +42,8 @@
             this.logStack = opts.logStack || 2; // stack elements to log
             this.answers = [];
             this.maxAnswers = opts.maxAnswers || 3;
+            this.tagClear = opts.tagClear || 'clear';
+            this.tagUndo = opts.tagUndo || 'undo';
             this.clear();
             
             Object.defineProperty(this, "observations", {
@@ -203,6 +205,7 @@
 
         clear() {
             this.observations = [];
+            this.answers = [];
             this.lookahead = []; // input observations
             this.stack = []; // execution stack
             this.obError = undefined;
@@ -225,12 +228,22 @@
                 this.clear();
             }
             var {
+                tagClear,
+                tagUndo,
                 lookahead,
                 logLevel,
                 stack,
                 name,
                 observations,
             } = this;
+
+            if (ob.tag === tagClear) {
+                this.clear();
+                return true;
+            }
+            if (ob.tag === tagUndo) {
+                return !!this.undo();
+            }
 
             this.log(`----- ${name}.observe(${ob}) -----`);
 
