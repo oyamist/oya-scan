@@ -44,31 +44,38 @@
         "value": "point"
     },
     "  *  " : {
+        "background": "#ffff99",
         "tag": "*",
         "value": "times"
     },
     "  /  " : {
+        "background": "#ffff99",
         "tag": "/",
         "value": "divide"
     },
     "  +  " : {
+        "background": "#ffff99",
         "tag": "+",
         "value": "plus"
     },
     "  -  " : {
+        "background": "#ffff99",
         "tag": "-",
         "value": "minus"
     },
     "  =  " : {
+        "background": "#ffff99",
         "tag": "enter",
         "value": "enter"
     },
     "  C  " : {
-        "tag": "C",
+        "background": "#ccccff",
+        "tag": "undo",
         "value": "undo"
     },
     "  AC  " : {
-        "tag": "AC",
+        "background": "#ccccff",
+        "tag": "clear",
         "value": "clear"
     }
 }

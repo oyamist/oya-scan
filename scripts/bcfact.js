@@ -30,14 +30,17 @@ SYNOPSIS
             Default is "test/data/calc-map.json"
 
 OPTIONS
-    -h, --help
+    -?, --help
             Print command line options
 
     -p, --prefix PREFIX
             File name prefix. Default is "calc"
 
+    -bg, --background CSSCOLOR
+            Image background
+
     -h, --height
-            Height (default 35
+            Height (default 35)
 
     -fs FONTSIZE
             Font size (default 10)
@@ -50,6 +53,7 @@ OPTIONS
     process.exit(0);
 }
 
+var bgDefault = "#ffffff";
 var fontSize = 10;
 var height = 35;
 var prefix = "calc";
@@ -64,6 +68,8 @@ for (var i=2; i<process.argv.length; i++) {
         prefix = process.argv[++i];
     } else if (arg === '-h' || arg === '--height' ) {
         height = Number(process.argv[++i]);
+    } else if (arg === '-bg' || arg === '--background' ) {
+        bgDefault = process.argv[++i];
     } else if (arg === '-fs' || arg === '--fontSize' ) {
         fontSize = Number(process.argv[++i]);
     } else if (arg === '-o' || arg === '--outdir') {
@@ -87,7 +93,7 @@ if (!fs.existsSync(outdir)) {
     throw new Error(`Output directory not found:${outdir}`);
 }
 
-function createBarcode(text, name=text.trim()) {
+function createBarcode(text, name=text.trim(), background) {
     var canvas = createCanvas(100,40);
     var fname = `${prefix}-${name}.png`;
     var pngPath = path.join(outdir, fname);
@@ -99,6 +105,7 @@ function createBarcode(text, name=text.trim()) {
     JsBarcode(canvas, text, {
         height,
         fontSize,
+        background,
     });
 }
 
@@ -109,8 +116,9 @@ function execute() {
     keys.forEach(k => {
         var {
             value,
+            background,
         } = map[k];
-        createBarcode(k, value);
+        createBarcode(k, value, background || bgDefault);
     });
 }
 
