@@ -40,35 +40,35 @@
         "value": 9
     },
     "  .  " : {
-        "tag": "point",
-        "value": "."
+        "tag": ".",
+        "value": "point"
     },
     "  *  " : {
-        "tag": "times",
-        "value": "*"
+        "tag": "*",
+        "value": "times"
     },
     "  /  " : {
-        "tag": "divide",
-        "value": "/"
+        "tag": "/",
+        "value": "divide"
     },
     "  +  " : {
         "tag": "+",
-        "value": "+"
+        "value": "plus"
     },
     "  -  " : {
-        "tag": "minus",
-        "value": "-"
+        "tag": "-",
+        "value": "minus"
     },
     "  =  " : {
-        "tag": "equals",
-        "value": "="
+        "tag": "enter",
+        "value": "enter"
     },
     "  C  " : {
-        "tag": "clear",
-        "value": "C"
+        "tag": "C",
+        "value": "clear"
     },
     "  AC  " : {
-        "tag": "all-clear",
-        "value": "AC"
+        "tag": "AC",
+        "value": "all-clear"
     }
 }

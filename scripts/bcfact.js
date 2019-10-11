@@ -94,11 +94,10 @@ function execute() {
     var keys = Object.keys(map);
     logger.info(`Creating ${keys.length} barcode images...`);
     keys.forEach(k => {
-        var label = map[k].tag;
-        if (label === 'digit') {
-            label = map[k].value;
-        }
-        createBarcode(k, label);
+        var {
+            value,
+        } = map[k];
+        createBarcode(k, value);
     });
 }
 

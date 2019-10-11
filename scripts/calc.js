@@ -32,6 +32,12 @@ OPTIONS
     -ll, --logLevel LOGLEVEL
             Winston logging level(false): debug, info, warn, error
 
+    -iss
+            Use stdin as Scanner input (default)
+            
+    -iso
+            Use stdin as Observation stream
+            
     -m, --map MAPFILE
             Reads given Scanner MAPFILE for JSON object whose keys are 
             the mapped barcodes and whose values are Javascript 
@@ -42,8 +48,8 @@ OPTIONS
     process.exit(0);
 }
 
-var mpath = null;
-var map = {};
+var iss = true;
+var mpath = path.join(__dirname, '..', 'test', 'data', 'calc-map.json');
 var patterns = [];
 var logLevel = false;
 for (var i=0; i<process.argv.length; i++) {
@@ -54,31 +60,38 @@ for (var i=0; i<process.argv.length; i++) {
         logLevel = process.argv[++i];
         logLevel = logLevel === 'false' ? false : logLevel;
         logLevel && logger[logLevel](`logLevel: ${logLevel}`);
+    } else if (arg === '-iss') {
+        iss = true;
+    } else if (arg === '-iso') {
+        iss = false;
     } else if (arg === '-m' || arg === '--map') {
         mpath = process.argv[++i];
-        if (!fs.existsSync(mpath)) {
-            throw new Error(`Map file not found:${mpath}`);
-        }
-        map = JSON.parse(fs.readFileSync(mpath));
-        logLevel && logger[logLevel](`loaded scan map from:${mpath}`);
     } else if (arg.startsWith('-')) {
         help();
     }
 
 }
 
-var scanner = new Scanner({
-    map,
-    logLevel,
-});
 var calc = new Calculator({
     logLevel,
 });
 
-var sos = new Stream.PassThrough();
-//var pscan = scanner.transform(process.stdin, sos);
-var cis = process.stdin;
-var pcalc = calc.transform(cis, process.stdout);
+if (iss) {
+    if (!fs.existsSync(mpath)) {
+        throw new Error(`Map file not found:${mpath}`);
+    }
+    var map = JSON.parse(fs.readFileSync(mpath));
+    logLevel && logger[logLevel](`loaded scan map from:${mpath}`);
+    var scanner = new Scanner({
+        map,
+        logLevel,
+    });
+    var calcInput = new Stream.PassThrough();
+    var pscan = scanner.transform(process.stdin, calcInput);
+} else {
+    var calcInput = process.stdin;
+} 
+var pcalc = calc.transform(calcInput, process.stdout);
 
 pcalc.then(r => {
     r.argv = process.argv;
