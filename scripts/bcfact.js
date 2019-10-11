@@ -19,15 +19,9 @@ NAME
     bcfact - barcode image factory
     
 SYNOPSIS
-    bcfact [mapfile]
+    bcfact 
 
     Generate barcode images for scanner mapfile.
-
-    mapfile 
-            Path to scanner mapfile with a JSON object whose keys are 
-            the mapped barcodes and whose values are Javascript 
-            objects with replacement values for: "tag" and "value".
-            Default is "test/data/calc-map.json"
 
 OPTIONS
     -?, --help
@@ -37,16 +31,22 @@ OPTIONS
             File name prefix. Default is "calc"
 
     -bg, --background CSSCOLOR
-            Image background
+            Image background (default #ffffff)
 
     -h, --height
             Height (default 35)
 
-    -fs FONTSIZE
+    -fs, --fontsize FONTSIZE
             Font size (default 10)
 
     -o, --outdir OUTDIR
             Path to folder for barcode images. Default is current.
+
+    -m, --mapfile MAPFILE
+            Path to scanner mapfile with a JSON object whose keys are 
+            the mapped barcodes and whose values are Javascript 
+            objects with replacement values for: "tag" and "value".
+            Default is "test/data/calc-map.json"
 
 
 `);
@@ -60,8 +60,10 @@ var prefix = "calc";
 var mpath = path.join(__dirname, '..', 'test', 'data', 'calc-map.json');
 var outdir = path.join(__dirname, '..', 'src', 'assets');
 
+console.log(`dbg argv`, process.argv);
 for (var i=2; i<process.argv.length; i++) {
     var arg = process.argv[i];
+    console.log(`dbg arg`, arg);
     if (arg === '-?' || arg === '--help') {
         help();
     } else if (arg === '-p' || arg === '--prefix') {
@@ -70,20 +72,25 @@ for (var i=2; i<process.argv.length; i++) {
         height = Number(process.argv[++i]);
     } else if (arg === '-bg' || arg === '--background' ) {
         bgDefault = process.argv[++i];
-    } else if (arg === '-fs' || arg === '--fontSize' ) {
+    } else if (arg === '-fs' || arg === '--fontsize' ) {
         fontSize = Number(process.argv[++i]);
+    } else if (arg === '-m' || arg === '--mapfile') {
+        mpath = process.argv[++i];
     } else if (arg === '-o' || arg === '--outdir') {
         outdir = process.argv[++i];
     } else if (arg.startsWith('-')) {
         help();
     } else {
-        mpath = arg;
+        console.log(`UNEXPECTED ARGUMENT: ${arg}`);
     }
 }
 
 logger.info(`Scanner map file:     ${mpath}`);
 logger.info(`Barcode image prefix: "${prefix}"`);
 logger.info(`Output directory:     ${outdir}`);
+logger.info(`fontSize:             ${fontSize}`);
+logger.info(`height:               ${height}`);
+logger.info(`background:           ${bgDefault}`);
 
 if (!fs.existsSync(mpath)) {
     throw new Error(`Map file not found: ${mpath}`);
@@ -102,11 +109,13 @@ function createBarcode(text, name=text.trim(), background) {
     stream.pipe(out);
     out.on('finish', () =>  logger.info(`Created ${pngPath}`));
     out.on('error', e => logger.error(e.stack));
-    JsBarcode(canvas, text, {
+    var opts = {
         height,
         fontSize,
         background,
-    });
+    };
+    logger.info(`${text} ${JSON.stringify(opts)}`);
+    JsBarcode(canvas, text, opts);
 }
 
 var map = JSON.parse(fs.readFileSync(mpath));
