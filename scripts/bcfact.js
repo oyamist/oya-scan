@@ -36,6 +36,12 @@ OPTIONS
     -p, --prefix PREFIX
             File name prefix. Default is "calc"
 
+    -h, --height
+            Height (default 35
+
+    -fs FONTSIZE
+            Font size (default 10)
+
     -o, --outdir OUTDIR
             Path to folder for barcode images. Default is current.
 
@@ -44,16 +50,22 @@ OPTIONS
     process.exit(0);
 }
 
+var fontSize = 10;
+var height = 35;
 var prefix = "calc";
 var mpath = path.join(__dirname, '..', 'test', 'data', 'calc-map.json');
 var outdir = path.join(__dirname, '..', 'src', 'assets');
 
 for (var i=2; i<process.argv.length; i++) {
     var arg = process.argv[i];
-    if (arg === '-h' || arg === '--help') {
+    if (arg === '-?' || arg === '--help') {
         help();
     } else if (arg === '-p' || arg === '--prefix') {
         prefix = process.argv[++i];
+    } else if (arg === '-h' || arg === '--height' ) {
+        height = Number(process.argv[++i]);
+    } else if (arg === '-fs' || arg === '--fontSize' ) {
+        fontSize = Number(process.argv[++i]);
     } else if (arg === '-o' || arg === '--outdir') {
         outdir = process.argv[++i];
     } else if (arg.startsWith('-')) {
@@ -85,7 +97,8 @@ function createBarcode(text, name=text.trim()) {
     out.on('finish', () =>  logger.info(`Created ${pngPath}`));
     out.on('error', e => logger.error(e.stack));
     JsBarcode(canvas, text, {
-        height: 35,
+        height,
+        fontSize,
     });
 }
 
