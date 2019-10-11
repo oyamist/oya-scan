@@ -60,10 +60,8 @@ var prefix = "calc";
 var mpath = path.join(__dirname, '..', 'test', 'data', 'calc-map.json');
 var outdir = path.join(__dirname, '..', 'src', 'assets');
 
-console.log(`dbg argv`, process.argv);
 for (var i=2; i<process.argv.length; i++) {
     var arg = process.argv[i];
-    console.log(`dbg arg`, arg);
     if (arg === '-?' || arg === '--help') {
         help();
     } else if (arg === '-p' || arg === '--prefix') {
