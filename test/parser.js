@@ -33,8 +33,8 @@
             super(opts);
         }
 
-        clearAll() {
-            super.clearAll();
+        clear() {
+            super.clear();
             this.reduced = [];
             this.shifted = [];
             this.rejected = [];
@@ -895,7 +895,7 @@
             var obs = text.split('').map((tag,i)=>new Observation(tag,i));
             var i = 0;
 
-            tp.clearAll();
+            tp.clear();
             should(tp.observe(obs[i++])).equal(true); // a
             should(tp.state()).equal(`aBCd_1:[a:0]; root_0:[]`);
             should.deepEqual(tp.reduced, []);
@@ -933,7 +933,7 @@
             var obs = text.split('').map((tag,i)=>new Observation(tag,i));
             var i = 0;
 
-            tp.clearAll();
+            tp.clear();
             should(tp.observe(obs[i++])).equal(true); // a
             should(tp.state()).equal(`aBCd_1:[a:0]; root_0:[]`);
             should.deepEqual(tp.reduced, []);
@@ -976,7 +976,7 @@
             var obs = text.split('').map((tag,i)=>new Observation(tag,i));
             var i = 0;
 
-            tp.clearAll();
+            tp.clear();
             should(tp.observe(obs[i++])).equal(true); // a
             should(tp.state()).equal(`aBCd_1:[a:0]; root_0:[]`);
             should.deepEqual(tp.reduced, []);
@@ -1024,7 +1024,7 @@
             var obs = text.split('').map((tag,i)=>new Observation(tag,i));
             var i = 0;
 
-            tp.clearAll();
+            tp.clear();
             should(tp.observe(obs[i++])).equal(true); // a
             should(tp.state()).equal('aBCd_1:[a:0]; root_0:[]');
             should.deepEqual(tp.reduced, []);

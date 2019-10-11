@@ -110,7 +110,7 @@
             logger[logLevel](
                 `testCalc expect: "${input}" => "${expected}"`);
         }
-        calc.clearAll();
+        calc.clear();
         for (var i = 0;  i < obs.length; i++) {
             var ob = obs[i];
             var res = calc.observe(ob);

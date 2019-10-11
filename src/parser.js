@@ -42,7 +42,7 @@
             this.logStack = opts.logStack || 2; // stack elements to log
             this.answers = [];
             this.maxAnswers = opts.maxAnswers || 3;
-            this.clearAll();
+            this.clear();
             
             Object.defineProperty(this, "observations", {
                 writable: true,
@@ -195,13 +195,13 @@
             if (obs.length === 0) {
                 return null;
             }
-            this.clearAll();
+            this.clear();
             var ob = obs.pop();
             obs.forEach(ob => this.observe(ob));
             return ob;
         }
 
-        clearAll() {
+        clear() {
             this.observations = [];
             this.lookahead = []; // input observations
             this.stack = []; // execution stack
@@ -222,7 +222,7 @@
         observe(ob) {
             var obError = this.obError;
             if (obError && ob.toString() === obError.toString()) {
-                this.clearAll();
+                this.clear();
             }
             var {
                 lookahead,

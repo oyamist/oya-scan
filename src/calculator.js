@@ -53,8 +53,8 @@
             return opts;
         }
 
-        clearAll() {
-            super.clearAll();
+        clear() {
+            super.clear();
             this.display = {
                 text: '0',
             };
