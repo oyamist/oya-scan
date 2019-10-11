@@ -392,7 +392,7 @@
 
         } catch(e) { done(e); }})();
     });
-    it("TESTTESTdefault ctor calculates", ()=>{
+    it("default ctor calculates", ()=>{
         var calc = new Calculator({
             logLevel,
         });
@@ -425,5 +425,55 @@
         should(js.simpleString(calc.display)).equal('{text:3}');
         should(calc.observe(obs[i++])).equal(true); // enter
         should(js.simpleString(calc.display)).equal('{text:6}');
+    });
+    it("TESTTESTundo() clears last observation", ()=>{
+        var calc = new Calculator({
+            logLevel,
+        });
+        var gf = calc.grammarFactory;
+        var g = calc.grammar;
+        //console.log(js.simpleString(g));
+        var {
+            digit,
+            plus,
+            enter,
+        } = gf;
+        var obs = [
+            new Observation(digit, '1'),
+            new Observation(plus, '+'),
+            new Observation(digit, '2'),
+            new Observation(plus, '+'),
+            new Observation(digit, 3),
+            new Observation(enter, 'enter'),
+        ];
+        var i = 0;
+        should(calc.observe(obs[i++])).equal(true); // 1
+        should(js.simpleString(calc.display)).equal('{text:1}');
+        should(calc.observe(obs[i++])).equal(true); // +
+        should(js.simpleString(calc.display)).equal('{text:1,op:+}');
+        should(calc.observe(obs[i++])).equal(true); // 2
+        should(js.simpleString(calc.display)).equal('{text:2}');
+        should(calc.observe(obs[i++])).equal(true); // +
+        should(js.simpleString(calc.display)).equal('{text:3,op:+}');
+        should(calc.observe(obs[i++])).equal(true); // 3
+        should(js.simpleString(calc.display)).equal('{text:3}');
+        should(calc.observe(obs[i++])).equal(true); // enter
+        should(js.simpleString(calc.display)).equal('{text:6}');
+
+        // reverse 
+        should(calc.undo()).equal(obs[--i]);
+        should(js.simpleString(calc.display)).equal('{text:3}');
+        should(calc.undo()).equal(obs[--i]);
+        should(js.simpleString(calc.display)).equal('{text:3,op:+}');
+        should(calc.undo()).equal(obs[--i]);
+        should(js.simpleString(calc.display)).equal('{text:2}');
+        should(calc.undo()).equal(obs[--i]);
+        should(js.simpleString(calc.display)).equal('{text:1,op:+}');
+        should(calc.undo()).equal(obs[--i]);
+        should(js.simpleString(calc.display)).equal('{text:1}');
+        should(calc.undo()).equal(obs[--i]);
+        should(js.simpleString(calc.display)).equal('{text:0}');
+        should(calc.undo()).equal(null);
+
     });
 })

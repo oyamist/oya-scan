@@ -43,6 +43,11 @@
             this.answers = [];
             this.maxAnswers = opts.maxAnswers || 3;
             this.clearAll();
+            
+            Object.defineProperty(this, "observations", {
+                writable: true,
+                value: [],
+            });
         }
 
         get isParsing() {
@@ -185,11 +190,19 @@
             this.onReject(ob);
         }
 
-        clearObservation() {
-            this.lookahead.length && this.lookahead.shift();
+        undo() {
+            var obs = this.observations;
+            if (obs.length === 0) {
+                return null;
+            }
+            this.clearAll();
+            var ob = obs.pop();
+            obs.forEach(ob => this.observe(ob));
+            return ob;
         }
 
         clearAll() {
+            this.observations = [];
             this.lookahead = []; // input observations
             this.stack = []; // execution stack
             this.obError = undefined;
@@ -216,11 +229,14 @@
                 logLevel,
                 stack,
                 name,
+                observations,
             } = this;
 
             this.log(`----- ${name}.observe(${ob}) -----`);
 
             lookahead.push(ob);
+            observations.push(ob);
+
             if (stack.length === 0) {
                 stack[0] = new RuleState("root");
             }
@@ -233,8 +249,8 @@
                 }
             } else {
                 this.reject(ob);
+                this.lookahead.length && this.lookahead.shift();
                 this.obError = ob;
-                this.clearObservation();
             }
             return res;
         }
