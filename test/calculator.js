@@ -97,6 +97,20 @@
         return new Observation(tag, c);
     }
 
+    class TestCalculator extends Calculator {
+        constructor(opts={}) {
+            super(opts);
+        }
+
+        testChar(c, expected, testAssert=true) {
+            var ob = testOb(c);
+            var res = this.observe(ob);
+            should(res).equal(true);
+            this.log(js.simpleString(this.display));
+            should(js.simpleString(this.display)).equal(expected);
+        }
+    }
+
     function testCalc(calc, input, expected) {
         // Test the given Calculator by converting the
         // input test string into a sequence of Observations that
@@ -165,16 +179,21 @@
         should(g).instanceOf(Grammar);
         should.deepEqual(g.rhs(root), ['E', '"="']);
     });
-    it("parses number", ()=> {
-        gf.add_number();
-        var calc = new Calculator({
-            grammar: gf.create(gf.add_number()),
+    it("TESTTESTparses number", ()=> {
+        var tc = new TestCalculator({
+            grammar: gf.create(gf.add_expr()),
             grammarFactory: gf,
-            logLevel,
+            logLevel: 'info',
         });
-        testCalc(calc, '1.23=', `${number}:1.23`);
-        testCalc(calc, '12.3=', `${number}:12.3`);
-        testCalc(calc, '123=', `${number}:123`);
+        console.log(js.simpleString(tc.grammar));
+        tc.testChar('1', '{text:1}');
+        tc.testChar('2', '{text:12}');
+        tc.testChar('.', '{text:12.}');
+        tc.testChar('3', '{text:12.3}');
+        tc.testChar('+', '{text:12.3,op:+}');
+        tc.testChar('4', '{text:4}');
+        tc.testChar('=', '{text:16.3}');
+        //tc.testChar('+', '{text:16.3,op:+}');
     });
     it("parses signed_number", ()=> {
         var calc = new Calculator({
@@ -338,7 +357,7 @@
         calc.observe(testOb('='));
         should(js.simpleString(calc.display)).equal('{text:1}');
     });
-    it("TESTTESTtransform(...) implements LineFilter", (done)=>{
+    it("transform(...) implements LineFilter", (done)=>{
         (async function() { try {
             var calc = new Calculator({
                 grammar: gf.create(gf.add_expr()),
@@ -426,7 +445,7 @@
         should(calc.observe(obs[i++])).equal(true); // enter
         should(js.simpleString(calc.display)).equal('{text:6}');
     });
-    it("TESTTESTundo() clears last observation", ()=>{
+    it("undo() clears last observation", ()=>{
         var calc = new Calculator({
             logLevel,
         });

@@ -1138,7 +1138,7 @@
         should(js.simpleString(tp.answers[1])).equal(answers[1]);
         should(tp.answers.length).equal(2); // discard first answer
     });
-    it("TESTTESTundo() clears observation", ()=>{
+    it("undo() clears observation", ()=>{
         var tp = new TestParser({
             grammar: GRAMMAR_FACTOR,
             logLevel,
@@ -1159,7 +1159,7 @@
         }
         should.deepEqual(tp.state(), '');
     });
-    it("TESTTESTundo observation", ()=>{
+    it("undo observation", ()=>{
         var tagUndo = 'TESTUNDO';
         var tp = new TestParser({
             grammar: GRAMMAR_FACTOR,
@@ -1184,7 +1184,7 @@
         }
         should.deepEqual(tp.state(), '');
     });
-    it("TESTTESTclear() resets state", ()=>{
+    it("clear() resets state", ()=>{
         var tp = new TestParser({
             grammar: GRAMMAR_FACTOR,
             logLevel,

@@ -244,7 +244,11 @@
                 grammar,
                 grammarFactory,
             } = this;
-            if (ob.tag === grammarFactory.digit) {
+            var {
+                digit,
+                period,
+            } = grammarFactory;
+            if (ob.tag === digit || ob.tag === period) {
                 var text = display.text + ob.value;
                 this.setDisplay(display.op
                     ? `${ob.value}`
