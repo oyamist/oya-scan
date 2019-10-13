@@ -84,29 +84,7 @@
         }
 
         reduce_term(lhs, rhsData) {
-            var {
-                multiply,
-                divide,
-                number,
-            } = this.grammarFactory;
-            var d0 = rhsData[0];
-            var d1 = rhsData[1];
-            var v0 = this.numberOf(d0.value);
-            if (d1 instanceof Array) {
-                for (var i = 0; i < d1.length; i++) {
-                    var d1i = d1[i];
-                    var tag = d1i.tag;
-                    if (tag === multiply) {
-                        v0 *= this.numberOf(d1i.value);
-                    } else if (tag === divide) {
-                        v0 /= this.numberOf(d1i.value);
-                    } else {
-                        throw new Error(
-                            `Invalid rhsData[1]:${JSON.stringify(d1i)}`);
-                    }
-                }
-            }
-            return new Observation(number, v0);
+            return this.calcImmediate(lhs, rhsData);
         }
 
         reduce_paren_expr(lhs, rhsData) {
@@ -122,9 +100,21 @@
         }
 
         reduce_expr(lhs, rhsData) {
+            var ob = this.calcImmediate(lhs, rhsData);
+            this.setDisplay({
+                text: `${ob.value}`,
+                op: this.grammarFactory.enter,
+            });
+            this.log(`dbg re ${ob.value}`);
+            return ob;
+        }
+
+        calcImmediate(lhs, rhsData) {
             var {
                 plus,
                 minus,
+                multiply,
+                divide,
                 number,
             } = this.grammarFactory;
             var d0 = rhsData[0];
@@ -133,10 +123,15 @@
             if (d1 instanceof Array) {
                 for (var i = 0; i < d1.length; i++) {
                     var d1i = d1[i];
+                    var tag = d1i.tag;
                     if (d1i.tag === plus) {
                         v0 += this.numberOf(d1i.value);
                     } else if (d1i.tag === minus) {
                         v0 -= this.numberOf(d1i.value);
+                    } else if (tag === multiply) {
+                        v0 *= this.numberOf(d1i.value);
+                    } else if (tag === divide) {
+                        v0 /= this.numberOf(d1i.value);
                     } else {
                         throw new Error(
                             `Invalid rhsData[1]:${JSON.stringify(d1i)}`);
@@ -169,6 +164,8 @@
         }
 
         reduce_addop(lhs, rhsData, result) {
+            var d0 = rhsData[0];
+            var d1 = rhsData[1];
             var s0 = this.stack[0];
             var s1 = this.stack[1];
             var {
@@ -237,6 +234,19 @@
             return new Observation(number, Number(digits+decimal));
         }
 
+        reduce_enter_expr(lhs, rhsData, result) {
+            var d0 = rhsData[0];
+            var d1 = rhsData[1];
+            this.log(`dbg ree ${d0} ${d1}`);
+            /*
+            this.setDisplay({
+                text: `${d0.value}`,
+                op: d1.value,
+            });
+            */
+            return result;
+        }
+
         onShift(ob) {
             super.onShift(ob);
             var {
@@ -258,6 +268,24 @@
             } else {
                 this.setDisplay({op: ob.value});
             }
+        }
+
+
+        enter() {
+            var {
+                stack,
+            } = this;
+            var tos = stack[0];
+            var {
+                lhs,
+                rhsData,
+            } = tos;
+            var d0 = rhsData[0];
+            var d1 = rhsData[1];
+            var v0 = this.numberOf(d0.value);
+            this.log(`ENTER1 ${lhs} ${d0} ${d1} ${this.state()}`);
+            this.step(new Observation('enter'));
+            this.log(`ENTER2 ${lhs} ${d0} ${d1} ${this.state()}`);
         }
 
         onReduce(tos) {

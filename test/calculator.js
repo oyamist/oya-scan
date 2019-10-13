@@ -179,21 +179,21 @@
         should(g).instanceOf(Grammar);
         should.deepEqual(g.rhs(root), ['E', '"="']);
     });
-    it("TESTTESTparses number", ()=> {
+    it("TESTTESThandles multiple entries", ()=> {
         var tc = new TestCalculator({
-            grammar: gf.create(gf.add_expr()),
+            grammar: gf.create(gf.add_expr(), false),
             grammarFactory: gf,
+            tagEnter: gf.enter,
             logLevel: 'info',
+            logStack: 3,
         });
-        console.log(js.simpleString(tc.grammar));
         tc.testChar('1', '{text:1}');
-        tc.testChar('2', '{text:12}');
-        tc.testChar('.', '{text:12.}');
-        tc.testChar('3', '{text:12.3}');
-        tc.testChar('+', '{text:12.3,op:+}');
-        tc.testChar('4', '{text:4}');
-        tc.testChar('=', '{text:16.3}');
-        //tc.testChar('+', '{text:16.3,op:+}');
+        console.log(tc.state());
+        return; // TODO
+        tc.testChar('+', '{text:1,op:+}');
+        tc.testChar('2', '{text:2}');
+        tc.testChar('=', '{text:3,op:=}');
+        console.log(js.simpleString(tc.grammar));
     });
     it("parses signed_number", ()=> {
         var calc = new Calculator({

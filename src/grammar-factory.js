@@ -30,6 +30,8 @@
 
             // rename nonterminals for use in messages
             this.number = opts.number || 'number';
+            this.entry = opts.entry || 'entry';
+            this.enter_expr = opts.enter_expr || 'enter_expr';
             this.signed_number = opts.signed_number || 'signed_number';
             this.term = opts.term || 'term';
             this.factor = opts.factor || 'factor';
@@ -170,6 +172,31 @@
             return addop;
         }
 
+        add_entry(entry=this.entry) {
+            var {
+                enter_expr,
+                expr,
+            } = this;
+            var t = this.template;
+
+            t[entry] = [ expr, STAR(enter_expr) ];
+            t[enter_expr] || this.add_enter_expr();
+            t[expr] || this.add_expr();
+            return entry;
+        }
+
+        add_enter_expr(enter_expr=this.enter_expr) {
+            var {
+                enter,
+                expr,
+            } = this;
+            var t = this.template;
+
+            t[enter_expr] = [ enter, expr ];
+            t[expr] || this.add_expr();
+            return enter_expr;
+        }
+
         add_expr(expr=this.expr) {
             var {
                 addop_term,
@@ -182,7 +209,6 @@
             t[term] || this.add_term();
             return expr;
         }
-
 
         create(ntRoot=this.expr, enter=this.enter) {
             var t = this.template;

@@ -44,6 +44,7 @@
             this.maxAnswers = opts.maxAnswers || 3;
             this.tagClear = opts.tagClear || 'clear';
             this.tagUndo = opts.tagUndo || 'undo';
+            this.tagEnter = opts.tagEnter; // || 'enter';
             this.clear();
             
             Object.defineProperty(this, "observations", {
@@ -64,7 +65,7 @@
         }
 
         onReady() {
-            this.log(`${this.name} awaiting input`);
+            this.log(`awaiting input`);
         }
 
         onReduce(tos) { 
@@ -79,7 +80,7 @@
                 name,
                 logStack,
             } = this;
-            this.log(`${name}.shift(${ob}) ${this.state(0,logStack)}`);
+            this.log(`shift(${ob}) ${this.state(0,logStack)}`);
         }
 
         onReject(ob) {
@@ -100,7 +101,7 @@
             } = stack[0];
             var rule = grammar.ruleToString(lhs);
             this.log([
-                `${name}.reject(${ob})`,
+                `reject(${ob})`,
                 `STACK => ${this.state()}`,
                 `${grammar}`,
             ].join('\n'));
@@ -119,8 +120,16 @@
                 index,
                 rhsData,
             } = state;
-            this.log(`${name}.advance(${state.id}) `+
+            this.log(`advance(${state.id}) `+
                 `${this.state(0,logStack)} @${label}`);
+        }
+
+        onEnter() {
+            this.log(`onEnter()`);
+        }
+
+        enter() {
+            this.onEnter();
         }
 
         reduce(advance, required) {
@@ -172,7 +181,7 @@
             if (logLevel) {
                 var a = advance ? 'A' : (advance === false ? 'a' : '?');
                 var r = required ? 'R' : (required === false ? 'r' : '?');
-                this.log(`${name}.reduce(${s0.lhs},${a},${r}) `+
+                this.log(`reduce(${s0.lhs},${a},${r}) `+
                     `${this.state(0,logStack)}`);
             }
 
@@ -230,6 +239,7 @@
             var {
                 tagClear,
                 tagUndo,
+                tagEnter,
                 lookahead,
                 logLevel,
                 stack,
@@ -244,8 +254,12 @@
             if (ob.tag === tagUndo) {
                 return !!this.undo();
             }
+            if (ob.tag === tagEnter) {
+                this.enter();
+                return true;
+            }
 
-            this.log(`----- ${name}.observe(${ob}) -----`);
+            this.log(`----- observe(${ob}) -----`);
 
             lookahead.push(ob);
             observations.push(ob);
@@ -409,7 +423,7 @@
         }
 
         cannot(loc, msg) {
-            this.log(`${this.name}.cannot(${loc}) ${msg}`);
+            this.log(`cannot(${loc}) ${msg}`);
         }
 
         step() {
