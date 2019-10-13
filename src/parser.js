@@ -241,9 +241,7 @@
                 tagUndo,
                 tagEnter,
                 lookahead,
-                logLevel,
                 stack,
-                name,
                 observations,
             } = this;
 
@@ -267,6 +265,15 @@
             if (stack.length === 0) {
                 stack[0] = new RuleState("root");
             }
+
+            return this.processObservation(ob);
+        }
+
+        processObservation(ob) {
+            var {
+                lookahead,
+            } = this;
+
             var res = this.step();
             if (res) {
                 this.obError = undefined;
