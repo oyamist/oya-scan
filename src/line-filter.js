@@ -37,16 +37,16 @@
                 var that = this;
                 var bytes = 0;
                 var observations = 0;
-                var name = `${this.constructor.name}.transform()`;
+                var name = `${that.constructor.name}.transform()`;
 
                 is.on('data', (chunk) => {
-                    //this.log(`${name} data:${chunk.length}B`);
+                    //that.log(`${name} data:${chunk.length}B`);
                     bytes += chunk.length;
                     var lines = (remainder+chunk).split('\n');
                     var n = lines.length-1;
                     for (var i = 0; i < n; i++) {
                         var line = lines[i];
-                        this.log(`${name} ${line}`);
+                        that.log(`${name} ${line}`);
                         that.consume(line, os);
                         observations++;
                     }
@@ -54,7 +54,7 @@
                 });
                 is.on('end', () => {
                     try {
-                        this.log(`${name} end`);
+                        that.log(`${name} end`);
                         remainder = remainder.trim();
                         if (remainder.length) {
                             that.consume(remainder, os);
@@ -68,6 +68,7 @@
                             ended: new Date(),
                         });
                     } catch (err) {
+                        that.log(`end() err:${err.message}`);
                       os.end(`error: ${err.message}`);
                       reject(err);
                     }

@@ -44,6 +44,7 @@
             this.decimal = opts.decimal || 'decimal';
             this.clear = opts.clear || 'clear';
             this.allClear = opts.allClear || 'all-clear';
+            this.eoi = opts.eoi || 'eoi';
         }
 
         add_number(number = this.number) {
@@ -210,10 +211,10 @@
             return expr;
         }
 
-        create(ntRoot=this.expr, enter=this.enter) {
+        create(ntRoot=this.expr, eoi=this.eoi) {
             var t = this.template;
             t.root = [ ntRoot ];
-            enter && t.root.push(enter);
+            eoi && t.root.push(eoi);
             return new Grammar(t);
         }
 

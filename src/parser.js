@@ -41,6 +41,7 @@
             this.grammar = new Grammar(opts.grammar);
             this.logStack = opts.logStack || 2; // stack elements to log
             this.answers = [];
+            this.identityObs = opts.identityObs || [];
             this.maxAnswers = opts.maxAnswers || 3;
             this.tagClear = opts.tagClear || 'clear';
             this.tagUndo = opts.tagUndo || 'undo';
@@ -88,22 +89,10 @@
                 return;
             }
 
-            var {
-                name,
-                grammar,
-                stack,
-            } = this;
-            var name = this.name;
-            var {
-                lhs,
-                args,
-                index,
-            } = stack[0];
-            var rule = grammar.ruleToString(lhs);
             this.log([
                 `reject(${ob})`,
                 `STACK => ${this.state()}`,
-                `${grammar}`,
+                `${this.grammar}`,
             ].join('\n'));
         }
 
@@ -122,14 +111,6 @@
             } = state;
             this.log(`advance(${state.id}) `+
                 `${this.state(0,logStack)} @${label}`);
-        }
-
-        onEnter() {
-            this.log(`onEnter()`);
-        }
-
-        enter() {
-            this.onEnter();
         }
 
         reduce(advance, required) {
@@ -231,6 +212,20 @@
             }
         }
 
+        enter(ob) {
+            var {
+                identityObs,
+            } = this;
+            for (var i = 0; i < identityObs.length; i++) {
+                var iob = identityObs[i];
+                this.log(`enter(${iob})`);
+                if (!this.processObservation(iob)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
         observe(ob) {
             var obError = this.obError;
             if (obError && ob.toString() === obError.toString()) {
@@ -245,6 +240,8 @@
                 observations,
             } = this;
 
+            this.log(`----- observe(${ob}) -----`);
+
             if (ob.tag === tagClear) {
                 this.clear();
                 return true;
@@ -253,11 +250,8 @@
                 return !!this.undo();
             }
             if (ob.tag === tagEnter) {
-                this.enter();
-                return true;
+                return this.enter(ob);
             }
-
-            this.log(`----- observe(${ob}) -----`);
 
             lookahead.push(ob);
             observations.push(ob);

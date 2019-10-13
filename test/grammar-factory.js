@@ -36,6 +36,7 @@
     const rpar = ')';
     const minus = '-';
     const plus = '+';
+    const eoi = 'eoi';
     const multiply = '*';
     const divide = '/';
     const paren_expr = 'paren_expr';
@@ -158,7 +159,7 @@
         should.deepEqual(gf.template.number, rhs_number);
 
         var g = gf.create(number);
-        should.deepEqual(g.rhs('root'), [number] );
+        should.deepEqual(g.rhs('root'), [number, eoi] );
         should.deepEqual(g.rhs(number), rhs_number);
     });
     it("add_signed_number()", ()=> {
@@ -168,7 +169,7 @@
         should.deepEqual(gf.template.signed_number, rhs_signed_number);
 
         var g = gf.create(signed_number);
-        should.deepEqual(g.rhs('root'), [signed_number] );
+        should.deepEqual(g.rhs('root'), [signed_number, eoi] );
         should.deepEqual(g.rhs(signed_number), rhs_signed_number);
         should.deepEqual(g.rhs(number), rhs_number);
     });
@@ -185,7 +186,7 @@
         should.deepEqual(gf.template.factor, rhs_factor);
 
         var g = gf.create(factor);
-        should.deepEqual(g.rhs('root'), [factor] );
+        should.deepEqual(g.rhs('root'), [factor, eoi] );
         should.deepEqual(g.rhs(factor), rhs_factor);
         should.deepEqual(g.rhs(signed_number), rhs_signed_number);
         should.deepEqual(g.rhs(paren_expr), rhs_paren_expr);
@@ -213,7 +214,7 @@
         should.deepEqual(gf.template.mulop, rhs_mulop);
 
         var g = gf.create(mulop);
-        should.deepEqual(g.rhs('root'), [mulop] );
+        should.deepEqual(g.rhs('root'), [mulop, eoi] );
         should.deepEqual(g.rhs(mulop), rhs_mulop);
     });
     it("add_term()", ()=> {
@@ -222,7 +223,7 @@
         should(gf.add_term()).equal(term);
 
         var g = gf.create(term);
-        should.deepEqual(g.rhs('root'), [term] );
+        should.deepEqual(g.rhs('root'), [term, eoi] );
         should.deepEqual(g.rhs(term), rhs_term);
         should.deepEqual(g.rhs(mulop_factor), rhs_mulop_factor);
     });
@@ -233,7 +234,7 @@
         should.deepEqual(gf.template.addop, rhs_addop);
 
         var g = gf.create(addop);
-        should.deepEqual(g.rhs('root'), [addop] );
+        should.deepEqual(g.rhs('root'), [addop, eoi] );
         should.deepEqual(g.rhs(addop), rhs_addop);
     });
     it("add_expr()", ()=> {
@@ -242,7 +243,7 @@
         should(gf.add_expr()).equal(expr);
 
         var g = gf.create(expr);
-        should.deepEqual(g.rhs('root'), [expr] );
+        should.deepEqual(g.rhs('root'), [expr, eoi] );
         should.deepEqual(g.rhs(expr), rhs_expr);
         should.deepEqual(g.rhs(addop_term), rhs_addop_term);
 
@@ -263,7 +264,7 @@
         });
         should(gf.add_number()).equal(number);
         var g = gf.create(number);
-        should.deepEqual(g.rhs('root'), [number] );
+        should.deepEqual(g.rhs('root'), [number, eoi] );
         should.deepEqual(g.rhs(number), [ digit, STAR(digit), OPT(decimal) ]);
     });
 

@@ -49,6 +49,10 @@
             var gf = opts.grammarFactory;
 
             opts.grammar = opts.grammar || gf.create(gf.add_expr());
+            opts.identityObs = opts.identityObs || [
+                new Observation(gf.plus, gf.plus),
+                new Observation(gf.number, 0),
+            ];
 
             return opts;
         }
@@ -268,24 +272,6 @@
             } else {
                 this.setDisplay({op: ob.value});
             }
-        }
-
-
-        enter() {
-            var {
-                stack,
-            } = this;
-            var tos = stack[0];
-            var {
-                lhs,
-                rhsData,
-            } = tos;
-            var d0 = rhsData[0];
-            var d1 = rhsData[1];
-            var v0 = this.numberOf(d0.value);
-            this.log(`ENTER1 ${lhs} ${d0} ${d1} ${this.state()}`);
-            this.step(new Observation('enter'));
-            this.log(`ENTER2 ${lhs} ${d0} ${d1} ${this.state()}`);
         }
 
         onReduce(tos) {
