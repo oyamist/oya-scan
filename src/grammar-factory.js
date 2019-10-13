@@ -213,8 +213,10 @@
 
         create(ntRoot=this.expr, eoi=this.eoi) {
             var t = this.template;
-            t.root = [ ntRoot ];
-            eoi && t.root.push(eoi);
+            t.root = [ 
+                ntRoot, 
+                eoi, // everything ends: End Of Input
+            ];
             return new Grammar(t);
         }
 
