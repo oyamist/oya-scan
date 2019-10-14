@@ -41,22 +41,22 @@
 
             // Thing id is retroactive temporal value initializable with ctor options
             if (opts.hasOwnProperty('id')) {
-                this.observe(Thing.T_ID, opts.id, RETROACTIVE);
+                this.observe(Thing.T_ID, opts.id, null, RETROACTIVE);
             } else if (opts.obs) {
                 // id is in the obs
             } else {
-                this.observe(Thing.T_ID, 
-                    this.guid.substr(0,SHORT_GUID_DIGITS), RETROACTIVE);
+                var sguid = this.guid.substr(0, SHORT_GUID_DIGITS);
+                this.observe(Thing.T_ID, sguid, null, RETROACTIVE);
             }
 
             // Thing name is retroactive temporal value initializable with ctor options
             if (opts.hasOwnProperty('name')) {
-                this.observe(Thing.T_NAME, opts.name, RETROACTIVE);
+                this.observe(Thing.T_NAME, opts.name, null, RETROACTIVE);
             } else if (opts.obs) {
                 // name is in obs
             } else {
                 var name = `${this.namePrefix(opts)}${this.id}`;
-                this.observe(Thing.T_NAME, name, RETROACTIVE);
+                this.observe(Thing.T_NAME, name, null, RETROACTIVE);
             }
             if (opts.created) {
                 this.created = opts.created instanceof Date ? opts.created : new Date(opts.created);
@@ -137,7 +137,7 @@
         observe(...args) {
             if (typeof args[0] === 'string') { // set(tag,value,date)
                 var tag = args[0];
-                var t = args[2] || new Date();
+                var t = args[3] || new Date();
                 var value = args[1] === undefined ? t : args[1];
                 var ob = { tag, value, t, };
                 if (this.hasOwnProperty(tag)) { // non-temporal
@@ -148,7 +148,7 @@
                     return undefined; // TBD
                 }
                 this.validateTag(tag);
-                args[3] && (ob.text = args[3]+'');
+                args[2] && (ob.text = args[2]+'');
             } else { // set(Observation)
                 var ob = args[0];
             }
@@ -276,7 +276,7 @@
                     if (`${newValue}`.match(ISODATE)) {
                         newValue = new Date(`${newValue}`);
                     }
-                    this.observe(key, newValue, t, text);
+                    this.observe(key, newValue, text, t);
                 } else {
                     // no change
                 }

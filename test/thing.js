@@ -164,7 +164,7 @@
 
         // positional arguments
         var t1 = new Date(2018,1,2);
-        thing.observe(LOCATION, 'SFO', t1, 'textsfo');
+        thing.observe(LOCATION, 'SFO', 'textsfo', t1 );
         should(thing.get(LOCATION)).equal('SFO');
         should.deepEqual(thing.getObservation(LOCATION, t1), 
             new Observation(LOCATION, 'SFO', t1, 'textsfo'));
@@ -189,7 +189,7 @@
 
         // set prior value
         var t1 = new Date(2018,1,10);
-        thing.observe(LOCATION, 'NYC', t1);
+        thing.observe(LOCATION, 'NYC', null, t1);
         should(thing.get(LOCATION,t1)).equal('NYC');
         should(thing.get(LOCATION)).equal('PIT');
     });
@@ -209,9 +209,9 @@
 
         var t1 = new Date(2018,1,1);
         var t2 = new Date(2018,1,2);
-        thing.observe(HARVESTED, t1, t1);
+        thing.observe(HARVESTED, t1, null, t1);
         should.equal(thing.get(HARVESTED, t1), t1); 
-        thing.observe(HARVESTED, false, t2);
+        thing.observe(HARVESTED, false, null, t2);
         should.equal(thing.get(HARVESTED, t2), false);
     });
     it("get(valueTag,date) returns non-temporal value", function() {
@@ -241,9 +241,9 @@
         var t1 = new Date(2018,1,1);
         var t2 = new Date(2018,1,2);
         var t3 = new Date(2018,1,3);
-        thing.observe(LOCATION, 'SFO', t1);
-        thing.observe(LOCATION, 'LAX', t2);
-        thing.observe(LOCATION, 'PIT', t3);
+        thing.observe(LOCATION, 'SFO', null, t1);
+        thing.observe(LOCATION, 'LAX', null, t2);
+        thing.observe(LOCATION, 'PIT', null, t3);
         var thing = new Thing(JSON.parse(JSON.stringify(thing))); // is serializable
         should(thing.get(LOCATION)).equal('PIT');
         should(thing.get(LOCATION,t0)).equal(undefined);
@@ -263,7 +263,7 @@
             created: t0,
             id: "A0001",
         });
-        thing.observe(LOCATION, 'SFO', t1);
+        thing.observe(LOCATION, 'SFO', null, t1);
 
 
         // current snapshot
@@ -278,8 +278,8 @@
         });
 
         //  snapshots change with time
-        thing.observe(LOCATION, 'LAX', t2);
-        thing.observe(LOCATION, 'PIT', t3);
+        thing.observe(LOCATION, 'LAX', null, t2);
+        thing.observe(LOCATION, 'PIT', null, t3);
         should(thing.snapshot(t0).hasOwnProperty(LOCATION)).equal(false);
         should(thing.snapshot(t1)).properties({
             location: 'SFO',
@@ -543,12 +543,12 @@
         var days1 = 24 * 3600 * 1000;
         var days2 = 2 * days1;
         var t2 = new Date(t1.getTime() + days2);
-        thing.observe(HARVESTED, 1, t2); // Harvested 1 tomato
+        thing.observe(HARVESTED, 1, null, t2); // Harvested 1 tomato
         should(thing.ageOfTag(HARVESTED)).equal(days2);
 
         // Multiple observations uses most recent
         var t3 = new Date(t2.getTime() + days1);
-        thing.observe(HARVESTED, 3, t3); // Harvested 3 tomatoes
+        thing.observe(HARVESTED, 3, null, t3); // Harvested 3 tomatoes
         should(thing.ageOfTag(HARVESTED)).equal(days2+days1);
 
         // Units
@@ -567,13 +567,13 @@
         var days1 = 24 * 3600 * 1000;
         var days2 = 2 * days1;
         var t2 = new Date(t1.getTime() + days2);
-        thing.observe(HARVESTED, 1, t2); // Harvested 1 tomato
+        thing.observe(HARVESTED, 1, null, t2); // Harvested 1 tomato
         var elapsed = Date.now() - t2;
         should(thing.ageSinceTag(HARVESTED)-elapsed).above(-2).below(2);
 
         // Multiple observations uses most recent
         var t3 = new Date(t2.getTime() + days1);
-        thing.observe(HARVESTED, 3, t3); // Harvested 3 tomatoes
+        thing.observe(HARVESTED, 3, null, t3); // Harvested 3 tomatoes
         should(thing.ageSinceTag(HARVESTED)).equal(Date.now() - t3);
 
         // Units
@@ -585,9 +585,9 @@
         var t1 = new Date(2018,1,1);
         var t2 = new Date(2018,1,2);
         var t3 = new Date(2018,1,3);
-        thing.observe('color', 'blue', t3, 'C');
-        thing.observe('color', 'red', t1, 'A',);
-        thing.observe('color', 'green', t2, 'B');
+        thing.observe('color', 'blue', 'C', t3);
+        thing.observe('color', 'red', 'A', t1);
+        thing.observe('color', 'green', 'B', t2);
         var history = thing.valueHistory('color');
         should.deepEqual(history.map(tv=>tv.value), ['red','green', 'blue']);
         should.deepEqual(history.map(tv=>tv.t), [t1,t2,t3]);
@@ -619,7 +619,7 @@
             temporal('location'));
 
         // create retroactive property
-        thing.observe("color", 'red', Observation.RETROACTIVE);
+        thing.observe("color", 'red', null, Observation.RETROACTIVE);
         should.deepEqual(thing.describeProperty('color'),
             retroactive('color'));
 
@@ -650,13 +650,13 @@
             id: 'thing1',
             color: 'red1',
         });
-        thing1.observe('inspected', true, t[0]);
-        thing1.observe('inspected', true, t[1]);
+        thing1.observe('inspected', true, null, t[0]);
+        thing1.observe('inspected', true, null, t[1]);
         var thing2 = new Thing(Object.assign({}, thing1, {
             id: 'thing2',
             color: 'red2',
         }));
-        thing2.observe('inspected', true, t[2]);
+        thing2.observe('inspected', true, null, t[2]);
 
         var expected = new Thing(JSON.parse(JSON.stringify(thing2)));
         var etv = expected.obs.sort((a,b) => Observation.compare_t_tag(a,b));
