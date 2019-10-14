@@ -364,13 +364,13 @@
             var id0 = {
                 tag: 'id',
                 value: 'A0001',
-                text: 'update1',
+                type: 'update1',
             };
             should(thing.getObservation('id')).properties(id0); // current
             should(thing.getObservation('color')).properties({ // current
                 tag: 'color',
                 value: 'red',
-                text: 'update1',
+                type: 'update1',
             });
 
             // t2: set color and size
@@ -387,12 +387,12 @@
             should(thing.getObservation('color')).properties({ // current
                 tag: 'color',
                 value: 'blue',
-                text: 'update2',
+                type: 'update2',
             });
             should(thing.getObservation('size')).properties({ // current
                 tag: 'size',
                 value: 'small',
-                text: 'update2',
+                type: 'update2',
             });
 
             done();
@@ -592,7 +592,7 @@
         should.deepEqual(history.map(tv=>tv.value), ['red','green', 'blue']);
         should.deepEqual(history.map(tv=>tv.t), [t1,t2,t3]);
         should.deepEqual(history.map(tv=>tv.tag), ['color','color','color']);
-        should.deepEqual(history.map(tv=>tv.text), ['A','B','C']);
+        should.deepEqual(history.map(tv=>tv.type), ['A','B','C']);
     });
     it("describeProperty(name) returns description", ()=>{
         var thing = new Thing({

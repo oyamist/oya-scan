@@ -11,36 +11,36 @@
         should(Date.now() - obs.t).above(-1).below(5);
         should(obs.tag).equal(undefined);
         should(obs.value).equal(obs.t);
-        should(obs.text).equal(undefined);
+        should(obs.type).equal(undefined);
     });
     it("custom object ctor", function() {
         var t = new Date(2018, 3, 11);
         var tag = "color";
-        var text = "some-annotation";
+        var type = "some-annotation";
         var value = "purple";
         var obs2 = new Observation({
             t,
             tag,
-            text,
+            type,
             value,
         });
         should(obs2).properties({
             t,
             tag,
-            text,
+            type,
             value,
         });
     });
     it("custom positional ctor", function() {
         var t = new Date(2018, 3, 11);
         var tag = "color";
-        var text = "some-annotation";
+        var type = "some-annotation";
         var value = "purple";
-        var obs2 = new Observation(tag, value, text, t);
+        var obs2 = new Observation(tag, value, type, t);
         should(obs2).properties({
             t,
             tag,
-            text,
+            type,
             value,
         });
     });
@@ -99,14 +99,14 @@
             new Date(2018,11,6),
         ];
         var oa1 = [
-            new Observation({t:t[0],text:'one'}),
-            new Observation({t:t[1],text:'one'}),
-            new Observation({t:t[3],text:'one'}),
-            new Observation({t:t[4],text:'one'}),
+            new Observation({t:t[0],type:'one'}),
+            new Observation({t:t[1],type:'one'}),
+            new Observation({t:t[3],type:'one'}),
+            new Observation({t:t[4],type:'one'}),
         ];
         var oa2 = [
-            new Observation({t:t[0],text:'two'}), // conflict with oa1[0]
-            new Observation({t:t[2],text:'two'}),
+            new Observation({t:t[0],type:'two'}), // conflict with oa1[0]
+            new Observation({t:t[2],type:'two'}),
         ];
 
         // The longer sequence is the primary sequence for conflicts
@@ -119,14 +119,14 @@
 
         // input sequences can be unordered
         var oa1_random = [
-            new Observation({t:t[1],text:'one'}),
-            new Observation({t:t[4],text:'one'}),
-            new Observation({t:t[0],text:'one'}),
-            new Observation({t:t[3],text:'one'}),
+            new Observation({t:t[1],type:'one'}),
+            new Observation({t:t[4],type:'one'}),
+            new Observation({t:t[0],type:'one'}),
+            new Observation({t:t[3],type:'one'}),
         ];
         var oa2_random = [
-            new Observation({t:t[2],text:'two'}),
-            new Observation({t:t[0],text:'two'}), // conflict with oa1[0]
+            new Observation({t:t[2],type:'two'}),
+            new Observation({t:t[0],type:'two'}), // conflict with oa1[0]
         ];
         should.deepEqual(
             Observation.mergeObservations(oa1_random, oa2_random), 

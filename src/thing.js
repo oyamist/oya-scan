@@ -148,7 +148,7 @@
                     return undefined; // TBD
                 }
                 this.validateTag(tag);
-                args[2] && (ob.text = args[2]+'');
+                args[2] && (ob.type = args[2]+'');
             } else { // set(Observation)
                 var ob = args[0];
             }
@@ -264,7 +264,7 @@
             }, snapshot);
         }
 
-        updateSnapshot(snapNew, t=new Date(), text, snapBase=this.snapshot()) {
+        updateSnapshot(snapNew, t=new Date(), type, snapBase=this.snapshot()) {
             Object.keys(snapNew).forEach(key => {
                 var newValue = snapNew[key];
                 var oldValue = snapBase[key];
@@ -276,7 +276,7 @@
                     if (`${newValue}`.match(ISODATE)) {
                         newValue = new Date(`${newValue}`);
                     }
-                    this.observe(key, newValue, text, t);
+                    this.observe(key, newValue, type, t);
                 } else {
                     // no change
                 }

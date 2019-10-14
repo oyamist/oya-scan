@@ -8,7 +8,7 @@
                 var opts = {};
                 args[0] !== undefined && (opts.tag = args[0]);
                 args[1] !== undefined && (opts.value = args[1]);
-                args[2] != null && (opts.text = args[2]);
+                args[2] != null && (opts.type = args[2]);
                 args[3] !== undefined && (opts.t = args[3]);
             } else {
                 var opts = args[0] || {};
@@ -29,8 +29,8 @@
             } else {
                 this.value = this.t;
             }
-            if (opts.hasOwnProperty('text')) {
-                this.text = opts.text;
+            if (opts.hasOwnProperty('type')) {
+                this.type = opts.type;
             }
         }
 
@@ -85,11 +85,11 @@
             var {
                 tag,
                 value,
-                text,
+                type,
             } = this;
             value = js.simpleString(value);
-            return text 
-                ?  `${tag}:${value} ${text}`
+            return type 
+                ?  `${tag}:${value} ${type}`
                 :  `${tag}:${value}`;
         }
 
