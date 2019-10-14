@@ -9,18 +9,18 @@
     const LineFilter = require('./line-filter');
     const Observation = require('./observation');
 
-    // root ::= E "="
+    // root ::= E 
+    // AO ::= ALT( "+" | "-" )
+    // MO ::= ALT( "*" | "/" )
+    // AT ::= AO T
+    // MF ::= MO F
     // E ::= T STAR( AT )
     // T ::= F STAR( MF )
-    // AT ::= AO T
-    // AO ::= ALT( "+" | "-" )
     // F ::= ALT( PE | SN )
     // PE ::= "(" E ")"
-    // DF ::= "." PLUS( D )
-    // MF ::= MO F
-    // MO ::= ALT( "*" | "/" )
     // SN ::= OPT( "-" ) N
     // N ::= D STAR( D ) OPT( DF )
+    // DF ::= "." PLUS( D )
 
     class Calculator extends Parser {
         constructor(opts) {
@@ -49,12 +49,37 @@
             var gf = opts.grammarFactory;
 
             opts.grammar = opts.grammar || gf.create(gf.add_expr());
-            opts.identityObs = opts.identityObs || [
-                new Observation(gf.plus, gf.plus),
-                new Observation(gf.number, 0),
-            ];
 
             return opts;
+        }
+
+        enter(ob) {
+            var {
+                grammarFactory,
+                observations,
+                display,
+                stack,
+            } = this;
+            var {
+                digit,
+                lpar,
+                rpar,
+            } = grammarFactory;
+            var obsEnter = [].concat(
+                new Observation(lpar,''),
+                observations, 
+                new Observation(rpar,''));
+            this.clear();
+            obsEnter.forEach(o => {
+                this.log(`enter() processObservation(${js.simpleString(o)})`);
+                this.observe(o);
+            });
+            this.setDisplay({
+                op: ob.value,
+                //text: stack[0].rhsData[0].value,
+            });
+
+            return true;
         }
 
         clear() {
@@ -78,6 +103,7 @@
             opts.text && (display.text = opts.text);
             opts.op && (display.op = opts.op);
             opts.error == null && delete display.error;
+            this.log(`display:${js.simpleString(display)}`);
         }
 
         onReject(ob) {
@@ -141,6 +167,8 @@
                             `Invalid rhsData[1]:${JSON.stringify(d1i)}`);
                     }
                 }
+                this.log(`calcImmediate() v0:${v0}`);
+                this.setDisplay({text:`${v0}`});
             }
             return new Observation(number, v0);
         }

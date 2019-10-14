@@ -41,7 +41,6 @@
             this.grammar = new Grammar(opts.grammar);
             this.logStack = opts.logStack || 2; // stack elements to log
             this.answers = [];
-            this.identityObs = opts.identityObs || [];
             this.maxAnswers = opts.maxAnswers || 3;
             this.tagClear = opts.tagClear || 'clear';
             this.tagUndo = opts.tagUndo || 'undo';
@@ -213,16 +212,7 @@
         }
 
         enter(ob) {
-            var {
-                identityObs,
-            } = this;
-            for (var i = 0; i < identityObs.length; i++) {
-                var iob = identityObs[i];
-                this.log(`enter(${iob})`);
-                if (!this.processObservation(iob)) {
-                    return false;
-                }
-            }
+            this.log(`enter(${ob}) ignored`);
             return true;
         }
 
@@ -253,7 +243,6 @@
                 return this.enter(ob);
             }
 
-            lookahead.push(ob);
             observations.push(ob);
 
             if (stack.length === 0) {
@@ -267,6 +256,7 @@
             var {
                 lookahead,
             } = this;
+            lookahead.push(ob);
 
             var res = this.step();
             if (res) {

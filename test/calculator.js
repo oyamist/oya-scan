@@ -100,17 +100,21 @@
         return new Observation(tag, c);
     }
 
-    class TestCalculator extends Calculator {
+    class TestCalc extends Calculator {
         constructor(opts={}) {
             super(opts);
         }
 
-        testChar(c, expected, testAssert=true) {
+        testChar(c, expected) {
             var ob = testOb(c);
             var res = this.observe(ob);
             should(res).equal(true);
             this.log(js.simpleString(this.display));
-            should(js.simpleString(this.display)).equal(expected);
+            var ds = js.simpleString(this.display);
+            if (ds !== expected) {
+                this.log(`ERROR ${this.state()}`);
+            }
+            should(ds).equal(expected);
         }
     }
 
@@ -182,20 +186,72 @@
         should(g).instanceOf(Grammar);
         should.deepEqual(g.rhs(root), ['E', '$']);
     });
-    it("TESTTESThandles multiple entries", ()=> {
-        return; // TODO
-        var tc = new TestCalculator({
+    it("TESTTESTenter running sum", ()=> {
+        var tc = new TestCalc({
             grammar: gf.create(gf.add_expr()),
             grammarFactory: gf,
             tagEnter: gf.enter,
-            logLevel: 'info',
-            logStack: 3,
+            logLevel,
         });
         tc.testChar('1', '{text:1}');
         tc.testChar('+', '{text:1,op:+}');
         tc.testChar('2', '{text:2}');
-        tc.testChar('$', '{text:3,op:$}');
-        console.log(js.simpleString(tc.grammar));
+        tc.testChar('=', '{text:3,op:=}');
+        tc.testChar('+', '{text:3,op:+}');
+        tc.testChar('3', '{text:3}');
+        tc.testChar('=', '{text:6,op:=}');
+        tc.testChar('+', '{text:6,op:+}');
+        tc.testChar('4', '{text:4}');
+        tc.testChar('=', '{text:10,op:=}');
+    });
+    it("TESTTESTenter running product", ()=> {
+        var tc = new TestCalc({
+            grammar: gf.create(gf.add_expr()),
+            grammarFactory: gf,
+            tagEnter: gf.enter,
+            logLevel,
+        });
+        tc.testChar('2', '{text:2}');
+        tc.testChar('*', '{text:2,op:*}');
+        tc.testChar('3', '{text:3}');
+        tc.testChar('=', '{text:6,op:=}'); // TODO
+        tc.testChar('*', '{text:6,op:*}');
+        tc.testChar('4', '{text:4}');
+        tc.testChar('=', '{text:24,op:=}'); // TODO
+        tc.testChar('*', '{text:24,op:*}');
+        tc.testChar('5', '{text:5}');
+        tc.testChar('=', '{text:120,op:=}');
+    });
+    it("TESTTESTenter 1+2*3", ()=> {
+        var tc = new TestCalc({
+            grammar: gf.create(gf.add_expr()),
+            grammarFactory: gf,
+            tagEnter: gf.enter,
+            logLevel,
+        });
+        tc.testChar('1', '{text:1}');
+        tc.testChar('+', '{text:1,op:+}');
+        tc.testChar('2', '{text:2}');
+        tc.testChar('=', '{text:3,op:=}');
+        tc.testChar('*', '{text:3,op:*}');
+        tc.testChar('3', '{text:3}');
+        tc.testChar('=', '{text:9,op:=}');
+    });
+    it("precedence 2*3+4*5", ()=> {
+        var tc = new TestCalc({
+            grammar: gf.create(gf.add_expr()),
+            grammarFactory: gf,
+            tagEnter: gf.enter,
+            logLevel,
+        });
+        tc.testChar('2', '{text:2}');
+        tc.testChar('*', '{text:2,op:*}');
+        tc.testChar('3', '{text:3}');
+        tc.testChar('+', '{text:6,op:+}');
+        tc.testChar('4', '{text:4}');
+        tc.testChar('*', '{text:4,op:*}');
+        tc.testChar('5', '{text:5}');
+        tc.testChar('$', '{text:26}');
     });
     it("parses signed_number", ()=> {
         var calc = new Calculator({
@@ -359,7 +415,7 @@
         calc.observe(testOb(eoi));
         should(js.simpleString(calc.display)).equal('{text:1}');
     });
-    it("TESTTESTtransform(...) implements LineFilter", (done)=>{
+    it("transform(...) implements LineFilter", (done)=>{
         var handled = false;
         (async function() { try {
             var calc = new Calculator({
@@ -379,7 +435,10 @@
                 new Observation(gf.digit, 1),
                 new Observation(gf.plus, '+'),
                 new Observation(gf.digit, 2),
-                new Observation(gf.eoi, eoi),
+
+                // End Of Input is explicit
+                // and equivalent to "Over and Out".
+                new Observation(gf.eoi, eoi), 
             ];
             obs.forEach(ob => {
                 is.push(JSON.stringify(ob)+'\n');
