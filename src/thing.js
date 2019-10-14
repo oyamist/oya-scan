@@ -1,6 +1,9 @@
 (function(exports) {
     const uuidv4 = require("uuid/v4");
     const Observation = require('./observation');
+    const {
+        RETROACTIVE,
+    } = Observation;
     const MSDAYS = 24*3600*1000;
     const SHORT_GUID_DIGITS = 7; // same as git default
     const ISODATE = /^\d\d\d\d-\d\d-\d\d/;
@@ -38,22 +41,22 @@
 
             // Thing id is retroactive temporal value initializable with ctor options
             if (opts.hasOwnProperty('id')) {
-                this.observe(Thing.T_ID, opts.id, Observation.RETROACTIVE);
+                this.observe(Thing.T_ID, opts.id, RETROACTIVE);
             } else if (opts.obs) {
                 // id is in the obs
             } else {
                 this.observe(Thing.T_ID, 
-                    this.guid.substr(0,SHORT_GUID_DIGITS), Observation.RETROACTIVE);
+                    this.guid.substr(0,SHORT_GUID_DIGITS), RETROACTIVE);
             }
 
             // Thing name is retroactive temporal value initializable with ctor options
             if (opts.hasOwnProperty('name')) {
-                this.observe(Thing.T_NAME, opts.name, Observation.RETROACTIVE);
+                this.observe(Thing.T_NAME, opts.name, RETROACTIVE);
             } else if (opts.obs) {
                 // name is in obs
             } else {
                 var name = `${this.namePrefix(opts)}${this.id}`;
-                this.observe(Thing.T_NAME, name, Observation.RETROACTIVE);
+                this.observe(Thing.T_NAME, name, RETROACTIVE);
             }
             if (opts.created) {
                 this.created = opts.created instanceof Date ? opts.created : new Date(opts.created);
@@ -95,8 +98,8 @@
         }
 
         describeProperty(name) {
-            var retroTime = Observation.RETROACTIVE.getTime();
-            var retroDate = Observation.RETROACTIVE.toJSON();
+            var retroTime = RETROACTIVE.getTime();
+            var retroDate = RETROACTIVE.toJSON();
             var { 
                 temporal,
                 retroactive,
