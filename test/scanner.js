@@ -42,23 +42,23 @@
 
         // floating point number
         var ob = scanner.scan('1');
-        should.deepEqual(ob, new Observation("scanned", "1", ob.t));
+        should.deepEqual(ob, new Observation("scanned", "1", null, ob.t));
         var ob = scanner.scan('42');
-        should.deepEqual(ob, new Observation("scanned", "42", ob.t));
+        should.deepEqual(ob, new Observation("scanned", "42", null, ob.t));
         var ob = scanner.scan('123.456');
-        should.deepEqual(ob, new Observation("scanned", "123.456", ob.t));
+        should.deepEqual(ob, new Observation("scanned", "123.456", null, ob.t));
         var ob = scanner.scan('-123.456');
-        should.deepEqual(ob, new Observation("scanned", "-123.456", ob.t));
+        should.deepEqual(ob, new Observation("scanned", "-123.456", null, ob.t));
 
         // not a number
         var ob = scanner.scan('123,456');
-        should.deepEqual(ob, new Observation("scanned", '123,456', ob.t));
+        should.deepEqual(ob, new Observation("scanned", '123,456', null, ob.t));
         var ob = scanner.scan('123.456.789');
-        should.deepEqual(ob, new Observation("scanned", '123.456.789', ob.t));
+        should.deepEqual(ob, new Observation("scanned", '123.456.789', null, ob.t));
         var ob = scanner.scan('+1');
-        should.deepEqual(ob, new Observation("scanned", '+1', ob.t));
+        should.deepEqual(ob, new Observation("scanned", '+1', null, ob.t));
         var ob = scanner.scan('1a1');
-        should.deepEqual(ob, new Observation("scanned", '1a1', ob.t));
+        should.deepEqual(ob, new Observation("scanned", '1a1', null, ob.t));
     });
     it("custom ctor",() => {
         var map = TESTMAP;
@@ -84,9 +84,9 @@
         }]);
 
         var ob = scanner.scan('123');
-        should.deepEqual(ob, new Observation('number', 123, ob.t));
+        should.deepEqual(ob, new Observation('number', 123, null, ob.t));
         var ob = scanner.scan('123.456');
-        should.deepEqual(ob, new Observation('barcode', "123.456", ob.t));
+        should.deepEqual(ob, new Observation('barcode', "123.456", null, ob.t));
     });
     it("scan(data) returns mapped Observation (Object)", () => {
         var scanner = new Scanner({
@@ -153,15 +153,15 @@
 
         // default number pattern
         var ob = scanner.scan("123.456");
-        should.deepEqual(ob, new Observation("number", 123.456, ob.t));
+        should.deepEqual(ob, new Observation("number", 123.456, null, ob.t));
         var ob = scanner.scan('1');
-        should.deepEqual(ob, new Observation("number", 1, ob.t));
+        should.deepEqual(ob, new Observation("number", 1, null, ob.t));
         var ob = scanner.scan('42');
-        should.deepEqual(ob, new Observation("number", 42, ob.t));
+        should.deepEqual(ob, new Observation("number", 42, null, ob.t));
         var ob = scanner.scan('123.456');
-        should.deepEqual(ob, new Observation("number", 123.456, ob.t));
+        should.deepEqual(ob, new Observation("number", 123.456, null, ob.t));
         var ob = scanner.scan('-123.456');
-        should.deepEqual(ob, new Observation("number", -123.456, ob.t));
+        should.deepEqual(ob, new Observation("number", -123.456, null, ob.t));
 
         // custom number
         var patterns = [{
@@ -175,13 +175,13 @@
             patterns,
         });
         var ob = scanner.scan('123'); // string pattern
-        should.deepEqual(ob, new Observation("number", 123, ob.t));
+        should.deepEqual(ob, new Observation("number", 123, null, ob.t));
         var ob = scanner.scan('PI'); // RegExp pattern
-        should.deepEqual(ob, new Observation("number", 3.1415926, ob.t));
+        should.deepEqual(ob, new Observation("number", 3.1415926, null, ob.t));
         var ob = scanner.scan('PIT'); // no match
-        should.deepEqual(ob, new Observation("scanned", "PIT", ob.t));
+        should.deepEqual(ob, new Observation("scanned", "PIT", null, ob.t));
         var ob = scanner.scan("123.456");  // no match
-        should.deepEqual(ob, new Observation("scanned", "123.456", ob.t));
+        should.deepEqual(ob, new Observation("scanned", "123.456", null, ob.t));
     });
     it("transform(is,os) transforms input to output stream", (done) => {
         (async function() { try {
@@ -247,27 +247,27 @@
         var code = "614141000036";
         var ob = scanner.scan(code);
         should.deepEqual(ob, 
-            new Observation(Scanner.TAG_UPCA, code, ob.t));
+            new Observation(Scanner.TAG_UPCA, code, null, ob.t));
 
         var code = "9501101530003";
         var ob = scanner.scan(code);
         should.deepEqual(ob, 
-            new Observation(Scanner.TAG_EAN13, code, ob.t));
+            new Observation(Scanner.TAG_EAN13, code, null, ob.t));
 
         var code = "95050003";
         var ob = scanner.scan(code);
         should.deepEqual(ob, 
-            new Observation(Scanner.TAG_UPCE_EAN8, code, ob.t));
+            new Observation(Scanner.TAG_UPCE_EAN8, code, null, ob.t));
 
         var code = "06141939";
         var ob = scanner.scan(code);
         should.deepEqual(ob, 
-            new Observation(Scanner.TAG_UPCE_EAN8, code, ob.t));
+            new Observation(Scanner.TAG_UPCE_EAN8, code, null, ob.t));
 
         var code = "1234";
         var ob = scanner.scan(code);
         should.deepEqual(ob, 
-            new Observation(Scanner.TAG_NUMBER, 1234, ob.t));
+            new Observation(Scanner.TAG_NUMBER, 1234, null, ob.t));
     });
 
 })

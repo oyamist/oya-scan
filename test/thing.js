@@ -64,8 +64,8 @@
         var name = `Thing_${thing.guid.substr(0,7)}`; // default
         should(thing.get(Thing.T_NAME)).equal(name); 
         should.deepEqual(thing.obs, [
-            new Observation('id', id, Observation.RETROACTIVE),
-            new Observation('name', name, Observation.RETROACTIVE),
+            new Observation('id', id, undefined, Observation.RETROACTIVE),
+            new Observation('name', name, undefined, Observation.RETROACTIVE),
         ]);
 
         // non-temporal properties are enumerable
@@ -167,7 +167,7 @@
         thing.observe(LOCATION, 'SFO', 'textsfo', t1 );
         should(thing.get(LOCATION)).equal('SFO');
         should.deepEqual(thing.getObservation(LOCATION, t1), 
-            new Observation(LOCATION, 'SFO', t1, 'textsfo'));
+            new Observation(LOCATION, 'SFO', 'textsfo', t1));
 
         // positional arguments defaults
         thing.observe(LOCATION, 'LAX');
@@ -424,7 +424,7 @@
 
             // assignment can be with explicit date
             var t1 = new Date(2018, 1, 1);
-            var ob1 = new Observation(HARVESTED, undefined, t1);
+            var ob1 = new Observation(HARVESTED, undefined, null, t1);
             thing.updateSnapshot({
                 [HARVESTED]: t1.toJSON(),
             });
@@ -435,11 +435,11 @@
             });
 
             var t2 = new Date(2018, 1, 2);
-            var ob2 = new Observation(HARVESTED, undefined, t2);
+            var ob2 = new Observation(HARVESTED, undefined, null, t2);
             var t3 = new Date(2018, 1, 3);
-            var ob3 = new Observation(HARVESTED, false, t3);
+            var ob3 = new Observation(HARVESTED, false, null, t3);
             var tfuture = new Date(Date.now() + 365*24*3600*1000);
-            var obfuture = new Observation(HARVESTED, undefined, tfuture);
+            var obfuture = new Observation(HARVESTED, undefined, null, tfuture);
 
             // map undefined to assignment date
             thing.updateSnapshot({

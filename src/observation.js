@@ -8,8 +8,8 @@
                 var opts = {};
                 args[0] !== undefined && (opts.tag = args[0]);
                 args[1] !== undefined && (opts.value = args[1]);
-                args[2] !== undefined && (opts.t = args[2]);
-                args[3] !== undefined && (opts.text = args[3]);
+                args[2] != null && (opts.text = args[2]);
+                args[3] !== undefined && (opts.t = args[3]);
             } else {
                 var opts = args[0] || {};
             }

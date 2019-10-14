@@ -1074,7 +1074,7 @@
             logLevel,
         });
         var obs = [
-            new Observation('a','1','g'),  // mistaken input
+            new Observation('a','1','lb'),  // mistaken input
             new Observation('a','1','oz'), // intended input (rejected)
             new Observation('a','1','oz'), // intended input (again)
             new Observation('b','1','oz'), // intended input
@@ -1082,7 +1082,7 @@
         var i = 0;
 
         should(tp.observe(obs[i++])).equal(true); // a
-        should(tp.state()).equal('ab_1:[a:1]; root_0:[]');
+        should(tp.state()).equal('ab_1:[a:1 lb]; root_0:[]');
         should(tp.isParsing).equal(true);
 
         // first error is discarded awaiting correct input
@@ -1092,7 +1092,7 @@
 
         // repeated error clears parser 
         should(tp.observe(obs[i++])).equal(true); // accept
-        should(tp.state()).equal('ab_1:[a:1]; root_0:[]');
+        should(tp.state()).equal('ab_1:[a:1 oz]; root_0:[]');
         should(tp.obError).equal(undefined);
         should(tp.isParsing).equal(true);
 
