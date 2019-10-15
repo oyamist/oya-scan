@@ -43,6 +43,7 @@
     const rpar = '")"'; 
     const signed_number = 'SN';
     const term = 'T';
+    const unsigned = 'U';
 
     const grammarOpts = {
         addop,
@@ -65,6 +66,7 @@
         plus,
         rpar,
         signed_number,
+        unsigned,
         term,
 
     };
@@ -259,9 +261,9 @@
             grammarFactory: gf,
             logLevel,
         });
-        testCalc(calc, '-123.456$', `${number}:-123.456`);
-        testCalc(calc, '-123$', `${number}:-123`);
-        testCalc(calc, '123$', `${number}:123`);
+        testCalc(calc, '-123.456$', `${unsigned}:-123.456`);
+        testCalc(calc, '-123$', `${unsigned}:-123`);
+        testCalc(calc, '123$', `${unsigned}:123`);
     });
     it("parses factor", ()=> {
         var calc = new Calculator({
@@ -269,8 +271,8 @@
             grammarFactory: gf,
             logLevel,
         });
-        testCalc(calc, '-123$', `${number}:-123`);
-        testCalc(calc, '123$', `${number}:123`);
+        testCalc(calc, '-123$', `${unsigned}:-123`);
+        testCalc(calc, '123$', `${unsigned}:123`);
     });
     it("parses mulop_factor", ()=> {
         var calc = new Calculator({
@@ -278,8 +280,8 @@
             grammarFactory: gf,
             logLevel,
         });
-        testCalc(calc, '*-123$', `"*":N:-123`);
-        testCalc(calc, '*123$', `"*":N:123`);
+        testCalc(calc, '*-123$', `"*":U:-123`);
+        testCalc(calc, '*123$', `"*":U:123`);
     });
     it("parses term", ()=> {
         var calc = new Calculator({
@@ -287,13 +289,13 @@
             grammarFactory: gf,
             logLevel,
         });
-        testCalc(calc, '1*2*3$', `${number}:6`);
-        testCalc(calc, '2*3$', `${number}:6`);
-        testCalc(calc, '-12*3$', `${number}:-36`);
-        testCalc(calc, '12*-3$', `${number}:-36`);
-        testCalc(calc, '12/-3$', `${number}:-4`);
-        testCalc(calc, '-123$', `${number}:-123`);
-        testCalc(calc, '123$', `${number}:123`);
+        testCalc(calc, '1*2*3$', `${unsigned}:6`);
+        testCalc(calc, '2*3$', `${unsigned}:6`);
+        testCalc(calc, '-12*3$', `${unsigned}:-36`);
+        testCalc(calc, '12*-3$', `${unsigned}:-36`);
+        testCalc(calc, '12/-3$', `${unsigned}:-4`);
+        testCalc(calc, '-123$', `${unsigned}:-123`);
+        testCalc(calc, '123$', `${unsigned}:123`);
     });
     it("parses expr", ()=> {
         var calc = new Calculator({
@@ -301,18 +303,18 @@
             grammarFactory: gf,
             logLevel,
         });
-        testCalc(calc, '(1+1+3)*(2-3)$', `${number}:-5`);
-        testCalc(calc, '(1+1+1+1+1)*(2-3)$', `${number}:-5`);
-        testCalc(calc, '5*(2-3)$', `${number}:-5`);
-        testCalc(calc, '2+3$', `${number}:5`);
-        testCalc(calc, '2-3$', `${number}:-1`);
-        testCalc(calc, '-2*3$', `${number}:-6`);
-        testCalc(calc, '12*-3$', `${number}:-36`);
-        testCalc(calc, '12/-3$', `${number}:-4`);
-        testCalc(calc, '-123$', `${number}:-123`);
-        testCalc(calc, '123$', `${number}:123`);
-        testCalc(calc, '1+3/20$', `${number}:1.15`);
-        testCalc(calc, '1.1+3/20$', `${number}:1.25`);
+        testCalc(calc, '(1+1+3)*(2-3)$', `${unsigned}:-5`);
+        testCalc(calc, '(1+1+1+1+1)*(2-3)$', `${unsigned}:-5`);
+        testCalc(calc, '5*(2-3)$', `${unsigned}:-5`);
+        testCalc(calc, '2+3$', `${unsigned}:5`);
+        testCalc(calc, '2-3$', `${unsigned}:-1`);
+        testCalc(calc, '-2*3$', `${unsigned}:-6`);
+        testCalc(calc, '12*-3$', `${unsigned}:-36`);
+        testCalc(calc, '12/-3$', `${unsigned}:-4`);
+        testCalc(calc, '-123$', `${unsigned}:-123`);
+        testCalc(calc, '123$', `${unsigned}:123`);
+        testCalc(calc, '1+3/20$', `${unsigned}:1.15`);
+        testCalc(calc, '1.1+3/20$', `${unsigned}:1.25`);
     });
     it("display shows current state 12+34*5", ()=>{
         var calc = new Calculator({
@@ -566,6 +568,19 @@
         should(calc.undo()).equal(obs[--i]);
         should(js.simpleString(calc.display)).equal('{text:0}');
         should(calc.undo()).equal(null);
-
+    });
+    it("TESTTESTobserve() accepts number", ()=>{
+        return; //TODO
+        var tc = new TestCalc({
+            grammar: gf.create(gf.add_expr()),
+            grammarFactory: gf,
+            tagEnter: gf.enter,
+            logLevel: 'info',
+        });
+        var n1 = new Observation(number, 1);
+        tc.observe(n1);
+        tc.testChar('+', '{text:123,op:+}');
+        tc.testChar('2', '{text:1}');
+        tc.testChar('=', '{text:124}');
     });
 })

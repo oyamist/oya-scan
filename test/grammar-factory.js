@@ -18,6 +18,7 @@
     const digit = 'digit';
     const decimal = 'decimal';
     const number = 'number';
+    const unsigned = 'unsigned';
     const period = '.';
     const signed_number = 'signed_number';
     const factor = 'factor';
@@ -40,8 +41,8 @@
     const multiply = '*';
     const divide = '/';
     const paren_expr = 'paren_expr';
-    const rhs_number = [ digit, STAR(digit), OPT(decimal) ];
-    const rhs_signed_number = [ OPT(minus), number ];
+    const rhs_unsigned = [ digit, STAR(digit), OPT(decimal) ];
+    const rhs_signed_number = [ OPT(minus), unsigned ];
     const rhs_factor = [ ALT(paren_expr, signed_number) ];
     //const rhs_signed_factor = [ OPT(minus), factor ];
     const rhs_paren_expr = [ lpar, expr, rpar ];
@@ -70,6 +71,7 @@
             mulop_factor,
             multiply,
             number,
+            unsigned,
             paren_expr,
             period,
             plus,
@@ -100,6 +102,7 @@
         let root = 'ROOT';
         let rpar = ']';
         let signed_number = 'SN';
+        let unsigned = 'U';
         let term = 'T';
 
         var gf = new GrammarFactory({
@@ -123,6 +126,7 @@
             plus,
             rpar,
             signed_number,
+            unsigned,
             term,
 
         });
@@ -148,19 +152,20 @@
             rpar,
             signed_number,
             term,
+            unsigned,
 
         });
     });
 
-    it("add_number() one or more digits", ()=> {
+    it("add_unsigned() one or more digits", ()=> {
         var gf = new GrammarFactory();
 
-        should(gf.add_number()).equal(number);
-        should.deepEqual(gf.template.number, rhs_number);
+        should(gf.add_unsigned()).equal(unsigned);
+        should.deepEqual(gf.template.unsigned, rhs_unsigned);
 
-        var g = gf.create(number);
-        should.deepEqual(g.rhs('root'), [number, eoi] );
-        should.deepEqual(g.rhs(number), rhs_number);
+        var g = gf.create(unsigned);
+        should.deepEqual(g.rhs('root'), [unsigned, eoi] );
+        should.deepEqual(g.rhs(unsigned), rhs_unsigned);
     });
     it("add_signed_number()", ()=> {
         var gf = new GrammarFactory();
@@ -171,7 +176,7 @@
         var g = gf.create(signed_number);
         should.deepEqual(g.rhs('root'), [signed_number, eoi] );
         should.deepEqual(g.rhs(signed_number), rhs_signed_number);
-        should.deepEqual(g.rhs(number), rhs_number);
+        should.deepEqual(g.rhs(unsigned), rhs_unsigned);
     });
     it("add_paren_expr()", ()=>{
         var gf = new GrammarFactory();
@@ -190,7 +195,7 @@
         should.deepEqual(g.rhs(factor), rhs_factor);
         should.deepEqual(g.rhs(signed_number), rhs_signed_number);
         should.deepEqual(g.rhs(paren_expr), rhs_paren_expr);
-        should.deepEqual(g.rhs(number), rhs_number);
+        should.deepEqual(g.rhs(unsigned), rhs_unsigned);
     });
     it("add_signed_factor()", ()=> {
         return; // LATER
@@ -205,7 +210,7 @@
         should.deepEqual(g.rhs(factor), rhs_factor);
         should.deepEqual(g.rhs(signed_number), rhs_signed_number);
         should.deepEqual(g.rhs(paren_expr), rhs_paren_expr);
-        should.deepEqual(g.rhs(number), rhs_number);
+        should.deepEqual(g.rhs(unsigned), rhs_unsigned);
     });
     it("add_mulop()", ()=> {
         var gf = new GrammarFactory();
@@ -255,17 +260,19 @@
         let number = 'N';
         let digit = 'D';
         let root = 'R';
+        let unsigned = 'U';
 
         var gf = new GrammarFactory({
             root,
-            number,
+            unsigned,
             digit,
             decimal,
         });
-        should(gf.add_number()).equal(number);
-        var g = gf.create(number);
-        should.deepEqual(g.rhs('root'), [number, eoi] );
-        should.deepEqual(g.rhs(number), [ digit, STAR(digit), OPT(decimal) ]);
+        should(gf.add_unsigned()).equal(unsigned);
+        var g = gf.create(unsigned);
+        should.deepEqual(g.rhs('root'), [unsigned, eoi] );
+        should.deepEqual(g.rhs(unsigned), [ 
+            digit, STAR(digit), OPT(decimal) ]);
     });
 
 })

@@ -30,6 +30,7 @@
 
             // rename nonterminals for use in messages
             this.number = opts.number || 'number';
+            this.unsigned = opts.unsigned || 'unsigned';
             this.entry = opts.entry || 'entry';
             this.enter_expr = opts.enter_expr || 'enter_expr';
             this.signed_number = opts.signed_number || 'signed_number';
@@ -47,17 +48,17 @@
             this.eoi = opts.eoi || 'eoi';
         }
 
-        add_number(number = this.number) {
+        add_unsigned(unsigned = this.unsigned) {
             var {
                 digit,
                 decimal,
             } = this;
             var t = this.template;
 
-            t[number] = [ digit, STAR(digit), OPT(decimal) ];
+            t[unsigned] = [ digit, STAR(digit), OPT(decimal) ];
             t[decimal] || this.add_decimal();
 
-            return number;
+            return unsigned;
         }
 
         add_decimal(decimal = this.decimal) {
@@ -74,13 +75,13 @@
 
         add_signed_number(signed_number=this.signed_number) {
             var {
-                number,
+                unsigned,
                 minus,
             } = this;
             var t = this.template;
 
-            t[signed_number] = [ OPT(minus), number ];
-            t[number] || this.add_number();
+            t[signed_number] = [ OPT(minus), unsigned ];
+            t[unsigned] || this.add_unsigned();
             return signed_number;
         }
 
