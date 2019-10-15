@@ -286,6 +286,7 @@
                 grammarFactory,
             } = this;
             var {
+                number,
                 digit,
                 period,
             } = grammarFactory;
@@ -296,6 +297,11 @@
                     : text.replace(/^0*/,'')
                 );
                 delete display.op;
+            } else if (ob.tag === number) {
+                this.setDisplay({
+                    text: `${ob.value}`,
+                });
+                delete this.display.op;
             } else {
                 this.setDisplay({op: ob.value});
             }

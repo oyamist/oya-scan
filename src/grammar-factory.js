@@ -89,10 +89,11 @@
             var {
                 signed_number,
                 paren_expr,
+                number,
             } = this;
             var t = this.template;
 
-            t[factor] = [ ALT(paren_expr, signed_number) ];
+            t[factor] = [ ALT(paren_expr, signed_number, number) ];
             t[paren_expr] || this.add_paren_expr();
             t[signed_number] || this.add_signed_number();
             return factor;

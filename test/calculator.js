@@ -570,17 +570,19 @@
         should(calc.undo()).equal(null);
     });
     it("TESTTESTobserve() accepts number", ()=>{
-        return; //TODO
         var tc = new TestCalc({
             grammar: gf.create(gf.add_expr()),
             grammarFactory: gf,
             tagEnter: gf.enter,
-            logLevel: 'info',
+            logLevel,
         });
-        var n1 = new Observation(number, 1);
-        tc.observe(n1);
-        tc.testChar('+', '{text:123,op:+}');
-        tc.testChar('2', '{text:1}');
-        tc.testChar('=', '{text:124}');
+        tc.observe(new Observation(number, 1));
+        should(js.simpleString(tc.display)).equal(`{text:1}`);
+        tc.testChar('+', '{text:1,op:+}');
+        tc.testChar('2', '{text:2}');
+        tc.testChar('+', '{text:3,op:+}');
+        tc.observe(new Observation(number, 42));
+        should(js.simpleString(tc.display)).equal(`{text:42}`);
+        tc.testChar('=', '{text:45,op:=}');
     });
 })

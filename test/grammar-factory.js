@@ -43,7 +43,7 @@
     const paren_expr = 'paren_expr';
     const rhs_unsigned = [ digit, STAR(digit), OPT(decimal) ];
     const rhs_signed_number = [ OPT(minus), unsigned ];
-    const rhs_factor = [ ALT(paren_expr, signed_number) ];
+    const rhs_factor = [ ALT(paren_expr, signed_number, number) ];
     //const rhs_signed_factor = [ OPT(minus), factor ];
     const rhs_paren_expr = [ lpar, expr, rpar ];
     const rhs_mulop = [ ALT(multiply, divide) ];
