@@ -16,7 +16,7 @@
     // MF ::= MO F
     // E ::= T STAR( AT )
     // T ::= F STAR( MF )
-    // F ::= ALT( PE | SN )
+    // F ::= ALT( PE | SN | N)
     // PE ::= "(" E ")"
     // SN ::= OPT( "-" ) U
     // U ::= D STAR( D ) OPT( DF )
@@ -123,9 +123,9 @@
 
         numberOf(v) {
             var {
-                unsigned,
+                number,
             } = this.grammarFactory;
-            return Number(v.tag === unsigned ? v.value : v);
+            return Number(v.tag === number ? v.value : v);
         }
 
         reduce_expr(lhs, rhsData) {
@@ -144,7 +144,7 @@
                 minus,
                 multiply,
                 divide,
-                unsigned,
+                number,
             } = this.grammarFactory;
             var d0 = rhsData[0];
             var d1 = rhsData[1];
@@ -169,7 +169,7 @@
                 this.log(`calcImmediate() v0:${v0}`);
                 this.setDisplay({text:`${v0}`});
             }
-            return new Observation(unsigned, v0);
+            return new Observation(number, v0);
         }
 
         reduce_addop_term(lhs, rhsData) {
@@ -187,10 +187,10 @@
 
         reduce_signed_number(lhs, rhsData) {
             var {
-                unsigned,
+                number,
             } = this.grammarFactory;
             return rhsData[0].length 
-                ? new Observation(unsigned, -rhsData[1].value)
+                ? new Observation(number, -rhsData[1].value)
                 : rhsData[1];
         }
 
@@ -252,7 +252,7 @@
 
         reduce_unsigned(lhs, rhsData) {
             var {
-                unsigned,
+                number,
             } = this.grammarFactory;
             var d0 = rhsData[0];
             var d1 = rhsData[1];
@@ -262,7 +262,7 @@
                 : ''; 
             var digits = d1.reduce((a,ob) => ((a+=ob.value),a), 
                 `${d0.value}`); 
-            return new Observation(unsigned, Number(digits+decimal));
+            return new Observation(number, Number(digits+decimal));
         }
 
         reduce_enter_expr(lhs, rhsData, result) {
