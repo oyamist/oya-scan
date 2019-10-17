@@ -9,7 +9,8 @@
     const LineFilter = require('./line-filter');
     const Observation = require('./observation');
 
-    // root ::= E 
+    // root ::= PLUS( ER )
+    // ER ::= E "=" 
     // AO ::= ALT( "+" | "-" )
     // MO ::= ALT( "*" | "/" )
     // AT ::= AO T
@@ -161,6 +162,17 @@
             this.setDisplay({
                 error: `${ob}`,
             });
+        }
+
+        reduce_expr_enter(lhs, rhsData, result) {
+            var d0 = rhsData[0];
+            var d1 = rhsData[1];
+            var {
+                enter,
+            } = this.grammarFactory;
+            console.log(`dbg expr_enter ${d0} ${d1}`);
+            this.observations = [d0, new Observation(enter, enter)];
+            return d0;
         }
 
         reduce_term(lhs, rhsData) {

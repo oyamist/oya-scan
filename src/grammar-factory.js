@@ -37,6 +37,7 @@
             this.term = opts.term || 'term';
             this.factor = opts.factor || 'factor';
             this.addop_term = opts.addop_term || 'addop_term';
+            this.expr_enter = opts.expr_enter || 'expr_enter';
             this.mulop_factor = opts.mulop_factor || 'mulop_factor';
             this.paren_expr = opts.paren_expr || 'paren_expr';
             this.expr = opts.expr || 'expr';
@@ -46,6 +47,19 @@
             this.clear = opts.clear || 'clear';
             this.allClear = opts.allClear || 'all-clear';
             this.eoi = opts.eoi || 'eoi';
+        }
+
+        add_expr_enter(expr_enter = this.expr_enter) {
+            var {
+                expr,
+                enter,
+            } = this;
+            var t = this.template;
+
+            t[expr_enter] = [ expr, enter ];
+            t[expr] || this.add_expr();
+
+            return expr_enter;
         }
 
         add_unsigned(unsigned = this.unsigned) {

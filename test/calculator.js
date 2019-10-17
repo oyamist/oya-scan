@@ -36,6 +36,7 @@
     const mulop_factor = 'MF';
     const multiply = '"*"';
     const period = '"."';
+    const expr_enter = 'ER';
     const paren_expr = 'PE';
     const number = 'N';
     const plus = '"+"'; 
@@ -54,6 +55,7 @@
         enter,
         eoi,
         expr,
+        expr_enter,
         factor,
         lpar, 
         minus,
@@ -107,6 +109,17 @@
             super(opts);
         }
 
+        testObs(tag, value, expected) {
+            var ob = new Observation(tag, value);
+            var res = this.observe(ob);
+            should(res).equal(true);
+            this.log(js.simpleString(this.display));
+            var ds = js.simpleString(this.display);
+            if (ds !== expected) {
+                this.log(`ERROR ${this.state()}`);
+            }
+            should(ds).equal(expected);
+        }
         testChar(c, expected) {
             var ob = testOb(c);
             var res = this.observe(ob);
@@ -591,17 +604,32 @@
         should(js.simpleString(tc.display)).equal(`{text:42}`);
         tc.testChar('=', '{text:45,op:=}');
     });
-    it("TESTTESTenter counts", ()=>{
+    it("TESTTESTenter collapses state", ()=>{
         var tc = new TestCalc({
-            grammar: gf.create(gf.add_expr()),
+            grammar: gf.create(gf.add_expr_enter()),
             grammarFactory: gf,
-            tagEnter: gf.enter,
             logLevel,
         });
+        var {
+            number,
+            enter,
+       } = tc.grammarFactory;
+
+        // ENTER collapses long calculations
         tc.testChar('1', '{text:1}');
-        tc.testChar('2', '{text:12}');
-        tc.testChar('+', '{text:12,op:+}');
-        0 && tc.testChar('=', '{text:12,op:=}');
-        console.log(`dbg enter count ${tc.state()}`);
+        tc.testChar('+', '{text:1,op:+}');
+        tc.testChar('2', '{text:2}');
+        tc.testChar('*', '{text:2,op:*}');
+        tc.testChar('3', '{text:3}');
+        tc.testChar('=', '{text:7,op:=}');
+        should(tc.observations.length).equal(2);
+        should(tc.stack.length).equal(1);
+
+        // Collapsed state is same as direct entry
+        tc.clear();
+        tc.testObs(number, 7, '{text:7}');
+        tc.testObs(enter, '=', '{text:7,op:=}');
+        should(tc.observations.length).equal(2);
+        should(tc.stack.length).equal(1);
     });
 })
