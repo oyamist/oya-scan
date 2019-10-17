@@ -45,6 +45,8 @@
             this.tagClear = opts.tagClear || 'clear';
             this.tagUndo = opts.tagUndo || 'undo';
             this.tagEnter = opts.tagEnter; // || 'enter';
+            this.maxObservations = opts.maxObservations || 
+                100; // streaming parsers should not accumulate stuff
             this.clear();
             
             Object.defineProperty(this, "observations", {
@@ -243,6 +245,16 @@
                 return this.enter(ob);
             }
 
+            if (observations.length >= this.maxObservations) {
+                // Streaming parsers should not accumulate too much
+                // state since streaming is unbounded by design.
+                // Observations are cumulative and must be cleared
+                // periodically. For example, "enter" can be used
+                // to collapse state and prevent runaway state increase.
+                var m = `Too many observations: ${this.maxObservations}`;
+                logger.warn(m);
+                throw new Error(m);
+            }
             observations.push(ob);
 
             if (stack.length === 0) {

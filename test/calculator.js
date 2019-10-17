@@ -188,7 +188,7 @@
         should(g).instanceOf(Grammar);
         should.deepEqual(g.rhs(root), ['E', '$']);
     });
-    it("TESTTESTenter running sum", ()=> {
+    it("enter running sum", ()=> {
         var tc = new TestCalc({
             grammar: gf.create(gf.add_expr()),
             grammarFactory: gf,
@@ -204,9 +204,15 @@
         tc.testChar('=', '{text:6,op:=}');
         tc.testChar('+', '{text:6,op:+}');
         tc.testChar('4', '{text:4}');
+
+        // Enter collapses state
+        should(tc.observations.length).equal(3);
+        should(tc.stack.length).equal(7);
         tc.testChar('=', '{text:10,op:=}');
+        should(tc.observations.length).equal(1);
+        should(tc.stack.length).equal(3);
     });
-    it("TESTTESTenter running product", ()=> {
+    it("enter running product", ()=> {
         var tc = new TestCalc({
             grammar: gf.create(gf.add_expr()),
             grammarFactory: gf,
@@ -224,7 +230,7 @@
         tc.testChar('5', '{text:5}');
         tc.testChar('=', '{text:120,op:=}');
     });
-    it("TESTTESTenter 1+2*3", ()=> {
+    it("enter 1+2*3", ()=> {
         var tc = new TestCalc({
             grammar: gf.create(gf.add_expr()),
             grammarFactory: gf,
@@ -569,7 +575,7 @@
         should(js.simpleString(calc.display)).equal('{text:0}');
         should(calc.undo()).equal(null);
     });
-    it("TESTTESTobserve() accepts number", ()=>{
+    it("observe() accepts number", ()=>{
         var tc = new TestCalc({
             grammar: gf.create(gf.add_expr()),
             grammarFactory: gf,
@@ -584,5 +590,18 @@
         tc.observe(new Observation(number, 42));
         should(js.simpleString(tc.display)).equal(`{text:42}`);
         tc.testChar('=', '{text:45,op:=}');
+    });
+    it("TESTTESTenter counts", ()=>{
+        var tc = new TestCalc({
+            grammar: gf.create(gf.add_expr()),
+            grammarFactory: gf,
+            tagEnter: gf.enter,
+            logLevel,
+        });
+        tc.testChar('1', '{text:1}');
+        tc.testChar('2', '{text:12}');
+        tc.testChar('+', '{text:12,op:+}');
+        0 && tc.testChar('=', '{text:12,op:=}');
+        console.log(`dbg enter count ${tc.state()}`);
     });
 })
