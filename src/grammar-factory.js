@@ -33,7 +33,7 @@
             this.unsigned = opts.unsigned || 'unsigned';
             this.entry = opts.entry || 'entry';
             this.enter_expr = opts.enter_expr || 'enter_expr';
-            this.signed_number = opts.signed_number || 'signed_number';
+            this.signed = opts.signed || 'signed';
             this.term = opts.term || 'term';
             this.factor = opts.factor || 'factor';
             this.addop_term = opts.addop_term || 'addop_term';
@@ -73,29 +73,29 @@
             return decimal;
         }
 
-        add_signed_number(signed_number=this.signed_number) {
+        add_signed(signed=this.signed) {
             var {
                 unsigned,
                 minus,
             } = this;
             var t = this.template;
 
-            t[signed_number] = [ OPT(minus), unsigned ];
+            t[signed] = [ OPT(minus), unsigned ];
             t[unsigned] || this.add_unsigned();
-            return signed_number;
+            return signed;
         }
 
         add_factor(factor=this.factor) {
             var {
-                signed_number,
+                signed,
                 paren_expr,
                 number,
             } = this;
             var t = this.template;
 
-            t[factor] = [ ALT(paren_expr, signed_number, number) ];
+            t[factor] = [ ALT(paren_expr, signed, number) ];
             t[paren_expr] || this.add_paren_expr();
-            t[signed_number] || this.add_signed_number();
+            t[signed] || this.add_signed();
             return factor;
         }
 

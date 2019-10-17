@@ -41,7 +41,7 @@
     const plus = '"+"'; 
     const root = 'root';
     const rpar = '")"'; 
-    const signed_number = 'SN';
+    const signed = 'S';
     const term = 'T';
     const unsigned = 'U';
 
@@ -65,7 +65,7 @@
         period,
         plus,
         rpar,
-        signed_number,
+        signed,
         unsigned,
         term,
 
@@ -261,9 +261,9 @@
         tc.testChar('5', '{text:5}');
         tc.testChar('$', '{text:26}');
     });
-    it("parses signed_number", ()=> {
+    it("parses signed", ()=> {
         var calc = new Calculator({
-            grammar: gf.create(gf.add_signed_number()),
+            grammar: gf.create(gf.add_signed()),
             grammarFactory: gf,
             logLevel,
         });

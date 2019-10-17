@@ -236,7 +236,7 @@
             return ob;
         }
 
-        reduce_signed_number(lhs, rhsData) {
+        reduce_signed(lhs, rhsData) {
             var {
                 number,
             } = this.grammarFactory;

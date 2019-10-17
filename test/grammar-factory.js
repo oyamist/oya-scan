@@ -20,7 +20,7 @@
     const number = 'number';
     const unsigned = 'unsigned';
     const period = '.';
-    const signed_number = 'signed_number';
+    const signed = 'signed';
     const factor = 'factor';
     const term = 'term';
     const term1 = 'term@1';
@@ -42,8 +42,8 @@
     const divide = '/';
     const paren_expr = 'paren_expr';
     const rhs_unsigned = [ digit, STAR(digit), OPT(decimal) ];
-    const rhs_signed_number = [ OPT(minus), unsigned ];
-    const rhs_factor = [ ALT(paren_expr, signed_number, number) ];
+    const rhs_signed = [ OPT(minus), unsigned ];
+    const rhs_factor = [ ALT(paren_expr, signed, number) ];
     //const rhs_signed_factor = [ OPT(minus), factor ];
     const rhs_paren_expr = [ lpar, expr, rpar ];
     const rhs_mulop = [ ALT(multiply, divide) ];
@@ -76,7 +76,7 @@
             period,
             plus,
             rpar,
-            signed_number,
+            signed,
             term,
 
         });
@@ -101,7 +101,7 @@
         let plus = '#';
         let root = 'ROOT';
         let rpar = ']';
-        let signed_number = 'SN';
+        let signed = 'S';
         let unsigned = 'U';
         let term = 'T';
 
@@ -125,7 +125,7 @@
             period,
             plus,
             rpar,
-            signed_number,
+            signed,
             unsigned,
             term,
 
@@ -150,7 +150,7 @@
             paren_expr,
             plus,
             rpar,
-            signed_number,
+            signed,
             term,
             unsigned,
 
@@ -167,15 +167,15 @@
         should.deepEqual(g.rhs('root'), [unsigned, eoi] );
         should.deepEqual(g.rhs(unsigned), rhs_unsigned);
     });
-    it("add_signed_number()", ()=> {
+    it("add_signed()", ()=> {
         var gf = new GrammarFactory();
 
-        should(gf.add_signed_number()).equal(signed_number);
-        should.deepEqual(gf.template.signed_number, rhs_signed_number);
+        should(gf.add_signed()).equal(signed);
+        should.deepEqual(gf.template.signed, rhs_signed);
 
-        var g = gf.create(signed_number);
-        should.deepEqual(g.rhs('root'), [signed_number, eoi] );
-        should.deepEqual(g.rhs(signed_number), rhs_signed_number);
+        var g = gf.create(signed);
+        should.deepEqual(g.rhs('root'), [signed, eoi] );
+        should.deepEqual(g.rhs(signed), rhs_signed);
         should.deepEqual(g.rhs(unsigned), rhs_unsigned);
     });
     it("add_paren_expr()", ()=>{
@@ -193,7 +193,7 @@
         var g = gf.create(factor);
         should.deepEqual(g.rhs('root'), [factor, eoi] );
         should.deepEqual(g.rhs(factor), rhs_factor);
-        should.deepEqual(g.rhs(signed_number), rhs_signed_number);
+        should.deepEqual(g.rhs(signed), rhs_signed);
         should.deepEqual(g.rhs(paren_expr), rhs_paren_expr);
         should.deepEqual(g.rhs(unsigned), rhs_unsigned);
     });
@@ -208,7 +208,7 @@
         should.deepEqual(g.rhs('root'), [signed_factor] );
         should.deepEqual(g.rhs(signed_factor), rhs_signed_factor);
         should.deepEqual(g.rhs(factor), rhs_factor);
-        should.deepEqual(g.rhs(signed_number), rhs_signed_number);
+        should.deepEqual(g.rhs(signed), rhs_signed);
         should.deepEqual(g.rhs(paren_expr), rhs_paren_expr);
         should.deepEqual(g.rhs(unsigned), rhs_unsigned);
     });
