@@ -153,7 +153,7 @@
                 return (firstMap[sym] = {[sym]:true});
             }
 
-            f = {};
+            firstMap[sym] = f = {};
             var ebnf = rhs[0].ebnf;
             if (!ebnf) {
                 firstMap[sym] = Object.assign(f, this.first(rhs[0]));

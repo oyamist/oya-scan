@@ -632,4 +632,42 @@
         should(tc.observations.length).equal(2);
         should(tc.stack.length).equal(1);
     });
+    it("TESTTESTenter running sum", ()=>{
+        var tc = new TestCalc({
+            grammar: gf.create(gf.add_expr()),
+            grammarFactory: gf,
+            logLevel: 'info',
+        });
+        var {
+            number,
+            enter,
+        } = tc.grammarFactory;
+
+        var g = tc.grammar;
+
+        g.nonterminals.forEach(nt => {
+            var f = Object.keys(g.first(nt));
+            var rule = g.ruleToString(nt);
+            console.log(`${rule}; first:${js.simpleString(f)}`);
+        });
+        return;
+
+
+        tc.testChar('1', '{text:1}');
+        tc.testChar('+', '{text:1,op:+}');
+        tc.testChar('2', '{text:2}');
+        tc.testChar('=', '{text:3,op:=}');
+        tc.testChar('+', '{text:3,op:+}');
+        tc.testChar('3', '{text:3}');
+        tc.testChar('=', '{text:6,op:=}');
+        should(tc.observations.length).equal(2);
+        should(tc.stack.length).equal(1);
+
+        // Collapsed state is same as direct entry
+        tc.clear();
+        tc.testObs(number, 7, '{text:7}');
+        tc.testObs(enter, '=', '{text:7,op:=}');
+        should(tc.observations.length).equal(2);
+        should(tc.stack.length).equal(1);
+    });
 })

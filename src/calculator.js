@@ -17,7 +17,7 @@
     // MF ::= MO F
     // E ::= T STAR( AT )
     // T ::= F STAR( MF )
-    // F ::= ALT( PE | SN | N)
+    // F ::= ALT( PE | SN | N | ER )
     // PE ::= "(" E ")"
     // SN ::= OPT( "-" ) U
     // U ::= D STAR( D ) OPT( DF )
@@ -197,7 +197,7 @@
                 text: `${ob.value}`,
                 op: this.grammarFactory.enter,
             });
-            this.log(`dbg re ${ob.value}`);
+            this.log(`dbg re ${ob}`);
             return ob;
         }
 

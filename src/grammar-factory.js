@@ -13,40 +13,47 @@
     class GrammarFactory {
         constructor(opts={}) {
             this.template = opts.template || {};
+            this.terse = opts.terse === true;
 
-            // Define terminals for input Observation tags.
-            this.digit = opts.digit || 'digit';
-            this.id = opts.id || 'id';
-            this.period = opts.period || '.';
-            this.minus = opts.minus || '-';
-            this.plus = opts.plus || '+';
-            this.multiply = opts.multiply || '*';
-            this.divide = opts.divide || '/';
-            this.lpar = opts.lpar || '(';
-            this.rpar = opts.rpar || ')';
+            var dfltOpts = GrammarFactory.OPTS_DEFAULT(this.terse);
+            Object.keys(dfltOpts).forEach(k => {
+                this[k] = opts[k] || dfltOpts[k];
+            });
+        }
 
-            // The "enter" terminal can be used to force a reduce
-            opts.enter && (this.enter = opts.enter); 
+        static OPTS_DEFAULT(terse = false) {
+            return {
+                addop_term: terse ? 'AT' : "addop_term", 
+                addop: terse ? 'AO' : "addop", 
+                allClear: terse ? 'AC' : "all-clear",
+                clear: terse ? 'C' : "clear",
+                decimal: terse ? 'DF' : "decimal", 
+                digit: terse ? 'D' : "digit", 
+                divide: '"/"',
+                enter: terse ? '"="' : "enter", 
+                eoi: terse ? '$' : "eoi", 
+                entry: terse ? 'Y' : "entry",
+                expr_enter: terse ? 'ER' : "expr_enter", 
+                enter_expr: terse ? 'RE' : "enter_expr",
+                expr: terse ? 'E' : "expr", 
+                factor: terse ? 'F' : "factor", 
+                lpar: '"("',
+                minus: terse ? '-' : '"-"',
+                mulop: terse ? 'MO' : "mulop",
+                mulop_factor: terse ? 'MF' : "mulop_factor", 
+                mulop: terse ? 'MO' : "mulop", 
+                multiply: '"*"',
+                number: terse ? 'N' : "number", 
+                paren_expr: terse ? 'PE' : "paren_expr", 
+                period: '"."',
+                plus: '"+"',
+                root: terse ? 'root' : "root", 
+                rpar: '")"',
+                signed: terse ? 'S' : "signed", 
+                term: terse ? 'T' : "term", 
+                unsigned: terse ? 'U' : "unsigned", 
 
-            // rename nonterminals for use in messages
-            this.number = opts.number || 'number';
-            this.unsigned = opts.unsigned || 'unsigned';
-            this.entry = opts.entry || 'entry';
-            this.enter_expr = opts.enter_expr || 'enter_expr';
-            this.signed = opts.signed || 'signed';
-            this.term = opts.term || 'term';
-            this.factor = opts.factor || 'factor';
-            this.addop_term = opts.addop_term || 'addop_term';
-            this.expr_enter = opts.expr_enter || 'expr_enter';
-            this.mulop_factor = opts.mulop_factor || 'mulop_factor';
-            this.paren_expr = opts.paren_expr || 'paren_expr';
-            this.expr = opts.expr || 'expr';
-            this.mulop = opts.mulop || 'mulop';
-            this.addop = opts.addop || 'addop';
-            this.decimal = opts.decimal || 'decimal';
-            this.clear = opts.clear || 'clear';
-            this.allClear = opts.allClear || 'all-clear';
-            this.eoi = opts.eoi || 'eoi';
+            };
         }
 
         add_expr_enter(expr_enter = this.expr_enter) {
@@ -104,12 +111,18 @@
                 signed,
                 paren_expr,
                 number,
+                expr_enter,
             } = this;
             var t = this.template;
 
-            t[factor] = [ ALT(paren_expr, signed, number) ];
+            t[factor] = [ ALT(
+                paren_expr, 
+                signed, 
+                number )];
+                //number, expr_enter )];
             t[paren_expr] || this.add_paren_expr();
             t[signed] || this.add_signed();
+            t[expr_enter] || this.add_expr_enter();
             return factor;
         }
 

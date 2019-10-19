@@ -6,6 +6,7 @@
     const { logger } = require('just-simple').JustSimple;
     const {
         Grammar,
+        GrammarFactory,
     } = require('../index');
     const {
         ALT,
@@ -142,5 +143,9 @@
         should(test('cd')).equal('--cd');
         should(test('abc')).equal('abc-');
         should(test('bc')).equal('-b--');
+    });
+    it("TESTTESTisLL1() check for valid grammar", ()=> {
+        var gf = new GrammarFactory();
+        var g = gf.create(gf.add_expr());
     });
 })
