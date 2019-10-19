@@ -56,195 +56,194 @@
             };
         }
 
-        add_expr_enter(expr_enter = this.expr_enter) {
+        add_expr_enter(t=this.template) {
             var {
+                expr_enter,
                 expr,
                 enter,
             } = this;
-            var t = this.template;
 
             t[expr_enter] = [ expr, enter ];
-            t[expr] || this.add_expr();
+            t[expr] || this.add_expr(t);
 
             return expr_enter;
         }
 
-        add_unsigned(unsigned = this.unsigned) {
+        add_unsigned(t=this.template) {
             var {
                 digit,
                 decimal,
+                unsigned,
             } = this;
-            var t = this.template;
 
             t[unsigned] = [ digit, STAR(digit), OPT(decimal) ];
-            t[decimal] || this.add_decimal();
+            t[decimal] || this.add_decimal(t);
 
             return unsigned;
         }
 
-        add_decimal(decimal = this.decimal) {
+        add_decimal(t=this.template) {
             var {
                 digit,
                 period,
+                decimal,
             } = this;
-            var t = this.template;
 
             t[decimal] = [ period, PLUS(digit) ];
 
             return decimal;
         }
 
-        add_signed(signed=this.signed) {
+        add_signed(t=this.template) {
             var {
                 unsigned,
                 minus,
+                signed,
             } = this;
-            var t = this.template;
 
             t[signed] = [ OPT(minus), unsigned ];
-            t[unsigned] || this.add_unsigned();
+            t[unsigned] || this.add_unsigned(t);
             return signed;
         }
 
-        add_factor(factor=this.factor) {
+        add_factor(t=this.template) {
             var {
                 signed,
                 paren_expr,
                 number,
                 expr_enter,
+                factor,
             } = this;
-            var t = this.template;
 
             t[factor] = [ ALT(
                 paren_expr, 
                 signed, 
                 number )];
                 //number, expr_enter )];
-            t[paren_expr] || this.add_paren_expr();
-            t[signed] || this.add_signed();
-            //t[expr_enter] || this.add_expr_enter();
+            t[paren_expr] || this.add_paren_expr(t);
+            t[signed] || this.add_signed(t);
+            //t[expr_enter] || this.add_expr_enter(t);
             return factor;
         }
 
-        add_addop_term(addop_term=this.addop_term) {
+        add_addop_term(t=this.template) {
             var {
                 addop,
                 term,
+                addop_term,
             } = this;
-            var t = this.template;
 
             t[addop_term] = [ addop, term];
-            t[addop] || this.add_addop();
-            t[term] || this.add_term();
+            t[addop] || this.add_addop(t);
+            t[term] || this.add_term(t);
             return addop_term;
         }
 
-        add_mulop_factor(mulop_factor=this.mulop_factor) {
+        add_mulop_factor(t=this.template) {
             var {
                 mulop,
                 factor,
+                mulop_factor,
             } = this;
-            var t = this.template;
 
             t[mulop_factor] = [ mulop, factor ];
-            t[mulop] || this.add_mulop();
-            t[factor] || this.add_factor();
+            t[mulop] || this.add_mulop(t);
+            t[factor] || this.add_factor(t);
             return mulop_factor;
         }
 
-        add_mulop(mulop=this.mulop) {
+        add_mulop(t=this.template) {
             var {
                 multiply,
                 divide,
+                mulop,
             } = this;
-            var t = this.template;
 
             t[mulop] = [ ALT(multiply, divide) ];
 
             return mulop;
         }
 
-        add_term(term=this.term) {
+        add_term(t=this.template) {
             var {
+                term,
                 factor,
                 mulop_factor,
             } = this;
-            var t = this.template;
 
             t[term] = [ factor, STAR(mulop_factor) ];
-            t[factor] || this.add_factor();
-            t[mulop_factor] || this.add_mulop_factor();
+            t[factor] || this.add_factor(t);
+            t[mulop_factor] || this.add_mulop_factor(t);
             return term;
         }
 
-        add_paren_expr(paren_expr=this.paren_expr) {
+        add_paren_expr(t=this.template) {
             var {
+                paren_expr,
                 expr,
                 lpar,
                 rpar,
             } = this;
-            var t = this.template;
 
             t[paren_expr] = [ lpar, expr, rpar ];
-            t[expr] || this.add_expr();
+            t[expr] || this.add_expr(t);
             return paren_expr;
         }
 
-        add_addop(addop=this.addop) {
+        add_addop(t=this.template) {
             var {
+                addop,
                 plus,
                 minus,
             } = this;
-            var t = this.template;
 
             t[addop] = [ ALT(plus, minus) ];
 
             return addop;
         }
 
-        add_entry(entry=this.entry) {
+        add_entry(t=this.template) {
             var {
+                entry,
                 enter_expr,
                 expr,
             } = this;
-            var t = this.template;
 
             t[entry] = [ expr, STAR(enter_expr) ];
-            t[enter_expr] || this.add_enter_expr();
-            t[expr] || this.add_expr();
+            t[enter_expr] || this.add_enter_expr(t);
+            t[expr] || this.add_expr(t);
             return entry;
         }
 
-        add_enter_expr(enter_expr=this.enter_expr) {
+        add_enter_expr(t=this.template) {
             var {
+                enter_expr,
                 enter,
                 expr,
             } = this;
-            var t = this.template;
 
             t[enter_expr] = [ enter, expr ];
-            t[expr] || this.add_expr();
+            t[expr] || this.add_expr(t);
             return enter_expr;
         }
 
-        add_expr(expr=this.expr) {
+        add_expr(t=this.template) {
             var {
+                expr,
                 addop_term,
                 term,
             } = this;
-            var t = this.template;
 
             t[expr] = [ term, STAR(addop_term) ];
-            t[addop_term] || this.add_addop_term();
-            t[term] || this.add_term();
+            t[addop_term] || this.add_addop_term(t);
+            t[term] || this.add_term(t);
             return expr;
         }
 
-        create(ntRoot=this.expr, eoi=this.eoi) {
-            var t = this.template;
+        create(ntRoot=this.expr, t=this.template) {
             t.root = [ 
                 ntRoot, 
-                eoi, // everything ends: End Of Input
+                this.eoi, // everything ends: End Of Input
             ];
             return new Grammar(t);
         }
