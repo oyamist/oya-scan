@@ -122,7 +122,7 @@
                 //number, expr_enter )];
             t[paren_expr] || this.add_paren_expr();
             t[signed] || this.add_signed();
-            t[expr_enter] || this.add_expr_enter();
+            //t[expr_enter] || this.add_expr_enter();
             return factor;
         }
 

@@ -479,10 +479,8 @@
                     should(olines[i++]).match(/{"text":"2"}/);
                     should(olines[i++]).match(/{"text":"3"}/);
                     fs.unlinkSync(ospath);
-                console.log(`dbg close OK`);
                     done();
                 } catch (e) {
-                console.log(`dbg close e:${e.stack}`);
                     done(e);
                 }
             });
@@ -650,9 +648,7 @@
             var rule = g.ruleToString(nt);
             console.log(`${rule}; first:${js.simpleString(f)}`);
         });
-        return;
-
-
+        return; // TODO
         tc.testChar('1', '{text:1}');
         tc.testChar('+', '{text:1,op:+}');
         tc.testChar('2', '{text:2}');

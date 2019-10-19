@@ -139,7 +139,7 @@
         should(gf.add_paren_expr()).equal(paren_expr);
         should.deepEqual(gf.template.paren_expr, [ lpar, expr, rpar ]);
     });
-    it("TESTTESTadd_factor()", ()=> {
+    it("add_factor()", ()=> {
         var gf = new GrammarFactory();
         var {
             factor,

@@ -170,7 +170,6 @@
             var {
                 enter,
             } = this.grammarFactory;
-            console.log(`dbg expr_enter ${d0} ${d1}`);
             this.observations = [d0, new Observation(enter, enter)];
             return d0;
         }
