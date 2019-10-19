@@ -240,6 +240,19 @@
             return expr;
         }
 
+        grammarTemplate(opts={}) {
+            var t = Object.assign({}, opts);
+            var ntRoot = opts.addRoot.call(this, t);
+            t.root = [ 
+                ntRoot, 
+                this.eoi, // everything ends: End Of Input
+            ];
+            t.grammar = new Grammar(t);
+            t.grammarFactory = this;
+
+            return t;
+        }
+
         create(ntRoot=this.expr, t=this.template) {
             t.root = [ 
                 ntRoot, 
