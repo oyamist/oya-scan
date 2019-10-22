@@ -142,17 +142,21 @@
         first(sym) {
             var {
                 firstMap,
+                rhsMap,
             } = this;
             var f = firstMap[sym];
             if (f) {
                 return f;
             }
 
-            var rhs = this.rhs(sym);
-            if (!rhs) {
+            var symTerm = !rhsMap.hasOwnProperty(sym);
+
+            if (symTerm) {
                 return (firstMap[sym] = {[sym]:true});
             }
 
+            // sym in nonterminal
+            var rhs = this.rhs(sym);
             firstMap[sym] = f = {};
             var ebnf = rhs[0].ebnf;
             if (!ebnf) {

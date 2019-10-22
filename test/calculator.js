@@ -631,14 +631,18 @@
         should(tc.stack.length).equal(1);
     });
     it("TESTTESTenter running sum", ()=>{
-        var tc = new TestCalc(gf.grammarTemplate({
+        var grammar = gf.buildGrammar({
             addRoot: gf.add_expr, 
+        });
+        var tc = new TestCalc({
+            grammar,
+            grammarFactory: gf,
             logLevel: 'info',
-        }));
+        });
         var {
             number,
             enter,
-        } = tc.grammarFactory;
+        } = gf;
 
         var g = tc.grammar;
 
