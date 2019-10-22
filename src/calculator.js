@@ -170,7 +170,10 @@
             var {
                 enter,
             } = this.grammarFactory;
-            this.observations = [d0, new Observation(enter, enter)];
+            var obtos = this.observations.pop();
+            this.clear();
+            this.observe(d0);
+            this.setDisplay({op: obtos.value});
             return d0;
         }
 

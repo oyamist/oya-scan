@@ -613,31 +613,31 @@
             enter,
        } = tc.grammarFactory;
 
-        // ENTER collapses long calculations
+        // Observation of "enter" collapses state
         tc.testChar('1', '{text:1}');
         tc.testChar('+', '{text:1,op:+}');
         tc.testChar('2', '{text:2}');
         tc.testChar('*', '{text:2,op:*}');
         tc.testChar('3', '{text:3}');
         tc.testChar('=', '{text:7,op:=}');
-        should(tc.observations.length).equal(2);
-        should(tc.stack.length).equal(1);
+        should(tc.observations.length).equal(1);
+        should(tc.stack.length).equal(4);
 
         // Collapsed state is same as direct entry
         tc.clear();
         tc.testObs(number, 7, '{text:7}');
         tc.testObs(enter, '=', '{text:7,op:=}');
-        should(tc.observations.length).equal(2);
-        should(tc.stack.length).equal(1);
+        should(tc.observations.length).equal(1);
+        should(tc.stack.length).equal(4);
     });
     it("TESTTESTenter running sum", ()=>{
         var grammar = gf.buildGrammar({
-            addRoot: gf.add_expr, 
+            addRoot: gf.add_expr_enter, 
         });
         var tc = new TestCalc({
             grammar,
             grammarFactory: gf,
-            logLevel: 'info',
+            logLevel,
         });
         var {
             number,
@@ -646,27 +646,28 @@
 
         var g = tc.grammar;
 
+        // Observation of "enter" collapses state
         g.nonterminals.forEach(nt => {
             var f = Object.keys(g.first(nt));
             var rule = g.ruleToString(nt);
             console.log(`${rule}; first:${js.simpleString(f)}`);
         });
-        return; // TODO
         tc.testChar('1', '{text:1}');
         tc.testChar('+', '{text:1,op:+}');
         tc.testChar('2', '{text:2}');
         tc.testChar('=', '{text:3,op:=}');
+        should(js.simpleString(tc.observations)).equal("[N:3]");
         tc.testChar('+', '{text:3,op:+}');
         tc.testChar('3', '{text:3}');
         tc.testChar('=', '{text:6,op:=}');
-        should(tc.observations.length).equal(2);
-        should(tc.stack.length).equal(1);
+        should(js.simpleString(tc.observations)).equal("[N:6]");
+        var state = js.simpleString(tc.state());
 
-        // Collapsed state is same as direct entry
+        // Collapsed state is identical to direct entry
         tc.clear();
-        tc.testObs(number, 7, '{text:7}');
-        tc.testObs(enter, '=', '{text:7,op:=}');
-        should(tc.observations.length).equal(2);
-        should(tc.stack.length).equal(1);
+        tc.testObs(number, 6, '{text:6}');
+        tc.testObs(enter, '=', '{text:6,op:=}');
+        should(js.simpleString(tc.observations)).equal("[N:6]");
+        should(js.simpleString(tc.state())).equal(state);
     });
 })
