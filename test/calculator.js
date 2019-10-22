@@ -203,7 +203,6 @@
     });
     it("enter running product", ()=> {
         var tc = new TestCalc({
-            grammar: gf.create(gf.add_expr_enter()),
             grammarFactory: gf,
             logLevel,
         });
@@ -220,7 +219,6 @@
     });
     it("TESTTESTenter 1+2*3", ()=> {
         var tc = new TestCalc({
-            grammar: gf.create(gf.add_expr_enter()),
             grammarFactory: gf,
             logLevel,
         });
@@ -234,7 +232,6 @@
     });
     it("precedence 2*3+4*5", ()=> {
         var tc = new TestCalc({
-            grammar: gf.create(gf.add_expr_enter()),
             grammarFactory: gf,
             logLevel,
         });
@@ -248,8 +245,11 @@
         tc.testChar('=', '{text:26,op:=}');
     });
     it("parses signed", ()=> {
+        var grammar = gf.buildGrammar({
+            addRoot: gf.add_signed,
+        });
         var calc = new Calculator({
-            grammar: gf.create(gf.add_signed()),
+            grammar,
             grammarFactory: gf,
             logLevel,
         });
@@ -258,8 +258,11 @@
         testCalc(calc, '123$', `${number}:123`);
     });
     it("parses factor", ()=> {
+        var grammar = gf.buildGrammar({
+            addRoot: gf.add_factor,
+        });
         var calc = new Calculator({
-            grammar: gf.create(gf.add_factor()),
+            grammar,
             grammarFactory: gf,
             logLevel,
         });
@@ -267,8 +270,11 @@
         testCalc(calc, '123$', `N:123`);
     });
     it("parses mulop_factor", ()=> {
+        var grammar = gf.buildGrammar({
+            addRoot: gf.add_mulop_factor,
+        });
         var calc = new Calculator({
-            grammar: gf.create(gf.add_mulop_factor()),
+            grammar,
             grammarFactory: gf,
             logLevel,
         });
@@ -276,8 +282,11 @@
         testCalc(calc, '*123$', `"*":N:123`);
     });
     it("parses term", ()=> {
+        var grammar = gf.buildGrammar({
+            addRoot: gf.add_term,
+        });
         var calc = new Calculator({
-            grammar: gf.create(gf.add_term()),
+            grammar,
             grammarFactory: gf,
             logLevel,
         });
@@ -290,8 +299,11 @@
         testCalc(calc, '123$', `${number}:123`);
     });
     it("parses expr", ()=> {
+        var grammar = gf.buildGrammar({
+            addRoot: gf.add_expr,
+        });
         var calc = new Calculator({
-            grammar: gf.create(gf.add_expr()),
+            grammar,
             grammarFactory: gf,
             logLevel,
         });
@@ -309,8 +321,11 @@
         testCalc(calc, '1.1+3/20$', `${number}:1.25`);
     });
     it("display shows current state 12+34*5", ()=>{
+        var grammar = gf.buildGrammar({
+            addRoot: gf.add_expr,
+        });
         var calc = new Calculator({
-            grammar: gf.create(gf.add_expr()),
+            grammar,
             grammarFactory: gf,
             logLevel,
         });
@@ -333,8 +348,11 @@
         should(js.simpleString(calc.display)).equal('{text:182}');
     });
     it("display shows running sum 4+3-2+1", ()=>{
+        var grammar = gf.buildGrammar({
+            addRoot: gf.add_expr,
+        });
         var calc = new Calculator({
-            grammar: gf.create(gf.add_expr()),
+            grammar,
             grammarFactory: gf,
             logLevel,
         });
@@ -358,8 +376,11 @@
         should(js.simpleString(calc.display)).equal('{text:6}');
     });
     it("display shows running product 5*4*3*2", ()=>{
+        var grammar = gf.buildGrammar({
+            addRoot: gf.add_expr,
+        });
         var calc = new Calculator({
-            grammar: gf.create(gf.add_expr()),
+            grammar,
             grammarFactory: gf,
             logLevel,
         });
@@ -383,8 +404,11 @@
         should(js.simpleString(calc.display)).equal('{text:120}');
     });
     it("display shows running division 24/4/3/2", ()=>{
+        var grammar = gf.buildGrammar({
+            addRoot: gf.add_expr,
+        });
         var calc = new Calculator({
-            grammar: gf.create(gf.add_expr()),
+            grammar,
             grammarFactory: gf,
             logLevel,
         });
@@ -412,8 +436,11 @@
     it("transform(...) implements LineFilter", (done)=>{
         var handled = false;
         (async function() { try {
+            var grammar = gf.buildGrammar({
+                addRoot: gf.add_expr,
+            });
             var calc = new Calculator({
-                grammar: gf.create(gf.add_expr()),
+                grammar,
                 grammarFactory: gf,
                 logLevel,
             });
@@ -556,7 +583,6 @@
     });
     it("TESTTESTobserve() accepts number", ()=>{
         var tc = new TestCalc({
-            grammar: gf.create(gf.add_expr_enter()),
             grammarFactory: gf,
             logLevel,
         });
@@ -571,7 +597,6 @@
     });
     it("TESTTESTenter collapses state", ()=>{
         var tc = new TestCalc({
-            grammar: gf.create(gf.add_expr_enter()),
             grammarFactory: gf,
             logLevel,
         });

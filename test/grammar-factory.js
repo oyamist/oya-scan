@@ -108,21 +108,19 @@
         });
     });
 
-    it("add_unsigned() one or more digits", ()=> {
+    it("TESTTESTadd_unsigned() one or more digits", ()=> {
         var gf = new GrammarFactory();
-        should(gf.add_unsigned()).equal(unsigned);
-        should.deepEqual(gf.template.unsigned, rhs_unsigned);
-
-        var g = gf.create(unsigned);
+        var g = gf.buildGrammar({
+            addRoot: gf.add_unsigned,
+        });
         should.deepEqual(g.rhs('root'), [unsigned, eoi] );
         should.deepEqual(g.rhs(unsigned), rhs_unsigned);
     });
-    it("add_signed()", ()=> {
+    it("TESTTESTadd_signed()", ()=> {
         var gf = new GrammarFactory();
-        should(gf.add_signed()).equal(signed);
-        should.deepEqual(gf.template.signed, rhs_signed);
-
-        var g = gf.create(signed);
+        var g = gf.buildGrammar({
+            addRoot: gf.add_signed,
+        });
         should.deepEqual(g.rhs('root'), [signed, eoi] );
         should.deepEqual(g.rhs(signed), rhs_signed);
         should.deepEqual(g.rhs(unsigned), rhs_unsigned);
@@ -139,7 +137,7 @@
         should(gf.add_paren_expr()).equal(paren_expr);
         should.deepEqual(gf.template.paren_expr, [ lpar, expr, rpar ]);
     });
-    it("add_factor()", ()=> {
+    it("TESTTESTadd_factor()", ()=> {
         var gf = new GrammarFactory();
         var {
             factor,
@@ -157,29 +155,13 @@
         var rhs_factor = [ALT( paren_expr, signed, number )];
         var rhs_signed = [OPT( minus ), unsigned];
 
-        should(gf.add_factor()).equal(factor);
-        should.deepEqual(gf.template.factor, rhs_factor);
-
-        var g = gf.create(factor);
+        var g = gf.buildGrammar({
+            addRoot: gf.add_factor,
+        });
         should.deepEqual(g.rhs('root'), [factor, eoi] );
         should.deepEqual(g.rhs(factor), rhs_factor);
         should.deepEqual(g.rhs(signed), rhs_signed);
         should.deepEqual(g.rhs(paren_expr), [ lpar, expr, rpar ]);
-    });
-    it("add_signed_factor()", ()=> {
-        return; // LATER
-        var gf = new GrammarFactory();
-
-        should(gf.add_signed_factor()).equal(signed_factor);
-        should.deepEqual(gf.template.signed_factor, rhs_signed_factor);
-
-        var g = gf.create(signed_factor);
-        should.deepEqual(g.rhs('root'), [signed_factor] );
-        should.deepEqual(g.rhs(signed_factor), rhs_signed_factor);
-        should.deepEqual(g.rhs(factor), rhs_factor);
-        should.deepEqual(g.rhs(signed), rhs_signed);
-        should.deepEqual(g.rhs(paren_expr), rhs_paren_expr);
-        should.deepEqual(g.rhs(unsigned), rhs_unsigned);
     });
     it("add_mulop()", ()=> {
         var gf = new GrammarFactory();
@@ -191,10 +173,9 @@
         } = GO;
         var rhs_mulop = [ ALT( multiply, divide ) ];
 
-        should(gf.add_mulop()).equal(mulop);
-        should.deepEqual(gf.template.mulop, rhs_mulop);
-
-        var g = gf.create(mulop);
+        var g = gf.buildGrammar({
+            addRoot: gf.add_mulop,
+        });
         should.deepEqual(g.rhs('root'), [mulop, eoi] );
         should.deepEqual(g.rhs(mulop), rhs_mulop);
     });
@@ -210,9 +191,9 @@
         var rhs_term = [ factor, STAR( mulop_factor ) ];
         var rhs_mulop_factor = [ mulop, factor ];
 
-        should(gf.add_term()).equal(term);
-
-        var g = gf.create(term);
+        var g = gf.buildGrammar({
+            addRoot: gf.add_term,
+        });
         should.deepEqual(g.rhs('root'), [term, eoi] );
         should.deepEqual(g.rhs(term), rhs_term);
         should.deepEqual(g.rhs(mulop_factor), rhs_mulop_factor);
@@ -226,31 +207,30 @@
             eoi,
         } = GO;
         var rhs_addop = [ ALT( plus, minus ) ];
-
-        should(gf.add_addop()).equal(addop);
-        should.deepEqual(gf.template.addop, rhs_addop);
-
-        var g = gf.create(addop);
+        var g = gf.buildGrammar({
+            addRoot: gf.add_addop,
+        });
         should.deepEqual(g.rhs('root'), [addop, eoi] );
         should.deepEqual(g.rhs(addop), rhs_addop);
     });
-    it("add_expr()", ()=> {
+    it("TESTTESTadd_expr()", ()=> {
         var gf = new GrammarFactory();
 
-        should(gf.add_expr()).equal(GO.expr);
-
-        var g = gf.create(GO.expr);
-        should.deepEqual(g.rhs('root'), [GO.expr, GO.eoi] );
+        var g = gf.buildGrammar({
+            addRoot: gf.add_expr_enter,
+        });
+        should.deepEqual(g.rhs('root'), 
+            [GO.expr_enter, GO.eoi] );
         should.deepEqual(g.rhs(GO.expr), 
             [GO.term, STAR( GO.addop_term )] );
         should.deepEqual(g.rhs(GO.addop_term), 
-            [ GO.addop, GO.term ]);
+            [GO.addop, GO.term] );
 
         // Default grammar is the expression grammar
-        var gdefault = gf.create();
+        var gdefault = gf.buildGrammar();
         should.deepEqual(gdefault, g);
     });
-    it("create() uses custom nonterminals", ()=> {
+    it("TESTTESTbuildGrammar() uses custom nonterminals", ()=> {
         let number = 'N';
         let digit = 'D';
         let root = 'R';
@@ -263,8 +243,9 @@
             digit,
             decimal,
         });
-        should(gf.add_unsigned()).equal(unsigned);
-        var g = gf.create(unsigned);
+        var g = gf.buildGrammar({
+            addRoot: gf.add_unsigned,
+        });
         should.deepEqual(g.rhs('root'), [unsigned, GO.eoi] );
         should.deepEqual(g.rhs(unsigned), [ 
             digit, STAR(digit), OPT(decimal) ]);

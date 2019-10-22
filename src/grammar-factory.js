@@ -215,15 +215,8 @@
 
         buildGrammar(opts={}) {
             var t = {};
-            var ntRoot = opts.addRoot.call(this, t);
-            t.root = [ 
-                ntRoot, 
-                this.eoi, // everything ends: End Of Input
-            ];
-            return new Grammar(t);
-        }
-
-        create(ntRoot=this.expr, t=this.template) { // DEPRECATED
+            var addRoot = opts.addRoot || this.add_expr_enter;
+            var ntRoot = addRoot.call(this, t);
             t.root = [ 
                 ntRoot, 
                 this.eoi, // everything ends: End Of Input

@@ -48,7 +48,9 @@
             }, options);
             var gf = opts.grammarFactory;
 
-            opts.grammar = opts.grammar || gf.create(gf.add_expr_enter());
+            opts.grammar = opts.grammar || gf.buildGrammar({
+                addRoot: gf.add_expr_enter,
+            });
 
             return opts;
         }
