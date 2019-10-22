@@ -74,7 +74,6 @@ for (var i=0; i<process.argv.length; i++) {
 
 var calc = new Calculator({
     logLevel,
-    tagEnter: 'enter',
 });
 
 if (iss) {

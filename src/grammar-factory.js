@@ -32,9 +32,7 @@
                 divide: '"/"',
                 enter: terse ? '"="' : "enter", 
                 eoi: terse ? '$' : "eoi", 
-                entry: terse ? 'Y' : "entry",
                 expr_enter: terse ? 'ER' : "expr_enter", 
-                enter_expr: terse ? 'RE' : "enter_expr",
                 expr: terse ? 'E' : "expr", 
                 factor: terse ? 'F' : "factor", 
                 lpar: '"("',
@@ -200,31 +198,6 @@
             t[addop] = [ ALT(plus, minus) ];
 
             return addop;
-        }
-
-        add_entry(t=this.template) {
-            var {
-                entry,
-                enter_expr,
-                expr,
-            } = this;
-
-            t[entry] = [ expr, STAR(enter_expr) ];
-            t[enter_expr] || this.add_enter_expr(t);
-            t[expr] || this.add_expr(t);
-            return entry;
-        }
-
-        add_enter_expr(t=this.template) {
-            var {
-                enter_expr,
-                enter,
-                expr,
-            } = this;
-
-            t[enter_expr] = [ enter, expr ];
-            t[expr] || this.add_expr(t);
-            return enter_expr;
         }
 
         add_expr(t=this.template) {

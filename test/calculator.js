@@ -181,7 +181,7 @@
         // default grammar has long, legible nonterminals
         var g = calc.grammar;
         should(g).instanceOf(Grammar);
-        should.deepEqual(g.rhs(root), ['expr', 'eoi']);
+        should.deepEqual(g.rhs(root), ['expr_enter', 'eoi']);
     });
     it("custom ctor", ()=>{
         var logStack = 3; // Stack logging depth
@@ -199,37 +199,12 @@
         // custom grammar has short, mnemonic nonterminals
         var g = calc.grammar;
         should(g).instanceOf(Grammar);
-        should.deepEqual(g.rhs(root), ['E', '$']);
-    });
-    it("enter running sum", ()=> {
-        var tc = new TestCalc({
-            grammar: gf.create(gf.add_expr()),
-            grammarFactory: gf,
-            tagEnter: gf.enter,
-            logLevel,
-        });
-        tc.testChar('1', '{text:1}');
-        tc.testChar('+', '{text:1,op:+}');
-        tc.testChar('2', '{text:2}');
-        tc.testChar('=', '{text:3,op:=}');
-        tc.testChar('+', '{text:3,op:+}');
-        tc.testChar('3', '{text:3}');
-        tc.testChar('=', '{text:6,op:=}');
-        tc.testChar('+', '{text:6,op:+}');
-        tc.testChar('4', '{text:4}');
-
-        // Enter collapses state
-        should(tc.observations.length).equal(3);
-        should(tc.stack.length).equal(7);
-        tc.testChar('=', '{text:10,op:=}');
-        should(tc.observations.length).equal(1);
-        should(tc.stack.length).equal(3);
+        should.deepEqual(g.rhs(root), ['ER', '$']);
     });
     it("enter running product", ()=> {
         var tc = new TestCalc({
-            grammar: gf.create(gf.add_expr()),
+            grammar: gf.create(gf.add_expr_enter()),
             grammarFactory: gf,
-            tagEnter: gf.enter,
             logLevel,
         });
         tc.testChar('2', '{text:2}');
@@ -243,11 +218,10 @@
         tc.testChar('5', '{text:5}');
         tc.testChar('=', '{text:120,op:=}');
     });
-    it("enter 1+2*3", ()=> {
+    it("TESTTESTenter 1+2*3", ()=> {
         var tc = new TestCalc({
-            grammar: gf.create(gf.add_expr()),
+            grammar: gf.create(gf.add_expr_enter()),
             grammarFactory: gf,
-            tagEnter: gf.enter,
             logLevel,
         });
         tc.testChar('1', '{text:1}');
@@ -260,9 +234,8 @@
     });
     it("precedence 2*3+4*5", ()=> {
         var tc = new TestCalc({
-            grammar: gf.create(gf.add_expr()),
+            grammar: gf.create(gf.add_expr_enter()),
             grammarFactory: gf,
-            tagEnter: gf.enter,
             logLevel,
         });
         tc.testChar('2', '{text:2}');
@@ -272,7 +245,7 @@
         tc.testChar('4', '{text:4}');
         tc.testChar('*', '{text:4,op:*}');
         tc.testChar('5', '{text:5}');
-        tc.testChar('$', '{text:26}');
+        tc.testChar('=', '{text:26,op:=}');
     });
     it("parses signed", ()=> {
         var calc = new Calculator({
@@ -520,42 +493,7 @@
             new Observation(digit, '2'),
             new Observation(plus, '+'),
             new Observation(digit, 3),
-            new Observation(eoi, eoi),
-        ];
-        var i = 0;
-        should(calc.observe(obs[i++])).equal(true); // 1
-        should(js.simpleString(calc.display)).equal('{text:1}');
-        should(calc.observe(obs[i++])).equal(true); // +
-        should(js.simpleString(calc.display)).equal('{text:1,op:+}');
-        should(calc.observe(obs[i++])).equal(true); // 2
-        should(js.simpleString(calc.display)).equal('{text:2}');
-        should(calc.observe(obs[i++])).equal(true); // +
-        should(js.simpleString(calc.display)).equal('{text:3,op:+}');
-        should(calc.observe(obs[i++])).equal(true); // 3
-        should(js.simpleString(calc.display)).equal('{text:3}');
-        should(calc.observe(obs[i++])).equal(true); // eoi
-        should(js.simpleString(calc.display)).equal('{text:6}');
-    });
-    it("undo() clears last observation", ()=>{
-        var calc = new Calculator({
-            logLevel,
-        });
-        var gf = calc.grammarFactory;
-        var g = calc.grammar;
-        //console.log(js.simpleString(g));
-        var {
-            digit,
-            plus,
-            enter,
-            eoi,
-        } = gf;
-        var obs = [
-            new Observation(digit, '1'),
-            new Observation(plus, '+'),
-            new Observation(digit, '2'),
-            new Observation(plus, '+'),
-            new Observation(digit, 3),
-            new Observation(eoi, eoi),
+            new Observation(enter, '='),
         ];
         var i = 0;
         should(calc.observe(obs[i++])).equal(true); // 1
@@ -569,11 +507,41 @@
         should(calc.observe(obs[i++])).equal(true); // 3
         should(js.simpleString(calc.display)).equal('{text:3}');
         should(calc.observe(obs[i++])).equal(true); // enter
-        should(js.simpleString(calc.display)).equal('{text:6}');
+        should(js.simpleString(calc.display)).equal('{text:6,op:=}');
+    });
+    it("TESTTESTundo() clears last observation", ()=>{
+        var calc = new Calculator({
+            logLevel,
+        });
+        var gf = calc.grammarFactory;
+        var g = calc.grammar;
+        //console.log(js.simpleString(g));
+        var {
+            digit,
+            plus,
+            enter,
+        } = gf;
+        var obs = [
+            new Observation(digit, '1'),
+            new Observation(plus, '+'),
+            new Observation(digit, '2'),
+            new Observation(plus, '+'),
+            new Observation(digit, 3),
+            new Observation(enter, '='),
+        ];
+        var i = 0;
+        should(calc.observe(obs[i++])).equal(true); // 1
+        should(js.simpleString(calc.display)).equal('{text:1}');
+        should(calc.observe(obs[i++])).equal(true); // +
+        should(js.simpleString(calc.display)).equal('{text:1,op:+}');
+        should(calc.observe(obs[i++])).equal(true); // 2
+        should(js.simpleString(calc.display)).equal('{text:2}');
+        should(calc.observe(obs[i++])).equal(true); // +
+        should(js.simpleString(calc.display)).equal('{text:3,op:+}');
+        should(calc.observe(obs[i++])).equal(true); // 3
+        should(js.simpleString(calc.display)).equal('{text:3}');
 
         // reverse 
-        should(calc.undo()).equal(obs[--i]);
-        should(js.simpleString(calc.display)).equal('{text:3}');
         should(calc.undo()).equal(obs[--i]);
         should(js.simpleString(calc.display)).equal('{text:3,op:+}');
         should(calc.undo()).equal(obs[--i]);
@@ -586,11 +554,10 @@
         should(js.simpleString(calc.display)).equal('{text:0}');
         should(calc.undo()).equal(null);
     });
-    it("observe() accepts number", ()=>{
+    it("TESTTESTobserve() accepts number", ()=>{
         var tc = new TestCalc({
-            grammar: gf.create(gf.add_expr()),
+            grammar: gf.create(gf.add_expr_enter()),
             grammarFactory: gf,
-            tagEnter: gf.enter,
             logLevel,
         });
         tc.observe(new Observation(number, 1));

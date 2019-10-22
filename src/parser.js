@@ -44,7 +44,6 @@
             this.maxAnswers = opts.maxAnswers || 3;
             this.tagClear = opts.tagClear || 'clear';
             this.tagUndo = opts.tagUndo || 'undo';
-            this.tagEnter = opts.tagEnter; // || 'enter';
             this.maxObservations = opts.maxObservations || 
                 100; // streaming parsers should not accumulate stuff
             this.clear();
@@ -226,7 +225,6 @@
             var {
                 tagClear,
                 tagUndo,
-                tagEnter,
                 lookahead,
                 stack,
                 observations,
@@ -240,9 +238,6 @@
             }
             if (ob.tag === tagUndo) {
                 return !!this.undo();
-            }
-            if (ob.tag === tagEnter) {
-                return this.enter(ob);
             }
 
             if (observations.length >= this.maxObservations) {

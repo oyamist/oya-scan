@@ -48,89 +48,9 @@
             }, options);
             var gf = opts.grammarFactory;
 
-            opts.grammar = opts.grammar || gf.create(gf.add_expr());
+            opts.grammar = opts.grammar || gf.create(gf.add_expr_enter());
 
             return opts;
-        }
-
-        enter(ob) {
-            var obs = this.observations;
-            var enter = this.grammarFactory.enter;
-            if (obs.length && obs[obs.length-1].tag === enter) {
-                return this.enterCount(ob);
-            } else {
-                return this.enterCollapse(ob);
-            }
-        }
-
-        enterCount(ob) {
-            var {
-                grammarFactory,
-                observations,
-                display,
-                stack,
-            } = this;
-            var {
-                digit,
-                lpar,
-                rpar,
-                plus,
-                minus,
-                multiply,
-                divide,
-                number,
-            } = grammarFactory;
-            var op = plus;
-            observations.forEach(ob => {
-                if (ob.tag === plus || ob.tag === minus ||
-                    ob.tag === multiply || ob.tag === times) {
-                    op = ob.tag;
-                }
-            });
-            console.log(`dbg enter count ${op} ${this.constant}`);
-            return true;
-        }
-
-        enterCollapse(ob) {
-            var {
-                grammarFactory,
-                observations,
-                display,
-                stack,
-            } = this;
-            var {
-                digit,
-                lpar,
-                rpar,
-                number,
-            } = grammarFactory;
-
-            var obsEnter = [].concat(
-                new Observation(lpar,''),
-                observations, 
-                new Observation(rpar,''));
-            this.clear();
-            var ok = true;
-            obsEnter.forEach(o => {
-                if (ok) {
-                    var s = js.simpleString(o);
-                    this.log(`enter() processObservation(${s})`);
-                    ok = this.observe(o);
-                }
-            });
-            if (ok) {
-                var total = new Observation(number, this.display.text);
-                this.clear();
-                this.constant = total.value;
-                this.observe(total);
-                this.setDisplay({
-                    op: ob.value,
-                });
-            } else {
-                this.reject(ob);
-            }
-
-            return ok;
         }
 
         clear() {
@@ -328,19 +248,6 @@
             var digits = d1.reduce((a,ob) => ((a+=ob.value),a), 
                 `${d0.value}`); 
             return new Observation(number, Number(digits+decimal));
-        }
-
-        xreduce_enter_expr(lhs, rhsData, result) {
-            var d0 = rhsData[0];
-            var d1 = rhsData[1];
-            this.log(`dbg ree ${d0} ${d1}`);
-            /*
-            this.setDisplay({
-                text: `${d0.value}`,
-                op: d1.value,
-            });
-            */
-            return result;
         }
 
         onShift(ob) {
