@@ -28,6 +28,7 @@
                 allClear: terse ? 'AC' : "all-clear",
                 clear: terse ? 'C' : "clear",
                 decimal: terse ? 'DF' : "decimal", 
+                delta_op: terse ? 'DO' : 'delta_op',
                 digit: terse ? 'D' : "digit", 
                 divide: '"/"',
                 enter: terse ? '"="' : "enter", 
@@ -65,6 +66,17 @@
             t[expr] || this.add_expr(t);
 
             return expr_enter;
+        }
+
+        add_delta_op(t=this.template) {
+            var {
+                delta_op,
+                enter,
+            } = this;
+
+            t[delta_op] = [ enter ];
+
+            return delta_op;
         }
 
         add_unsigned(t=this.template) {
@@ -128,10 +140,13 @@
             var {
                 addop,
                 term,
+                delta_op,
                 addop_term,
             } = this;
 
-            t[addop_term] = [ addop, term];
+            t[addop_term] = t[delta_op]
+                ? [ addop, OPT(delta_op), term ]
+                : [ addop, term];
             t[addop] || this.add_addop(t);
             t[term] || this.add_term(t);
             return addop_term;
@@ -214,7 +229,7 @@
         }
 
         buildGrammar(opts={}) {
-            var t = {};
+            var t = opts.template || {};
             var addRoot = opts.addRoot || this.add_expr_enter;
             var ntRoot = addRoot.call(this, t);
             t.root = [ 

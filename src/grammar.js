@@ -1,7 +1,10 @@
 (function(exports) {
     const fs = require('fs');
     const path = require('path');
-    const { logger } = require('just-simple').JustSimple;
+    const { 
+        js,
+        logger,
+    } = require('just-simple').JustSimple;
     const Observation = require('./observation');
 
     // Grammar helpers
@@ -129,7 +132,20 @@
                         return `${a} ${r}`;
                 }
             }, `${lhs} ::=`);
-            return s;
+            var first = Object.keys(this.first(lhs)).join(',');
+            return `${s};\t1st:${first}`;
+        }
+
+        toConsole() {
+            var t = this.nonterminals.sort().map( lhs => {
+                var first = Object.keys(this.first(lhs)).join(', ');
+                return {
+                    rule: this.ruleToString(lhs), 
+                    first,
+                };
+            });
+            console.log("hi", t);
+            console.table(t);
         }
 
         toString(prefix='  ') {

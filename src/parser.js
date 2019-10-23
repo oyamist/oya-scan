@@ -92,7 +92,7 @@
             this.log([
                 `reject(${ob})`,
                 `STACK => ${this.state()}`,
-                `${this.grammar}`,
+                //`${this.grammar}`,
             ].join('\n'));
         }
 

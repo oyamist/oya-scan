@@ -9,7 +9,7 @@
     const LineFilter = require('./line-filter');
     const Observation = require('./observation');
 
-    // root ::= PLUS( ER )
+    // root ::= ER 
     // ER ::= E "=" 
     // AO ::= ALT( "+" | "-" )
     // MO ::= ALT( "*" | "/" )
@@ -17,7 +17,7 @@
     // MF ::= MO F
     // E ::= T STAR( AT )
     // T ::= F STAR( MF )
-    // F ::= ALT( PE | SN | N | ER )
+    // F ::= ALT( PE | SN | N )
     // PE ::= "(" E ")"
     // SN ::= OPT( "-" ) U
     // U ::= D STAR( D ) OPT( DF )

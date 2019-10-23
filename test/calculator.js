@@ -24,6 +24,7 @@
     const addop = 'AO';
     const addop_term = 'AT';
     const decimal = 'DF';
+    const delta_op = 'DO';
     const digit = 'D';
     const divide = '"/"';
     const enter = '"="';
@@ -50,6 +51,7 @@
         addop,
         addop_term,
         decimal,
+        delta_op,
         digit,
         divide,
         enter,
@@ -622,28 +624,14 @@
         should(tc.observations.length).equal(1);
         should(tc.stack.length).equal(4);
     });
-    it("enter running sum", ()=>{
-        var grammar = gf.buildGrammar({
-            addRoot: gf.add_expr_enter, 
-        });
+    it("TESTTESTenter running sum", ()=>{
         var tc = new TestCalc({
-            grammar,
             grammarFactory: gf,
             logLevel,
         });
-        var {
-            number,
-            enter,
-        } = gf;
-
         var g = tc.grammar;
-
+        
         // Observation of "enter" collapses state
-        g.nonterminals.forEach(nt => {
-            var f = Object.keys(g.first(nt));
-            var rule = g.ruleToString(nt);
-            console.log(`${rule}; first:${js.simpleString(f)}`);
-        });
         tc.testChar('1', '{text:1}');
         tc.testChar('+', '{text:1,op:+}');
         tc.testChar('2', '{text:2}');
@@ -657,9 +645,44 @@
 
         // Collapsed state is identical to direct entry
         tc.clear();
-        tc.testObs(number, 6, '{text:6}');
-        tc.testObs(enter, '=', '{text:6,op:=}');
+        tc.testObs(gf.number, 6, '{text:6}');
+        tc.testObs(gf.enter, '=', '{text:6,op:=}');
         should(js.simpleString(tc.observations)).equal("[N:6]");
         should(js.simpleString(tc.state())).equal(state);
     });
+    it("TESTTESTenter increments", ()=>{
+        var template = {};
+        gf.add_delta_op(template);
+        var grammar = gf.buildGrammar({
+            template,
+            addRoot: gf.add_expr_enter,
+        });  
+        var tc = new TestCalc({
+            grammar,
+            grammarFactory: gf,
+            logLevel: 'info',
+        });
+
+        var g = tc.grammar;
+
+    // root ::= ER 
+    // ER ::= E "=" 
+    // AO ::= ALT( "+" | "-" )
+    // MO ::= ALT( "*" | "/" )
+    // AT ::= AO T
+    // MF ::= MO F
+    // E ::= T STAR( AT )
+    // T ::= F STAR( MF )
+    // F ::= ALT( PE | SN | N )
+    // PE ::= "(" E ")"
+    // SN ::= OPT( "-" ) U
+    // U ::= D STAR( D ) OPT( DF )
+    // DF ::= "." PLUS( D )
+
+        tc.testChar('1', '{text:1}');
+        tc.testChar('+', '{text:1,op:+}');
+        g.toConsole();
+        tc.testChar('=', '{text:1,op:=}');
+    });
+
 })
