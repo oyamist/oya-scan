@@ -108,7 +108,7 @@
         });
     });
 
-    it("TESTTESTadd_unsigned() one or more digits", ()=> {
+    it("add_unsigned() one or more digits", ()=> {
         var gf = new GrammarFactory();
         var g = gf.buildGrammar({
             addRoot: gf.add_unsigned,
@@ -116,7 +116,7 @@
         should.deepEqual(g.rhs('root'), [unsigned, eoi] );
         should.deepEqual(g.rhs(unsigned), rhs_unsigned);
     });
-    it("TESTTESTadd_signed()", ()=> {
+    it("add_signed()", ()=> {
         var gf = new GrammarFactory();
         var g = gf.buildGrammar({
             addRoot: gf.add_signed,
@@ -137,7 +137,7 @@
         should(gf.add_paren_expr()).equal(paren_expr);
         should.deepEqual(gf.template.paren_expr, [ lpar, expr, rpar ]);
     });
-    it("TESTTESTadd_factor()", ()=> {
+    it("add_factor()", ()=> {
         var gf = new GrammarFactory();
         var {
             factor,
@@ -213,7 +213,7 @@
         should.deepEqual(g.rhs('root'), [addop, eoi] );
         should.deepEqual(g.rhs(addop), rhs_addop);
     });
-    it("TESTTESTadd_expr()", ()=> {
+    it("add_expr()", ()=> {
         var gf = new GrammarFactory();
 
         var g = gf.buildGrammar({
@@ -230,7 +230,7 @@
         var gdefault = gf.buildGrammar();
         should.deepEqual(gdefault, g);
     });
-    it("TESTTESTbuildGrammar() uses custom nonterminals", ()=> {
+    it("buildGrammar() uses custom nonterminals", ()=> {
         let number = 'N';
         let digit = 'D';
         let root = 'R';

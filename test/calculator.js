@@ -217,7 +217,7 @@
         tc.testChar('5', '{text:5}');
         tc.testChar('=', '{text:120,op:=}');
     });
-    it("TESTTESTenter 1+2*3", ()=> {
+    it("enter 1+2*3", ()=> {
         var tc = new TestCalc({
             grammarFactory: gf,
             logLevel,
@@ -536,7 +536,7 @@
         should(calc.observe(obs[i++])).equal(true); // enter
         should(js.simpleString(calc.display)).equal('{text:6,op:=}');
     });
-    it("TESTTESTundo() clears last observation", ()=>{
+    it("undo() clears last observation", ()=>{
         var calc = new Calculator({
             logLevel,
         });
@@ -581,7 +581,7 @@
         should(js.simpleString(calc.display)).equal('{text:0}');
         should(calc.undo()).equal(null);
     });
-    it("TESTTESTobserve() accepts number", ()=>{
+    it("observe() accepts number", ()=>{
         var tc = new TestCalc({
             grammarFactory: gf,
             logLevel,
@@ -595,7 +595,7 @@
         should(js.simpleString(tc.display)).equal(`{text:42}`);
         tc.testChar('=', '{text:45,op:=}');
     });
-    it("TESTTESTenter collapses state", ()=>{
+    it("enter collapses state", ()=>{
         var tc = new TestCalc({
             grammarFactory: gf,
             logLevel,
@@ -622,7 +622,7 @@
         should(tc.observations.length).equal(1);
         should(tc.stack.length).equal(4);
     });
-    it("TESTTESTenter running sum", ()=>{
+    it("enter running sum", ()=>{
         var grammar = gf.buildGrammar({
             addRoot: gf.add_expr_enter, 
         });

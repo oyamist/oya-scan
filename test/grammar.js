@@ -144,7 +144,7 @@
         should(test('abc')).equal('abc-');
         should(test('bc')).equal('-b--');
     });
-    it("TESTTESTisLL1() check for valid grammar", ()=> {
+    it("isLL1() check for valid grammar", ()=> {
         var gf = new GrammarFactory();
         var g = gf.buildGrammar({
             addRoot: gf.add_expr,
