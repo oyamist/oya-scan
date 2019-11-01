@@ -6,6 +6,7 @@ module.exports = {
     GuidStore: require('./src/guid-store'),
     LineFilter: require('./src/line-filter'),
     Observation: require('./src/observation'),
+    ObFilter: require('./src/ob-filter'),
     Parser: require('./src/parser'),
     Scanner: require('./src/scanner'),
     Thing: require('./src/thing'),
