@@ -133,7 +133,7 @@
                 }
             }, `${lhs} ::=`);
             var first = Object.keys(this.first(lhs)).join(',');
-            return `${s};\t1st:${first}`;
+            return s;
         }
 
         toConsole() {
@@ -144,7 +144,6 @@
                     first,
                 };
             });
-            console.log("hi", t);
             console.table(t);
         }
 

@@ -65,6 +65,10 @@
             return true;
         }
 
+        onClear() {
+            this.log(`clear() awaiting input`);
+        }
+
         onReady() {
             this.log(`awaiting input`);
         }
@@ -199,7 +203,7 @@
             this.lookahead = []; // input observations
             this.stack = []; // execution stack
             this.obError = undefined;
-            this.onReady();
+            this.onClear();
         }
 
         reduceMaybe() {
@@ -218,6 +222,8 @@
         }
 
         observe(ob) {
+            this.log(`----- observe(${ob}) -----`);
+
             var obError = this.obError;
             if (obError && ob.toString() === obError.toString()) {
                 this.clear();
@@ -229,8 +235,6 @@
                 stack,
                 observations,
             } = this;
-
-            this.log(`----- observe(${ob}) -----`);
 
             if (ob.tag === tagClear) {
                 this.clear();

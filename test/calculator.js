@@ -115,10 +115,10 @@
             var ob = new Observation(tag, value);
             var res = this.observe(ob);
             should(res).equal(true);
-            this.log(js.simpleString(this.display));
             var ds = js.simpleString(this.display);
+            this.log(ds);
             if (ds !== expected) {
-                this.log(`ERROR ${this.state()}`);
+                logger.error(`testObs() ${this.state()}`);
             }
             should(ds).equal(expected);
         }
@@ -126,10 +126,11 @@
             var ob = testOb(c);
             var res = this.observe(ob);
             should(res).equal(true);
-            this.log(js.simpleString(this.display));
+            this.log(`testChar(${c}) `+
+                `display:${js.simpleString(this.display)}`);
             var ds = js.simpleString(this.display);
             if (ds !== expected) {
-                this.log(`ERROR ${this.state()}`);
+                logger.error(`testChar(${c}) ${this.state()}`);
             }
             should(ds).equal(expected);
         }
@@ -624,7 +625,7 @@
         should(tc.observations.length).equal(1);
         should(tc.stack.length).equal(4);
     });
-    it("TESTTESTenter running sum", ()=>{
+    it("enter running sum", ()=>{
         var tc = new TestCalc({
             grammarFactory: gf,
             logLevel,
@@ -660,29 +661,43 @@
         var tc = new TestCalc({
             grammar,
             grammarFactory: gf,
-            logLevel: 'info',
+            logLevel,
         });
 
         var g = tc.grammar;
 
-    // root ::= ER 
-    // ER ::= E "=" 
-    // AO ::= ALT( "+" | "-" )
-    // MO ::= ALT( "*" | "/" )
-    // AT ::= AO T
-    // MF ::= MO F
-    // E ::= T STAR( AT )
-    // T ::= F STAR( MF )
-    // F ::= ALT( PE | SN | N )
-    // PE ::= "(" E ")"
-    // SN ::= OPT( "-" ) U
-    // U ::= D STAR( D ) OPT( DF )
-    // DF ::= "." PLUS( D )
-
+        // plus
+        tc.clear();
         tc.testChar('1', '{text:1}');
-        tc.testChar('+', '{text:1,op:+}');
-        g.toConsole();
+        tc.testChar('0', '{text:10}');
+        tc.testChar('+', '{text:10,op:+}');
+        tc.testChar('=', '{text:10,op:=}');
+        tc.testChar('=', '{text:20,op:=}');
+        tc.testChar('=', '{text:30,op:=}');
+
+        // minus
+        tc.clear();
+        tc.testChar('2', '{text:2}');
+        tc.testChar('-', '{text:2,op:-}');
+        tc.testChar('=', '{text:2,op:=}');
+        tc.testChar('=', '{text:0,op:=}');
+        tc.testChar('=', '{text:-2,op:=}');
+
+        // multiply
+        tc.clear();
+        tc.testChar('2', '{text:2}');
+        tc.testChar('*', '{text:2,op:*}');
+        tc.testChar('=', '{text:2,op:=}');
+        tc.testChar('=', '{text:4,op:=}');
+        tc.testChar('=', '{text:8,op:=}');
+
+        // multiply
+        tc.clear();
+        tc.testChar('2', '{text:2}');
+        tc.testChar('/', '{text:2,op:/}');
+        tc.testChar('=', '{text:2,op:=}');
         tc.testChar('=', '{text:1,op:=}');
+        tc.testChar('=', '{text:0.5,op:=}');
     });
 
 })

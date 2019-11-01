@@ -145,7 +145,7 @@
             } = this;
 
             t[addop_term] = t[delta_op]
-                ? [ addop, OPT(delta_op), term ]
+                ? [ addop, STAR(delta_op), term ]
                 : [ addop, term];
             t[addop] || this.add_addop(t);
             t[term] || this.add_term(t);
@@ -156,10 +156,13 @@
             var {
                 mulop,
                 factor,
+                delta_op,
                 mulop_factor,
             } = this;
 
-            t[mulop_factor] = [ mulop, factor ];
+            t[mulop_factor] = t[delta_op]
+                ? [ mulop, STAR(delta_op), factor ]
+                : [ mulop, factor ];
             t[mulop] || this.add_mulop(t);
             t[factor] || this.add_factor(t);
             return mulop_factor;

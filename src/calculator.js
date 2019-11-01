@@ -37,7 +37,6 @@
                     this.reduceMap[gok] = freduce;
                 }
             });
-
         }
 
         static options(options={}) {
@@ -60,6 +59,9 @@
             this.display = {
                 text: '0',
             };
+            var gf = this.grammarFactory;
+            this.deltaOp = undefined; 
+            this.deltaNum = undefined;
         }
 
         setDisplay(...args) {
@@ -93,8 +95,11 @@
                 enter,
             } = this.grammarFactory;
             var obtos = this.observations.pop();
+            var { deltaOp, deltaNum, } = this;
             this.clear();
-            this.observe(d0);
+            this.deltaOp = deltaOp;
+            this.deltaNum = deltaNum;
+            this.delta(d0.value, deltaOp, deltaNum);
             this.setDisplay({op: obtos.value});
             return d0;
         }
@@ -121,7 +126,6 @@
                 text: `${ob.value}`,
                 op: this.grammarFactory.enter,
             });
-            this.log(`dbg re ${ob}`);
             return ob;
         }
 
@@ -234,6 +238,55 @@
                 }
             }
 
+            return result;
+        }
+
+        delta(total, deltaOp, deltaNum) {
+            var {
+                number,
+                plus,
+                minus,
+                multiply,
+                divide,
+                enter,
+            } = this.grammarFactory;
+            if (this.deltaOp == null) {
+                this.observe(new Observation(number, total));
+                this.deltaNum = total;
+                this.deltaOp = deltaOp;
+            } else {
+                var totalOld = total;
+                if (deltaOp === plus) {
+                    total += deltaNum;
+                } else if (deltaOp === minus) {
+                    total -= deltaNum;
+                } else if (deltaOp === multiply) {
+                    total *= deltaNum;
+                } else if (deltaOp === divide) {
+                    total /= deltaNum;
+                }
+                this.log(`delta(${totalOld},${deltaOp},${deltaNum}) `+
+                    `=> ${total}`);
+                this.observe(new Observation(number, total));
+            }
+        }
+
+        reduce_delta_op(lhs, rhsData, result) {
+            var s0d0 = this.stack[0].rhsData[0];
+            var s1d0 = this.stack[1].rhsData[0];
+            var obEnter = this.observations.pop();
+            var total = Number(s1d0.value);
+            var deltaOp = s0d0.tag;
+            var {
+                number,
+                minus,
+                multiply,
+                divide,
+                enter,
+            } = this.grammarFactory;
+            this.clear();
+            this.delta(total, deltaOp, this.deltaNum);
+            this.setDisplay({op: obEnter.value});
             return result;
         }
 
