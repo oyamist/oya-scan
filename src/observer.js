@@ -15,7 +15,7 @@
     } = require('child_process');
     const Observation = require('./observation');
 
-    class ObFilter {
+    class Observer {
         constructor(opts) {
             var that = this;
             logger.logInstance(that, opts);
@@ -68,7 +68,7 @@
             var endPoint = this;
             for (var i = 0; i < args.length; i++) {
                 var sink = args[i];
-                if (sink instanceof ObFilter) {
+                if (sink instanceof Observer) {
                     endPoint.transform.pipe(sink.transform);
                     endPoint = sink;
                 } else {
@@ -80,6 +80,6 @@
 
     }
 
-    module.exports = exports.ObFilter = ObFilter;
+    module.exports = exports.Observer = Observer;
 })(typeof exports === "object" ? exports : (exports = {}));
 

@@ -1,4 +1,4 @@
-(typeof describe === 'function') && describe("ob-filter", function() {
+(typeof describe === 'function') && describe("observer", function() {
     const should = require("should");
     const fs = require('fs');
     const path = require('path');
@@ -11,18 +11,18 @@
     const { js, logger } = require('just-simple').JustSimple;
     const {
         Observation,
-        ObFilter,
+        Observer,
     } = require('../index');
     var logLevel = false;
 
     // Example of an observation filter that adds 1
-    class Add1 extends ObFilter {
+    class Add1 extends Observer {
         observe(ob) { // override observe() method to add 1
             return new Observation('test', ob.value+1);
         }
     }
 
-    class Minus extends ObFilter {
+    class Minus extends Observer {
         observe(ob) { // override observe() method to add 1
             return new Observation('test', -ob.value);
         }
@@ -52,7 +52,7 @@
 
     it("TESTTESTdefault ctor", done=>{
         (async function(){ try {
-            var ot = new ObFilter();
+            var ot = new Observer();
             should(ot.transform).instanceOf(Transform);
             should(ot.transform._writableState).properties({
                 objectMode: true,
@@ -65,7 +65,7 @@
     });
     it("TESTTESTsingle input, single output", done=>{
         (async function(){ try {
-            var ot = new ObFilter({
+            var ot = new Observer({
                 logLevel,
             });
             const input = ot.inputStream;
@@ -80,12 +80,12 @@
             input.push(new Observation('test', 4));
         } catch(e) {done(e);} })();
     });
-    it("TESTTESTObFilters can be piped", done=>{
+    it("TESTTESTObservers can be piped", done=>{
         (async function(){ try {
             var a1 = new Add1({
                 logLevel,
             });
-            var passThrough = new ObFilter();
+            var passThrough = new Observer();
             var input = a1.inputStream;
             const output = createWritable({
                 done, 
@@ -100,12 +100,12 @@
             input.push(new Observation('test', 4));
         } catch(e) {done(e);} })();
     });
-    it("TESTTESTObFilters can be piped", done=>{
+    it("TESTTESTObservers can be piped", done=>{
         (async function(){ try {
             var a1 = new Add1({
                 logLevel,
             });
-            var passThrough = new ObFilter();
+            var passThrough = new Observer();
             var minus = new Minus();
             const output = createWritable({
                 done, 
