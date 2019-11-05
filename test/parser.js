@@ -40,6 +40,17 @@
             super(opts);
         }
 
+        assertError(ob) {
+            var eCaught;
+            try {
+                this.observe(ob);
+            } catch(e) {
+                eCaught = e;
+            }
+            should(eCaught).instanceOf(Error);
+            should(eCaught.observation).equal(ob);
+        }
+
         clear() {
             super.clear();
             this.reduced = [];
@@ -165,7 +176,7 @@
         should(tp.state()).equal(`abc_1:[a:0]; root_0:[]`);
         should.deepEqual(tp.shifted, [obs[0]]);
 
-        should(tp.observe(obs[i++])).equal(false); // x reject
+        tp.assertError(obs[i++]);
         should(tp.state()).equal(`abc_1:[a:0]; root_0:[]`);
         should.deepEqual(tp.rejected, [obs[1]]);
         should.deepEqual(tp.shifted, [obs[0]]);
@@ -439,7 +450,7 @@
         should(tp.state()).equal(`abc_1:[a:0]; root_0:[]`);
         should.deepEqual(tp.reduced, []);
 
-        should(tp.observe(obs[i++])).equal(false); // c
+        tp.assertError(obs[i++]);
         should(tp.state()).equal(`abc_1:[a:0, []]; root_0:[]`);
         should.deepEqual(tp.reduced, []);
     });
@@ -516,7 +527,7 @@
         should(tp.state()).equal(`abc_1:[a:0]; root_0:[]`);
         should.deepEqual(tp.reduced, []);
 
-        should(tp.observe(obs[i++])).equal(false); // c
+        tp.assertError(obs[i++]);
         should(tp.state()).equal(`abc_1:[a:0, []]; root_0:[]`);
         should.deepEqual(tp.reduced, []);
     });
@@ -673,7 +684,7 @@
         should(tp.observe(obs[i++])).equal(true); // b
         should(tp.state()).equal(`abc_2:[a:0, [b:1]]; root_0:[]`);
 
-        should(tp.observe(obs[i++])).equal(false); // b
+        tp.assertError(obs[i++]);
         should(tp.state()).equal(`abc_2:[a:0, [b:1]]; root_0:[]`);
         should.deepEqual(tp.reduced, []);
 
@@ -746,7 +757,7 @@
             rhsData: [[ obs[0], [obs[1]] ]],
         });
 
-        should(tp.observe(obs[i++])).equal(false); // b
+        tp.assertError(obs[i++]);
         should(tp.state()).equal(`ab_0:[]; root_0:[]`);
         should.deepEqual(tp.shifted, [obs[0],obs[1]]);
     });
@@ -830,7 +841,7 @@
         should(tp.observe(obs[i++])).equal(true); // b
         should(tp.state()).equal(`aBc_2:[a:0, [b:1]]; root_0:[]`);
 
-        should(tp.observe(obs[i++])).equal(false); // b
+        tp.assertError(obs[i++]);
         should(tp.state()).equal(`aBc_2:[a:0, [b:1]]; root_0:[]`);
         should.deepEqual(tp.reduced, [{
             lhs:'B',
@@ -885,7 +896,7 @@
         });
         should(tp.reduced.length).equal(3);
 
-        should(tp.observe(obs[i++])).equal(false); // b
+        tp.assertError(obs[i++]);
         should(tp.state()).equal(`aB_0:[]; root_0:[]`);
         should(tp.reduced.length).equal(3);
         should.deepEqual(tp.shifted, [obs[0],obs[1]]);
@@ -945,7 +956,7 @@
             should(tp.state()).equal(`aBCd_1:[a:0]; root_0:[]`);
             should.deepEqual(tp.reduced, []);
 
-            should(tp.observe(obs[i++])).equal(false); // x
+            tp.assertError(obs[i++]);
             should(tp.state()).equal(`aBCd_1:[a:0, null]; root_0:[]`);
             should.deepEqual(tp.reduced, []);
 
@@ -1036,7 +1047,7 @@
             should(tp.state()).equal('aBCd_1:[a:0]; root_0:[]');
             should.deepEqual(tp.reduced, []);
 
-            should(tp.observe(obs[i++])).equal(false); // x
+            tp.assertError(obs[i++]);
             should(tp.state()).equal('aBCd_1:[a:0, null]; root_0:[]');
             should.deepEqual(tp.reduced, []);
 
@@ -1086,7 +1097,7 @@
         should(tp.isParsing).equal(true);
 
         // first error is discarded awaiting correct input
-        should(tp.observe(obs[i++])).equal(false); // reject
+        tp.assertError(obs[i++]);
         should(tp.obError).equal(obs[1]);
         should(tp.isParsing).equal(true);
 

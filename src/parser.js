@@ -184,6 +184,10 @@
 
         reject(ob) {
             this.onReject(ob);
+            var e = new Error(
+                `Invalid observation:${js.simpleString(ob)}`);
+            e.observation = ob;
+            throw e;
         }
 
         undo() {
@@ -277,9 +281,9 @@
                     this.onReady();
                 }
             } else {
-                this.reject(ob);
                 this.lookahead.length && this.lookahead.shift();
                 this.obError = ob;
+                this.reject(ob);
             }
             return res;
         }
