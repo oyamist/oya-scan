@@ -58,7 +58,14 @@
         }
 
         observe(ob) {
-            return ob;
+            // An observer can process observations:
+            //
+            // 1. synchronously by returning an observation, or 
+            // 2. asynchronously via transform.push(anObservation)
+            //
+            // The default observer method implements 
+            // synchronous pass-through
+            return ob; 
         }
 
         pipeline(...args) {

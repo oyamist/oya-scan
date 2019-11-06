@@ -34,10 +34,10 @@
         STAR,
     } = Grammar;
 
-    class Parser {
+    class Parser extends Observation {
         constructor(opts = {}) {
+            super(opts);
             this.name = opts.name || this.constructor.name;
-            logger.logInstance(this, opts);
             this.grammar = new Grammar(opts.grammar);
             this.logStack = opts.logStack || 2; // stack elements to log
             this.answers = [];
