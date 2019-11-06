@@ -227,44 +227,49 @@
 
         observe(ob) {
             this.log(`----- observe(${ob}) -----`);
+            try {
+                var obError = this.obError;
+                if (obError && ob.toString() === obError.toString()) {
+                    this.clear();
+                }
+                var {
+                    tagClear,
+                    tagUndo,
+                    lookahead,
+                    stack,
+                    observations,
+                } = this;
 
-            var obError = this.obError;
-            if (obError && ob.toString() === obError.toString()) {
-                this.clear();
-            }
-            var {
-                tagClear,
-                tagUndo,
-                lookahead,
-                stack,
-                observations,
-            } = this;
+                if (ob.tag === tagClear) {
+                    this.clear();
+                    return null;
+                }
+                if (ob.tag === tagUndo) {
+                    this.undo();
+                    return null;
+                }
 
-            if (ob.tag === tagClear) {
-                this.clear();
-                return true;
-            }
-            if (ob.tag === tagUndo) {
-                return !!this.undo();
-            }
+                if (observations.length >= this.maxObservations) {
+                    // Streaming parsers should not accumulate too much
+                    // state since streaming is unbounded by design.
+                    // Observations are cumulative and must be cleared
+                    // periodically. For example, "enter" can be used
+                    // to collapse state and prevent runaway state increase.
+                    throw new Error(
+                        `Too many observations: ${this.maxObservations}`);
+                }
+                observations.push(ob);
 
-            if (observations.length >= this.maxObservations) {
-                // Streaming parsers should not accumulate too much
-                // state since streaming is unbounded by design.
-                // Observations are cumulative and must be cleared
-                // periodically. For example, "enter" can be used
-                // to collapse state and prevent runaway state increase.
-                var m = `Too many observations: ${this.maxObservations}`;
-                logger.warn(m);
-                throw new Error(m);
-            }
-            observations.push(ob);
+                if (stack.length === 0) {
+                    stack[0] = new RuleState("root");
+                }
 
-            if (stack.length === 0) {
-                stack[0] = new RuleState("root");
+                return this.processObservation(ob) 
+            } catch(e) {
+                e.observation = ob;
+                logger.warn(e.stack);
+                throw e;
             }
-
-            return this.processObservation(ob);
         }
 
         processObservation(ob) {
@@ -285,7 +290,12 @@
                 this.obError = ob;
                 this.reject(ob);
             }
-            return res;
+
+            // Observation sinks return null.
+            // Observation transforms can return an observation
+            // synchronusly by returning here or
+            // asynchronously by transform.push(ob)
+            return null; 
         }
 
         stepTerminal() {

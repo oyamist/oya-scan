@@ -114,7 +114,7 @@
         testObs(tag, value, expected) {
             var ob = new Observation(tag, value);
             var res = this.observe(ob);
-            should(res).equal(true);
+            should(res).equal(null);
             var ds = js.simpleString(this.display);
             this.log(ds);
             if (ds !== expected) {
@@ -125,7 +125,7 @@
         testChar(c, expected) {
             var ob = testOb(c);
             var res = this.observe(ob);
-            should(res).equal(true);
+            should(res).equal(null);
             this.log(`testChar(${c}) `+
                 `display:${js.simpleString(this.display)}`);
             var ds = js.simpleString(this.display);
@@ -159,7 +159,7 @@
             if (!testAssert) {
                 return false;
             }
-            should(res).equal(true);
+            should(res).equal(null);
         }
         if (`${calc.answers[0]}` !== expected) {
             logLevel && logger[logLevel] (
@@ -526,17 +526,17 @@
             new Observation(enter, '='),
         ];
         var i = 0;
-        should(calc.observe(obs[i++])).equal(true); // 1
+        should(calc.observe(obs[i++])).equal(null); // 1
         should(js.simpleString(calc.display)).equal('{text:1}');
-        should(calc.observe(obs[i++])).equal(true); // +
+        should(calc.observe(obs[i++])).equal(null); // +
         should(js.simpleString(calc.display)).equal('{text:1,op:+}');
-        should(calc.observe(obs[i++])).equal(true); // 2
+        should(calc.observe(obs[i++])).equal(null); // 2
         should(js.simpleString(calc.display)).equal('{text:2}');
-        should(calc.observe(obs[i++])).equal(true); // +
+        should(calc.observe(obs[i++])).equal(null); // +
         should(js.simpleString(calc.display)).equal('{text:3,op:+}');
-        should(calc.observe(obs[i++])).equal(true); // 3
+        should(calc.observe(obs[i++])).equal(null); // 3
         should(js.simpleString(calc.display)).equal('{text:3}');
-        should(calc.observe(obs[i++])).equal(true); // enter
+        should(calc.observe(obs[i++])).equal(null); // enter
         should(js.simpleString(calc.display)).equal('{text:6,op:=}');
     });
     it("undo() clears last observation", ()=>{
@@ -560,15 +560,15 @@
             new Observation(enter, '='),
         ];
         var i = 0;
-        should(calc.observe(obs[i++])).equal(true); // 1
+        should(calc.observe(obs[i++])).equal(null); // 1
         should(js.simpleString(calc.display)).equal('{text:1}');
-        should(calc.observe(obs[i++])).equal(true); // +
+        should(calc.observe(obs[i++])).equal(null); // +
         should(js.simpleString(calc.display)).equal('{text:1,op:+}');
-        should(calc.observe(obs[i++])).equal(true); // 2
+        should(calc.observe(obs[i++])).equal(null); // 2
         should(js.simpleString(calc.display)).equal('{text:2}');
-        should(calc.observe(obs[i++])).equal(true); // +
+        should(calc.observe(obs[i++])).equal(null); // +
         should(js.simpleString(calc.display)).equal('{text:3,op:+}');
-        should(calc.observe(obs[i++])).equal(true); // 3
+        should(calc.observe(obs[i++])).equal(null); // 3
         should(js.simpleString(calc.display)).equal('{text:3}');
 
         // reverse 

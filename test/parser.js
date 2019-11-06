@@ -126,9 +126,9 @@
         var obs = 'ab'.split('').map((tag,i)=>new Observation(tag,i));
         var i = 0;
         should(tp.isParsing).equal(false);
-        should(tp.observe(obs[i++])).equal(true); // a
+        should(tp.observe(obs[i++])).equal(null); // a
         should(tp.isParsing).equal(true);
-        should(tp.observe(obs[i++])).equal(true); // b
+        should(tp.observe(obs[i++])).equal(null); // b
         should(tp.isParsing).equal(false);
     });
     it("observe() consumes valid terminal sequence", ()=>{
@@ -143,14 +143,14 @@
         var obs = 'abc'.split('').map((tag,i)=>new Observation(tag,i));
         var i = 0;
 
-        should(tp.observe(obs[i++])).equal(true); // a
+        should(tp.observe(obs[i++])).equal(null); // a
         should(tp.state()).equal(`abc_1:[a:0]; root_0:[]`);
 
-        should(tp.observe(obs[i++])).equal(true); // b
+        should(tp.observe(obs[i++])).equal(null); // b
         should(tp.state()).equal(`abc_2:[a:0, b:1]; root_0:[]`);
         should.deepEqual(tp.reduced, []);
 
-        should(tp.observe(obs[i++])).equal(true); // c
+        should(tp.observe(obs[i++])).equal(null); // c
         should(tp.state()).equal('');
         should.deepEqual(tp.reduced, [{
             lhs: 'abc', // first reduce
@@ -172,7 +172,7 @@
         var obs = 'axbc'.split('').map((tag,i)=>new Observation(tag,i));
         var i = 0;
 
-        should(tp.observe(obs[i++])).equal(true); // a
+        should(tp.observe(obs[i++])).equal(null); // a
         should(tp.state()).equal(`abc_1:[a:0]; root_0:[]`);
         should.deepEqual(tp.shifted, [obs[0]]);
 
@@ -181,12 +181,12 @@
         should.deepEqual(tp.rejected, [obs[1]]);
         should.deepEqual(tp.shifted, [obs[0]]);
 
-        should(tp.observe(obs[i++])).equal(true); // b
+        should(tp.observe(obs[i++])).equal(null); // b
         should(tp.state()).equal(`abc_2:[a:0, b:2]; root_0:[]`);
         should.deepEqual(tp.shifted, [obs[0], obs[2]]);
 
         should.deepEqual(tp.reduced, []);
-        should(tp.observe(obs[i++])).equal(true); // c
+        should(tp.observe(obs[i++])).equal(null); // c
         should(tp.state()).equal('');
         should.deepEqual(tp.reduced, [{
             lhs: 'abc', // first reduce
@@ -211,24 +211,24 @@
         var obs = 'abab'.split('').map((tag,i)=>new Observation(tag,i));
 
         var i = 0;
-        should(tp.observe(obs[i++])).equal(true); // a
+        should(tp.observe(obs[i++])).equal(null); // a
         should(tp.state()).equal(`ab_1:[a:0]; abab_0:[]; root_0:[]`);
 
-        should(tp.observe(obs[i++])).equal(true); // b
+        should(tp.observe(obs[i++])).equal(null); // b
         should(tp.state()).equal(`abab_1:[[a:0, b:1]]; root_0:[]`);
         should.deepEqual(tp.reduced, [{
             lhs: 'ab', // first reduce
             rhsData: [obs[0], obs[1]],
         }]);
 
-        should(tp.observe(obs[i++])).equal(true); // a
+        should(tp.observe(obs[i++])).equal(null); // a
         should(tp.state()).equal(`ab_1:[a:2]; abab_1:[[a:0, b:1]]; root_0:[]`);
         should.deepEqual(tp.reduced, [{
             lhs: 'ab', // first reduce
             rhsData: [obs[0], obs[1]],
         }]);
 
-        should(tp.observe(obs[i++])).equal(true); // b
+        should(tp.observe(obs[i++])).equal(null); // b
         should(tp.state()).equal('');
         should.deepEqual(tp.reduced, [{
             lhs: 'ab', // first reduce
@@ -255,11 +255,11 @@
         var obs = 'ac'.split('').map((tag,i)=>new Observation(tag,i));
         var i = 0;
 
-        should(tp.observe(obs[i++])).equal(true); // a
+        should(tp.observe(obs[i++])).equal(null); // a
         should(tp.state()).equal(`abc_1:[a:0]; root_0:[]`);
         should.deepEqual(tp.reduced, []);
 
-        should(tp.observe(obs[i++])).equal(true); // c
+        should(tp.observe(obs[i++])).equal(null); // c
         should(tp.state()).equal('');
         should.deepEqual(tp.reduced, [{
             lhs: 'abc',
@@ -280,17 +280,17 @@
         var obs = 'abbc'.split('').map((tag,i)=>new Observation(tag,i));
         var i = 0;
 
-        should(tp.observe(obs[i++])).equal(true); // a
+        should(tp.observe(obs[i++])).equal(null); // a
         should(tp.state()).equal(`abc_1:[a:0]; root_0:[]`);
 
-        should(tp.observe(obs[i++])).equal(true); // b
+        should(tp.observe(obs[i++])).equal(null); // b
         should(tp.state()).equal(`abc_1:[a:0, [b:1]]; root_0:[]`);
 
-        should(tp.observe(obs[i++])).equal(true); // b
+        should(tp.observe(obs[i++])).equal(null); // b
         should(tp.state()).equal(`abc_1:[a:0, [b:1, b:2]]; root_0:[]`);
         should.deepEqual(tp.reduced, []);
 
-        should(tp.observe(obs[i++])).equal(true); // c
+        should(tp.observe(obs[i++])).equal(null); // c
         should(tp.state()).equal('');
         should.deepEqual(tp.reduced, [{
             lhs: 'abc',
@@ -313,15 +313,15 @@
         var obs = 'abb'.split('').map((tag,i)=>new Observation(tag,i));
         var i = 0;
 
-        should(tp.observe(obs[i++])).equal(true); // a
+        should(tp.observe(obs[i++])).equal(null); // a
         should(tp.state()).equal(`abc_1:[a:0]; root_0:[]`);
         should.deepEqual(tp.shifted, [obs[0]]);
 
-        should(tp.observe(obs[i++])).equal(true); // b
+        should(tp.observe(obs[i++])).equal(null); // b
         should(tp.state()).equal(`abc_1:[a:0, [b:1]]; root_0:[]`);
         should.deepEqual(tp.shifted, [obs[0],obs[1]]);
 
-        should(tp.observe(obs[i++])).equal(true); // b
+        should(tp.observe(obs[i++])).equal(null); // b
         should(tp.state()).equal(`abc_1:[a:0, [b:1, b:2]]; root_0:[]`);
         should.deepEqual(tp.reduced, []);
         should.deepEqual(tp.shifted, [obs[0],obs[1],obs[2]]);
@@ -338,11 +338,11 @@
         var obs = 'ac'.split('').map((tag,i)=>new Observation(tag,i));
         var i = 0;
 
-        should(tp.observe(obs[i++])).equal(true); // a
+        should(tp.observe(obs[i++])).equal(null); // a
         should(tp.state()).equal(`abc_1:[a:0]; root_0:[]`);
         should.deepEqual(tp.reduced, []);
 
-        should(tp.observe(obs[i++])).equal(true); // c
+        should(tp.observe(obs[i++])).equal(null); // c
         should(tp.state()).equal('');
         should.deepEqual(tp.reduced, [{
             lhs: 'abc',
@@ -364,13 +364,13 @@
         var obs = 'abbc'.split('').map((tag,i)=>new Observation(tag,i));
         var i = 0;
 
-        should(tp.observe(obs[i++])).equal(true); // a
+        should(tp.observe(obs[i++])).equal(null); // a
         should(tp.state()).equal(`aBc_1:[a:0]; root_0:[]`);
 
-        should(tp.observe(obs[i++])).equal(true); // b
+        should(tp.observe(obs[i++])).equal(null); // b
         //should(tp.state()).equal(`aBc_1:[a:0, [b:1]]; root_0:[]`);
 
-        should(tp.observe(obs[i++])).equal(true); // b
+        should(tp.observe(obs[i++])).equal(null); // b
         should(tp.state()).equal(`aBc_1:[a:0, [b:1, b:2]]; root_0:[]`);
         should.deepEqual(tp.reduced, [{
             lhs:'B',
@@ -380,7 +380,7 @@
             rhsData: [obs[2]],
         }]);
 
-        should(tp.observe(obs[i++])).equal(true); // c
+        should(tp.observe(obs[i++])).equal(null); // c
         should(tp.state()).equal('');
         should.deepEqual(tp.reduced[0], {
             lhs: 'B',
@@ -413,11 +413,11 @@
         var obs = 'abb'.split('').map((tag,i)=>new Observation(tag,i));
         var i = 0;
 
-        should(tp.observe(obs[i++])).equal(true); // a
+        should(tp.observe(obs[i++])).equal(null); // a
         should(tp.state()).equal(`aBc_1:[a:0]; root_0:[]`);
         should.deepEqual(tp.shifted, [obs[0]]);
 
-        should(tp.observe(obs[i++])).equal(true); // b
+        should(tp.observe(obs[i++])).equal(null); // b
         should(tp.state()).equal(`aBc_1:[a:0, [b:1]]; root_0:[]`);
         should.deepEqual(tp.shifted, [obs[0],obs[1]]);
         should.deepEqual(tp.reduced[0], {
@@ -426,7 +426,7 @@
         });
         should(tp.reduced.length).equal(1);
 
-        should(tp.observe(obs[i++])).equal(true); // b
+        should(tp.observe(obs[i++])).equal(null); // b
         should(tp.state()).equal(`aBc_1:[a:0, [b:1, b:2]]; root_0:[]`);
         should.deepEqual(tp.reduced[1], {
             lhs: 'B',
@@ -446,7 +446,7 @@
         var obs = 'ac'.split('').map((tag,i)=>new Observation(tag,i));
         var i = 0;
 
-        should(tp.observe(obs[i++])).equal(true); // a
+        should(tp.observe(obs[i++])).equal(null); // a
         should(tp.state()).equal(`abc_1:[a:0]; root_0:[]`);
         should.deepEqual(tp.reduced, []);
 
@@ -465,17 +465,17 @@
         var obs = 'abbc'.split('').map((tag,i)=>new Observation(tag,i));
         var i = 0;
 
-        should(tp.observe(obs[i++])).equal(true); // a
+        should(tp.observe(obs[i++])).equal(null); // a
         should(tp.state()).equal(`abc_1:[a:0]; root_0:[]`);
 
-        should(tp.observe(obs[i++])).equal(true); // b
+        should(tp.observe(obs[i++])).equal(null); // b
         should(tp.state()).equal(`abc_1:[a:0, [b:1]]; root_0:[]`);
 
-        should(tp.observe(obs[i++])).equal(true); // b
+        should(tp.observe(obs[i++])).equal(null); // b
         should(tp.state()).equal(`abc_1:[a:0, [b:1, b:2]]; root_0:[]`);
         should.deepEqual(tp.reduced, []);
 
-        should(tp.observe(obs[i++])).equal(true); // c
+        should(tp.observe(obs[i++])).equal(null); // c
         should(tp.state()).equal('');
         should.deepEqual(tp.reduced, [{
             lhs: 'abc',
@@ -498,15 +498,15 @@
         var obs = 'abb'.split('').map((tag,i)=>new Observation(tag,i));
         var i = 0;
 
-        should(tp.observe(obs[i++])).equal(true); // a
+        should(tp.observe(obs[i++])).equal(null); // a
         should(tp.state()).equal(`abc_1:[a:0]; root_0:[]`);
         should.deepEqual(tp.shifted, [obs[0]]);
 
-        should(tp.observe(obs[i++])).equal(true); // b
+        should(tp.observe(obs[i++])).equal(null); // b
         should(tp.state()).equal(`abc_1:[a:0, [b:1]]; root_0:[]`);
         should.deepEqual(tp.shifted, [obs[0],obs[1]]);
 
-        should(tp.observe(obs[i++])).equal(true); // b
+        should(tp.observe(obs[i++])).equal(null); // b
         should(tp.state()).equal(`abc_1:[a:0, [b:1, b:2]]; root_0:[]`);
         should.deepEqual(tp.reduced, []);
         should.deepEqual(tp.shifted, [obs[0],obs[1],obs[2]]);
@@ -523,7 +523,7 @@
         var obs = 'ac'.split('').map((tag,i)=>new Observation(tag,i));
         var i = 0;
 
-        should(tp.observe(obs[i++])).equal(true); // a
+        should(tp.observe(obs[i++])).equal(null); // a
         should(tp.state()).equal(`abc_1:[a:0]; root_0:[]`);
         should.deepEqual(tp.reduced, []);
 
@@ -543,13 +543,13 @@
         var obs = 'abbc'.split('').map((tag,i)=>new Observation(tag,i));
         var i = 0;
 
-        should(tp.observe(obs[i++])).equal(true); // a
+        should(tp.observe(obs[i++])).equal(null); // a
         should(tp.state()).equal(`aBc_1:[a:0]; root_0:[]`);
 
-        should(tp.observe(obs[i++])).equal(true); // b
+        should(tp.observe(obs[i++])).equal(null); // b
         should(tp.state()).equal(`aBc_1:[a:0, [b:1]]; root_0:[]`);
 
-        should(tp.observe(obs[i++])).equal(true); // b
+        should(tp.observe(obs[i++])).equal(null); // b
         should(tp.state()).equal(`aBc_1:[a:0, [b:1, b:2]]; root_0:[]`);
         should.deepEqual(tp.reduced, [{
             lhs:'B',
@@ -559,7 +559,7 @@
             rhsData: [obs[2]],
         }]);
 
-        should(tp.observe(obs[i++])).equal(true); // c
+        should(tp.observe(obs[i++])).equal(null); // c
         should(tp.state()).equal('');
         should.deepEqual(tp.reduced[0], {
             lhs: 'B',
@@ -592,11 +592,11 @@
         var obs = 'abb'.split('').map((tag,i)=>new Observation(tag,i));
         var i = 0;
 
-        should(tp.observe(obs[i++])).equal(true); // a
+        should(tp.observe(obs[i++])).equal(null); // a
         should(tp.state()).equal(`aBc_1:[a:0]; root_0:[]`);
         should.deepEqual(tp.shifted, [obs[0]]);
 
-        should(tp.observe(obs[i++])).equal(true); // b
+        should(tp.observe(obs[i++])).equal(null); // b
         should(tp.state()).equal(`aBc_1:[a:0, [b:1]]; root_0:[]`);
         should.deepEqual(tp.shifted, [obs[0],obs[1]]);
         should.deepEqual(tp.reduced[0], {
@@ -605,7 +605,7 @@
         });
         should(tp.reduced.length).equal(1);
 
-        should(tp.observe(obs[i++])).equal(true); // b
+        should(tp.observe(obs[i++])).equal(null); // b
         should(tp.state()).equal(`aBc_1:[a:0, [b:1, b:2]]; root_0:[]`);
         should.deepEqual(tp.reduced[1], {
             lhs: 'B',
@@ -625,11 +625,11 @@
         var obs = 'ac'.split('').map((tag,i)=>new Observation(tag,i));
         var i = 0;
 
-        should(tp.observe(obs[i++])).equal(true); // a
+        should(tp.observe(obs[i++])).equal(null); // a
         should(tp.state()).equal(`abc_1:[a:0]; root_0:[]`);
         should.deepEqual(tp.reduced, []);
 
-        should(tp.observe(obs[i++])).equal(true); // c
+        should(tp.observe(obs[i++])).equal(null); // c
         should(tp.state()).equal('');
         should.deepEqual(tp.reduced, [{
             lhs: 'abc',
@@ -650,14 +650,14 @@
         var obs = 'abc'.split('').map((tag,i)=>new Observation(tag,i));
         var i = 0;
 
-        should(tp.observe(obs[i++])).equal(true); // a
+        should(tp.observe(obs[i++])).equal(null); // a
         should(tp.state()).equal(`abc_1:[a:0]; root_0:[]`);
 
-        should(tp.observe(obs[i++])).equal(true); // b
+        should(tp.observe(obs[i++])).equal(null); // b
         should(tp.state()).equal(`abc_2:[a:0, [b:1]]; root_0:[]`);
         should.deepEqual(tp.reduced, []);
 
-        should(tp.observe(obs[i++])).equal(true); // c
+        should(tp.observe(obs[i++])).equal(null); // c
         should(tp.state()).equal('');
         should.deepEqual(tp.reduced, [{
             lhs: 'abc',
@@ -678,17 +678,17 @@
         var obs = 'abbc'.split('').map((tag,i)=>new Observation(tag,i));
         var i = 0;
 
-        should(tp.observe(obs[i++])).equal(true); // a
+        should(tp.observe(obs[i++])).equal(null); // a
         should(tp.state()).equal(`abc_1:[a:0]; root_0:[]`);
 
-        should(tp.observe(obs[i++])).equal(true); // b
+        should(tp.observe(obs[i++])).equal(null); // b
         should(tp.state()).equal(`abc_2:[a:0, [b:1]]; root_0:[]`);
 
         tp.assertError(obs[i++]);
         should(tp.state()).equal(`abc_2:[a:0, [b:1]]; root_0:[]`);
         should.deepEqual(tp.reduced, []);
 
-        should(tp.observe(obs[i++])).equal(true); // c
+        should(tp.observe(obs[i++])).equal(null); // c
         should(tp.state()).equal('');
         should.deepEqual(tp.reduced[0], {
             lhs: 'abc',
@@ -712,11 +712,11 @@
         var obs = 'ab'.split('').map((tag,i)=>new Observation(tag,i));
         var i = 0;
 
-        should(tp.observe(obs[i++])).equal(true); // a
+        should(tp.observe(obs[i++])).equal(null); // a
         should(tp.state()).equal(`ab_1:[a:0]; root_0:[]`);
         should.deepEqual(tp.shifted, [obs[0]]);
 
-        should(tp.observe(obs[i++])).equal(true); // b
+        should(tp.observe(obs[i++])).equal(null); // b
         should(tp.state()).equal('');
         should.deepEqual(tp.reduced[0], {
             lhs: 'ab',
@@ -741,11 +741,11 @@
         var obs = 'abb'.split('').map((tag,i)=>new Observation(tag,i));
         var i = 0;
 
-        should(tp.observe(obs[i++])).equal(true); // a
+        should(tp.observe(obs[i++])).equal(null); // a
         should(tp.state()).equal(`ab_1:[a:0]; root_0:[]`);
         should.deepEqual(tp.shifted, [obs[0]]);
 
-        should(tp.observe(obs[i++])).equal(true); // b
+        should(tp.observe(obs[i++])).equal(null); // b
         should(tp.state()).equal('');
         should.deepEqual(tp.shifted, [obs[0],obs[1]]);
         should.deepEqual(tp.reduced[0], {
@@ -773,11 +773,11 @@
         var obs = 'ac'.split('').map((tag,i)=>new Observation(tag,i));
         var i = 0;
 
-        should(tp.observe(obs[i++])).equal(true); // a
+        should(tp.observe(obs[i++])).equal(null); // a
         should(tp.state()).equal(`abc_1:[a:0]; root_0:[]`);
         should.deepEqual(tp.reduced, []);
 
-        should(tp.observe(obs[i++])).equal(true); // c
+        should(tp.observe(obs[i++])).equal(null); // c
         should(tp.state()).equal('');
         should.deepEqual(tp.reduced, [{
             lhs: 'abc',
@@ -799,18 +799,18 @@
         var obs = 'abc'.split('').map((tag,i)=>new Observation(tag,i));
         var i = 0;
 
-        should(tp.observe(obs[i++])).equal(true); // a
+        should(tp.observe(obs[i++])).equal(null); // a
         should(tp.state()).equal(`aBc_1:[a:0]; root_0:[]`);
         should.deepEqual(tp.reduced, []);
 
-        should(tp.observe(obs[i++])).equal(true); // b
+        should(tp.observe(obs[i++])).equal(null); // b
         should(tp.state()).equal(`aBc_2:[a:0, [b:1]]; root_0:[]`);
         should.deepEqual(tp.reduced, [{
             lhs:'B',
             rhsData: [obs[1]],
         }]);
 
-        should(tp.observe(obs[i++])).equal(true); // c
+        should(tp.observe(obs[i++])).equal(null); // c
         should(tp.state()).equal('');
         should.deepEqual(tp.reduced, [{
             lhs: 'B',
@@ -835,10 +835,10 @@
         var obs = 'abbc'.split('').map((tag,i)=>new Observation(tag,i));
         var i = 0;
 
-        should(tp.observe(obs[i++])).equal(true); // a
+        should(tp.observe(obs[i++])).equal(null); // a
         should(tp.state()).equal(`aBc_1:[a:0]; root_0:[]`);
 
-        should(tp.observe(obs[i++])).equal(true); // b
+        should(tp.observe(obs[i++])).equal(null); // b
         should(tp.state()).equal(`aBc_2:[a:0, [b:1]]; root_0:[]`);
 
         tp.assertError(obs[i++]);
@@ -848,7 +848,7 @@
             rhsData: [obs[1]],
         }]);
 
-        should(tp.observe(obs[i++])).equal(true); // c
+        should(tp.observe(obs[i++])).equal(null); // c
         should(tp.state()).equal('');
         should.deepEqual(tp.reduced[0], {
             lhs: 'B',
@@ -875,11 +875,11 @@
         var obs = 'abb'.split('').map((tag,i)=>new Observation(tag,i));
         var i = 0;
 
-        should(tp.observe(obs[i++])).equal(true); // a
+        should(tp.observe(obs[i++])).equal(null); // a
         should(tp.state()).equal(`aB_1:[a:0]; root_0:[]`);
         should.deepEqual(tp.shifted, [obs[0]]);
 
-        should(tp.observe(obs[i++])).equal(true); // b
+        should(tp.observe(obs[i++])).equal(null); // b
         should(tp.state()).equal('');
         should.deepEqual(tp.shifted, [obs[0],obs[1]]);
         should.deepEqual(tp.reduced[0], {
@@ -914,16 +914,16 @@
             var i = 0;
 
             tp.clear();
-            should(tp.observe(obs[i++])).equal(true); // a
+            should(tp.observe(obs[i++])).equal(null); // a
             should(tp.state()).equal(`aBCd_1:[a:0]; root_0:[]`);
             should.deepEqual(tp.reduced, []);
 
-            should(tp.observe(obs[i++])).equal(true); // b
+            should(tp.observe(obs[i++])).equal(null); // b
             should(tp.state())
                 .equal(`aBCd_2:[a:0, ${text[1]}:1]; root_0:[]`);
             should.deepEqual(tp.reduced, []);
 
-            should(tp.observe(obs[i++])).equal(true); // d
+            should(tp.observe(obs[i++])).equal(null); // d
             should(tp.state()).equal('');
             should.deepEqual(tp.reduced[0], {
                 lhs: 'aBCd',
@@ -952,7 +952,7 @@
             var i = 0;
 
             tp.clear();
-            should(tp.observe(obs[i++])).equal(true); // a
+            should(tp.observe(obs[i++])).equal(null); // a
             should(tp.state()).equal(`aBCd_1:[a:0]; root_0:[]`);
             should.deepEqual(tp.reduced, []);
 
@@ -961,11 +961,11 @@
             should.deepEqual(tp.reduced, []);
 
             // recover with good input
-            should(tp.observe(obs[i++])).equal(true); // c
+            should(tp.observe(obs[i++])).equal(null); // c
             should(tp.state()) .equal(`aBCd_2:[a:0, c:2]; root_0:[]`);
             should.deepEqual(tp.reduced, []);
 
-            should(tp.observe(obs[i++])).equal(true); // d
+            should(tp.observe(obs[i++])).equal(null); // d
             should(tp.state()).equal('');
             should.deepEqual(tp.reduced[0], {
                 lhs: 'aBCd',
@@ -995,13 +995,13 @@
             var i = 0;
 
             tp.clear();
-            should(tp.observe(obs[i++])).equal(true); // a
+            should(tp.observe(obs[i++])).equal(null); // a
             should(tp.state()).equal(`aBCd_1:[a:0]; root_0:[]`);
             should.deepEqual(tp.reduced, []);
             should(js.simpleString(tp.stack[0].rhsData))
                 .equal('[a:0]');
 
-            should(tp.observe(obs[i++])).equal(true); // b
+            should(tp.observe(obs[i++])).equal(null); // b
             var bc = ntAlt.toLowerCase();
             should(tp.state())
                 .equal(`aBCd_2:[a:0, ${bc}:1]; root_0:[]`);
@@ -1012,7 +1012,7 @@
             should(js.simpleString(tp.stack[0].rhsData))
                 .equal(`[a:0, ${ntAlt.toLowerCase()}:1]`);
 
-            should(tp.observe(obs[i++])).equal(true); // d
+            should(tp.observe(obs[i++])).equal(null); // d
             should(tp.state()).equal('');
             should.deepEqual(tp.reduced[1], {
                 lhs: 'aBCd',
@@ -1043,7 +1043,7 @@
             var i = 0;
 
             tp.clear();
-            should(tp.observe(obs[i++])).equal(true); // a
+            should(tp.observe(obs[i++])).equal(null); // a
             should(tp.state()).equal('aBCd_1:[a:0]; root_0:[]');
             should.deepEqual(tp.reduced, []);
 
@@ -1051,7 +1051,7 @@
             should(tp.state()).equal('aBCd_1:[a:0, null]; root_0:[]');
             should.deepEqual(tp.reduced, []);
 
-            should(tp.observe(obs[i++])).equal(true); // b
+            should(tp.observe(obs[i++])).equal(null); // b
             var bc = ntAlt.toLowerCase();
             should(tp.state())
                 .equal(`aBCd_2:[a:0, ${bc}:2]; root_0:[]`);
@@ -1060,7 +1060,7 @@
                 rhsData: [ obs[2] ],
             }]);
 
-            should(tp.observe(obs[i++])).equal(true); // d
+            should(tp.observe(obs[i++])).equal(null); // d
             should(tp.state()).equal('');
             should.deepEqual(tp.reduced[1], {
                 lhs: 'aBCd',
@@ -1092,7 +1092,7 @@
         ];
         var i = 0;
 
-        should(tp.observe(obs[i++])).equal(true); // a
+        should(tp.observe(obs[i++])).equal(null); // a
         should(tp.state()).equal('ab_1:[a:1 lb]; root_0:[]');
         should(tp.isParsing).equal(true);
 
@@ -1102,13 +1102,13 @@
         should(tp.isParsing).equal(true);
 
         // repeated error clears parser 
-        should(tp.observe(obs[i++])).equal(true); // accept
+        should(tp.observe(obs[i++])).equal(null); // accept
         should(tp.state()).equal('ab_1:[a:1 oz]; root_0:[]');
         should(tp.obError).equal(undefined);
         should(tp.isParsing).equal(true);
 
         // parsing resumes
-        should(tp.observe(obs[i++])).equal(true); // b
+        should(tp.observe(obs[i++])).equal(null); // b
         should(tp.state()).equal('');
         should(tp.isParsing).equal(false);
     });
@@ -1130,20 +1130,20 @@
         ];
 
         var obs = 'N='.split('').map((c,i)=>new Observation(c,i));
-        obs.forEach(ob => should(tp.observe(ob)).equal(true));
+        obs.forEach(ob => should(tp.observe(ob)).equal(null));
         should(tp.state()).equal('');
         should(js.simpleString(tp.answers[0])).equal(answers[0]);
         should(tp.answers.length).equal(1); // maxAnswers
 
         var obs = 'N*N='.split('').map((c,i)=>new Observation(c,i));
-        obs.forEach(ob => should(tp.observe(ob)).equal(true));
+        obs.forEach(ob => should(tp.observe(ob)).equal(null));
         should(tp.state()).equal('');
         should(js.simpleString(tp.answers[0])).equal(answers[1]);
         should(js.simpleString(tp.answers[1])).equal(answers[0]);
         should(tp.answers.length).equal(2); // maxAnswers
 
         var obs = 'N*N*N='.split('').map((c,i)=>new Observation(c,i));
-        obs.forEach(ob => should(tp.observe(ob)).equal(true));
+        obs.forEach(ob => should(tp.observe(ob)).equal(null));
         should(tp.state()).equal('');
         should(js.simpleString(tp.answers[0])).equal(answers[2]);
         should(js.simpleString(tp.answers[1])).equal(answers[1]);
@@ -1158,7 +1158,7 @@
 
         var obs = 'N*N*N='.split('').map((c,i)=>new Observation(c,i));
         obs.forEach(ob => {
-            should(tp.observe(ob)).equal(true);
+            should(tp.observe(ob)).equal(null);
             states.unshift(tp.state());
         });
         var i = obs.length;
@@ -1184,13 +1184,13 @@
         var states = []; 
         var obs = 'N*N*N='.split('').map((c,i)=>new Observation(c,i));
         obs.forEach(ob => {
-            should(tp.observe(ob)).equal(true);
+            should(tp.observe(ob)).equal(null);
             states.unshift(tp.state());
         });
         var i = obs.length;
         while(states.length) {
             should.deepEqual(tp.state(), states[0]);
-            should(tp.observe(obUndo)).equal(true);
+            should(tp.observe(obUndo)).equal(null);
             states.shift();
         }
         should.deepEqual(tp.state(), '');
@@ -1204,7 +1204,7 @@
         var states = []; 
         var obs = 'N*N*N='.split('').map((c,i)=>new Observation(c,i));
         obs.forEach(ob => {
-            should(tp.observe(ob)).equal(true);
+            should(tp.observe(ob)).equal(null);
             states.unshift(tp.state());
         });
         tp.clear();
