@@ -6,6 +6,7 @@
         logger,
     } = require('just-simple').JustSimple;
     const Observation = require('./observation');
+    const Observer = require('./observer');
     const Grammar = require('./grammar');
     class RuleState {
         constructor(lhs, index=0, rhsData=[]) {
@@ -34,7 +35,7 @@
         STAR,
     } = Grammar;
 
-    class Parser extends Observation {
+    class Parser extends Observer {
         constructor(opts = {}) {
             super(opts);
             this.name = opts.name || this.constructor.name;

@@ -28,23 +28,27 @@
         }
     }
 
-    function createWritable({done, expected, logLevel}) {
+    function testWritable({done, expected, logLevel}) {
         var total = 0;
         var nOut = 0;
         return new Writable({
             objectMode: true,
             write(ob, encoding, callback) {
-                total += ob.value;
-                logLevel && logger[logLevel]({
-                    output: js.simpleString(ob),
-                    total,
-                });
-                callback();  
+                try {
+                    total += ob.value;
+                    logLevel && logger[logLevel]({
+                        output: js.simpleString(ob),
+                        total,
+                    });
+                    callback();  
 
-                logLevel && logger[logLevel](`dbg`, {nOut, total});
-                should(total).equal(expected[nOut]);
-                if (++nOut >= expected.length) {
-                    done();
+                    logLevel && logger[logLevel](`dbg`, {nOut, total});
+                    should(total).equal(expected[nOut]);
+                    if (++nOut >= expected.length) {
+                        done();
+                    }
+                } catch(e) {
+                    done(e);
                 }
             }  
         });
@@ -52,12 +56,12 @@
 
     it("TESTTESTdefault ctor", done=>{
         (async function(){ try {
-            var ot = new Observer();
-            should(ot.transform).instanceOf(Transform);
-            should(ot.transform._writableState).properties({
+            var obr = new Observer();
+            should(obr.transform).instanceOf(Transform);
+            should(obr.transform._writableState).properties({
                 objectMode: true,
             });
-            should(ot.transform._readableState).properties({
+            should(obr.transform._readableState).properties({
                 objectMode: true,
             });
             done();
@@ -65,15 +69,15 @@
     });
     it("TESTTESTsingle input, single output", done=>{
         (async function(){ try {
-            var ot = new Observer({
+            var obr = new Observer({
                 logLevel,
             });
-            const input = ot.inputStream;
-            var output = createWritable({
+            const input = obr.inputStream;
+            var output = testWritable({
                 done, 
                 expected: [1,3,6,10], 
                 logLevel,});
-            ot.pipeline(output);
+            obr.pipeline(output);
             input.push(new Observation('test', 1));
             input.push(new Observation('test', 2));
             input.push(new Observation('test', 3));
@@ -87,7 +91,7 @@
             });
             var passThrough = new Observer();
             var input = a1.inputStream;
-            const output = createWritable({
+            const output = testWritable({
                 done, 
                 expected: [2,5,9,14], 
                 logLevel,
@@ -107,7 +111,7 @@
             });
             var passThrough = new Observer();
             var minus = new Minus();
-            const output = createWritable({
+            const output = testWritable({
                 done, 
                 expected:[-2,-5,-9,-14], 
                 logLevel,
@@ -121,6 +125,106 @@
             input.push(new Observation('test', 2));
             input.push(new Observation('test', 3));
             input.push(new Observation('test', 4));
+        } catch(e) {done(e);} })();
+    });
+    it("TESTTESTpushLine() process input line", done=>{
+        (async function(){ try {
+            var obr = new Observer({
+                logLevel,
+            });
+            var output = testWritable({
+                done, 
+                expected: [1,3,6,10], 
+                logLevel,});
+            obr.pipeline(output);
+
+            // push input
+            obr.pushLine(`{"tag":"test", "value":1}`);
+            obr.pushLine(`{"tag":"test", "value":2}`);
+            obr.pushLine(`{"tag":"test", "value":3}`);
+            obr.pushLine(`{"tag":"test", "value":4}`);
+        } catch(e) {done(e);} })();
+    });
+    it("TESTTESTsinkLineStream(is) accepts line input stream", done=>{
+        (async function() { try {
+            var is = new Readable({ read() {}, });
+            var obr = new Observer({ logLevel, });
+            var output = testWritable({
+                done: e => e && done(e),
+                expected: [1,3,6,10], 
+                logLevel,});
+            obr.pipeline(output);
+            var promise = obr.sinkLineStream(is);
+
+            // Observer will create an observation for each
+            // input line regardless of how it is presented
+            // by the input stream.
+            var inputText = [ // one observation per line
+                `{"tag":"test", "value":1}`,
+                `{"tag":"test", "value":2}`,
+                `{"tag":"test", "value":3}`,
+                `{"tag":"test", "value":4}`,
+            ].join('\n');
+            // test streaming of arbitrary size chunks
+            [10, 30, 35, 36, 50, 70].forEach((ix,i) => {
+                let chunk = inputText.substring(0,ix);
+                inputText = inputText.substring(ix);
+                is.push(chunk);
+            });
+            is.push(inputText); // remainder
+            is.push(null); // eos
+
+            // The returned promise provides a summary
+            // that may be of some interest.
+            var res = await promise;
+            should(res).properties({
+                bytes: 103,
+                observations: 4,
+            });
+            should(res).properties(["started","ended"]);
+            done();
+        } catch(e) {done(e);} })();
+    });
+    it("TESTTESTsinkLineStream(is) calls pushLine", done=>{
+        (async function() { try {
+            var is = new Readable({ read() {}, });
+            var testLines = [];
+            class TestObserver extends Observer {
+                constructor(opts={}) {
+                    super(opts);
+                }
+                pushLine(line) { // custom pushLine
+                    super.pushLine(line);
+                    // verify that pushLine is called
+                    testLines = [...testLines, line];
+                }
+            };
+
+            var obr = new TestObserver({ logLevel, });
+            var output = testWritable({
+                done: e => e && done(d),
+                expected: [1,3,6,10], 
+                logLevel,});
+            obr.pipeline(output);
+            var promise = obr.sinkLineStream(is);
+
+            var inputLines =  [
+                `{"tag":"test", "value":1}`,
+                `{"tag":"test", "value":2}`,
+                `{"tag":"test", "value":3}`,
+                `{"tag":"test", "value":4}`,
+            ];
+            is.push(inputLines.join('\n')); 
+            is.push(null); // eos
+
+            var res = await promise;
+            should(res).properties({
+                bytes: 103,
+                observations: 4,
+            });
+            should(res).properties(["started","ended"]);
+            should.deepEqual(testLines, inputLines);
+            done();
         } catch(e) {done(e);} })();
     });
 })

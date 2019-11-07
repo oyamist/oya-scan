@@ -34,6 +34,7 @@
             }
         }
 
+        static get TAG_ERROR() { return 'error'; }
         static get TIME_RESOLUTION_MS() { return 2; }
         static get RETROACTIVE() { 
             return new Date(-8640000000000000); // Javascript minimum date
