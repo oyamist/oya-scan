@@ -80,7 +80,7 @@ var scanner = new Scanner({
     map,
     patterns,
 });
-var promise = scanner.transform(process.stdin, process.stdout);
+var promise = scanner.transformLegacy(process.stdin, process.stdout);
 
 promise.then(r => {
     r.argv = process.argv;

@@ -54,7 +54,7 @@
         });
     }
 
-    it("TESTTESTdefault ctor", done=>{
+    it("default ctor", done=>{
         (async function(){ try {
             var obr = new Observer();
             should(obr.transform).instanceOf(Transform);
@@ -67,7 +67,7 @@
             done();
         } catch(e) {done(e);} })();
     });
-    it("TESTTESTsingle input, single output", done=>{
+    it("single input, single output", done=>{
         (async function(){ try {
             var obr = new Observer({
                 logLevel,
@@ -84,7 +84,7 @@
             input.push(new Observation('test', 4));
         } catch(e) {done(e);} })();
     });
-    it("TESTTESTObservers can be piped", done=>{
+    it("Observers can be piped", done=>{
         (async function(){ try {
             var a1 = new Add1({
                 logLevel,
@@ -104,7 +104,7 @@
             input.push(new Observation('test', 4));
         } catch(e) {done(e);} })();
     });
-    it("TESTTESTObservers can be piped", done=>{
+    it("Observers can be piped", done=>{
         (async function(){ try {
             var a1 = new Add1({
                 logLevel,
@@ -127,7 +127,7 @@
             input.push(new Observation('test', 4));
         } catch(e) {done(e);} })();
     });
-    it("TESTTESTpushLine() process input line", done=>{
+    it("pushLine() process input line", done=>{
         (async function(){ try {
             var obr = new Observer({
                 logLevel,
@@ -145,7 +145,7 @@
             obr.pushLine(`{"tag":"test", "value":4}`);
         } catch(e) {done(e);} })();
     });
-    it("TESTTESTsinkLineStream(is) accepts line input stream", done=>{
+    it("streamIn(is) accepts line input stream", done=>{
         (async function() { try {
             var is = new Readable({ read() {}, });
             var obr = new Observer({ logLevel, });
@@ -154,7 +154,7 @@
                 expected: [1,3,6,10], 
                 logLevel,});
             obr.pipeline(output);
-            var promise = obr.sinkLineStream(is);
+            var promise = obr.streamIn(is);
 
             // Observer will create an observation for each
             // input line regardless of how it is presented
@@ -185,7 +185,7 @@
             done();
         } catch(e) {done(e);} })();
     });
-    it("TESTTESTsinkLineStream(is) calls pushLine", done=>{
+    it("streamIn(is) calls pushLine", done=>{
         (async function() { try {
             var is = new Readable({ read() {}, });
             var testLines = [];
@@ -206,7 +206,7 @@
                 expected: [1,3,6,10], 
                 logLevel,});
             obr.pipeline(output);
-            var promise = obr.sinkLineStream(is);
+            var promise = obr.streamIn(is);
 
             var inputLines =  [
                 `{"tag":"test", "value":1}`,

@@ -13,6 +13,7 @@
         exec,
     } = require('child_process');
     const Observation = require('./observation');
+    const Observer = require('./observer');
     const LineFilter = require('./line-filter');
     const TAG_SCANNED = "scanned";
     const TAG_CODE128 = "CODE128";
@@ -29,7 +30,22 @@
         '[0-9]{0,4}\\.[0-9]{0,3}', // floating point
     ].join('|')+')';
 
-    class Scanner {
+    class Scanner extends Observer {
+        constructor(opts = {}) {
+            super(opts);
+            this.map = opts.map || {};
+            this.tag = opts.tag || TAG_SCANNED;  // default tag
+            var patterns = opts.patterns || [];
+            this.patterns = patterns.map(p => {
+                var re = p.re instanceof RegExp
+                    ? p.re : RegExp(`^${p.re}$`);
+                return {
+                    re,
+                    value: p.value,
+                }
+            });
+        }
+
         static get MATCH_NUMBER() { return {
                 re: PAT_NUMBER,
                 value: 'number',
@@ -51,26 +67,16 @@
             };
         }
 
-        constructor(opts = {}) {
-            this.map = opts.map || {};
-            this.tag = opts.tag || TAG_SCANNED;  // default tag
-            var patterns = opts.patterns || [];
-            logger.logInstance(this, opts);
-            this.patterns = patterns.map(p => {
-                var re = p.re instanceof RegExp
-                    ? p.re : RegExp(`^${p.re}$`);
-                return {
-                    re,
-                    value: p.value,
-                }
-            });
-        }
-
         static get TAG_EAN13() { return TAG_EAN13; }
         static get TAG_UPCA() { return TAG_UPCA; }
         static get TAG_UPCE_EAN8() { return TAG_UPCE_EAN8; }
         static get TAG_NUMBER() { return "number"; }
         static get TAG_SCANNED() { return TAG_SCANNED; }
+
+        pushLine(line) {
+            var odata = this.scan(line);
+            this.inputStream.push(odata);
+        }
 
         scan(barcode) {
             var t = new Date();
@@ -108,7 +114,7 @@
             });
         }
 
-        transform(is,os) {
+        transformLegacy(is,os) {
             var consume = (line, os) => {
                 var odata = this.scan(line);
                 os.write(JSON.stringify(odata)+'\n');

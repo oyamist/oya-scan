@@ -44,13 +44,7 @@
             var that = this;
             if (that._inputStream == null) {
                 Object.defineProperty(that, "_inputStream", {
-                    value: new Readable({
-                        objectMode: true,
-                        read(size) { 
-                            that.readSize += size; 
-                            that.log(`read(${size}/${that.readSize})`);
-                        },  
-                    }),
+                    value: that.createReadable(),
                 });
                 that._inputStream.pipe(that.transform);
             }
@@ -69,7 +63,7 @@
             this.inputStream.push(ob);
         }
 
-        sinkLineStream(is) {
+        streamIn(is) {
             var that = this;
             if (!(is instanceof Readable)) {
                 return Promise.reject(new Error(
@@ -135,6 +129,33 @@
             return ob; 
         }
 
+        createWritable(obCallback) {
+            if (typeof obCallback !== 'function') {
+                throw new Error(`Expected observation callback`);
+            }
+            return new Writable({
+                objectMode: true,
+                write(ob, encoding, done) {
+                    try {
+                        obCallback(ob);
+                        done();
+                    } catch(e) {
+                        logger.log(e.stack);
+                    }
+                }  
+            });
+        }
+
+        createReadable() {
+            var that = this;
+            return new Readable({
+                objectMode: true,
+                read(size) { // called only once 
+                    that.log(`input stream is active and reading`);
+                },
+            });
+        }
+
         pipeline(...args) {
             this.pipelineArgs = args;
             var sargs = args.map(a => a.constructor.name);
@@ -145,8 +166,10 @@
                 if (sink instanceof Observer) {
                     endPoint.transform.pipe(sink.transform);
                     endPoint = sink;
-                } else {
+                } else if (sink instanceof Writable) {
                     endPoint.transform.pipe(sink);
+                } else {
+                    throw new Error(`Invalid pipeline component#${i}`);
                 }
             }
             return this.inputStream;

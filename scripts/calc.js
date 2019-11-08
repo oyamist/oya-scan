@@ -87,7 +87,7 @@ if (iss) {
         logLevel,
     });
     var calcInput = new Stream.PassThrough();
-    var pscan = scanner.transform(process.stdin, calcInput);
+    var pscan = scanner.transformLegacy(process.stdin, calcInput);
 } else {
     var calcInput = process.stdin;
 } 

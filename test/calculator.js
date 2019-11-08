@@ -652,7 +652,7 @@
         should(js.simpleString(tc.observations)).equal("[N:6]");
         should(js.simpleString(tc.state())).equal(state);
     });
-    it("TESTTESTenter increments", ()=>{
+    it("enter increments", ()=>{
         var template = {};
         gf.add_delta_op(template);
         var grammar = gf.buildGrammar({

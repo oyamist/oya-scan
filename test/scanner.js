@@ -3,7 +3,7 @@
     const fs = require('fs');
     const path = require('path');
     const tmp = require('tmp');
-    const { logger } = require('just-simple').JustSimple;
+    const { js, logger } = require('just-simple').JustSimple;
     const {
         Readable,
         Writable,
@@ -30,6 +30,7 @@
             tag: 'height',
         },
     };
+    const logLevel = false;
 
     it("default ctor", () => {
         var scanner = new Scanner();
@@ -183,7 +184,7 @@
         var ob = scanner.scan("123.456");  // no match
         should.deepEqual(ob, new Observation("scanned", "123.456", null, ob.t));
     });
-    it("transform(is,os) transforms input to output stream", (done) => {
+    it("TESTTESTtransformLegacy(is,os) transforms input to output stream", done=>{
         (async function() { try {
             var scanner = new Scanner({
                 map: TESTMAP,
@@ -193,8 +194,8 @@
             var ospath = tmp.tmpNameSync();
             var os = fs.createWriteStream(ospath);
 
-            // transform returns a Promise
-            var result = await scanner.transform(is, os);
+            // transformLegacy returns a Promise
+            var result = await scanner.transformLegacy(is, os);
 
             should(result).properties(['started', 'ended']);
             should(result).properties({
@@ -269,5 +270,41 @@
         should.deepEqual(ob, 
             new Observation(Scanner.TAG_NUMBER, 1234, null, ob.t));
     });
+    it("TESTTESTstreamIn ", done=>{
+        (async function() { try {
+            var scanner = new Scanner({
+                map: TESTMAP,
+                logLevel,
+            });
 
+            // Bind output stream
+            var obOut = [];
+            var os = scanner.createWritable(ob => obOut.push(ob));
+            scanner.pipeline(os);
+
+            // Bind input stream.
+            // Pipeline is synchronous, so output is done
+            // when input is done and promise is resolved.
+            var ispath = path.join(__dirname, 'data', 'a0001.txt');
+            var is = fs.createReadStream(ispath);
+            var result = await scanner.streamIn(is);
+
+            should(result).properties(['started', 'ended']);
+            should(result).properties({
+                bytes: 24,
+                observations: 4,
+            });
+            should(result.started).instanceOf(Date);
+            should(result.ended).instanceOf(Date);
+
+            should.deepEqual(obOut.map(ob => js.simpleString(ob)), [
+                `color:red`,
+                `color:blue`,
+                `height:5`,
+                `height:10`,
+            ]);
+
+            done();
+        } catch(e) {done(e)} })();
+    });
 })
