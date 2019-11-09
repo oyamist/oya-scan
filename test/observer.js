@@ -72,7 +72,8 @@
             var obr = new Observer({
                 logLevel,
             });
-            const input = obr.inputStream;
+            const input = obr.createReadable();
+            obr.streamIn(input);
             var output = testWritable({
                 done, 
                 expected: [1,3,6,10], 
@@ -90,7 +91,8 @@
                 logLevel,
             });
             var passThrough = new Observer();
-            var input = a1.inputStream;
+            var input = a1.createReadable();
+            a1.streamIn(input);
             const output = testWritable({
                 done, 
                 expected: [2,5,9,14], 
@@ -104,7 +106,7 @@
             input.push(new Observation('test', 4));
         } catch(e) {done(e);} })();
     });
-    it("Observers can be piped", done=>{
+    it("TESTTESTObservers can be piped", done=>{
         (async function(){ try {
             var a1 = new Add1({
                 logLevel,
@@ -116,11 +118,14 @@
                 expected:[-2,-5,-9,-14], 
                 logLevel,
             });
-            var input = a1.pipeline(
+            a1.pipeline(
                 passThrough, 
                 minus, 
                 output
             );
+            var input = a1.createReadable();
+            should(input._readableState.objectMode).equal(true);
+            a1.streamIn(input);
             input.push(new Observation('test', 1));
             input.push(new Observation('test', 2));
             input.push(new Observation('test', 3));
@@ -138,7 +143,7 @@
                 logLevel,});
             obr.pipeline(output);
 
-            // push input
+            obr.streamIn(obr.createReadable());
             obr.pushLine(`{"tag":"test", "value":1}`);
             obr.pushLine(`{"tag":"test", "value":2}`);
             obr.pushLine(`{"tag":"test", "value":3}`);

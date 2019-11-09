@@ -24,6 +24,10 @@
                 writable: true,
                 value: undefined,
             });
+            Object.defineProperty(that, "_inputStream", {
+                writable: true,
+                value: null,
+            });
             that.transform = new Transform({
                 writableObjectMode: true,
                 readableObjectMode: true,
@@ -42,12 +46,6 @@
 
         get inputStream() {
             var that = this;
-            if (that._inputStream == null) {
-                Object.defineProperty(that, "_inputStream", {
-                    value: that.createReadable(),
-                });
-                that._inputStream.pipe(that.transform);
-            }
             return that._inputStream;
         }
 
@@ -60,15 +58,44 @@
                 logger.error(e.stack);
                 var ob = new Observation(Observation.TAG_ERROR, e);
             }
+            if (this.inputStream == null) {
+                throw new Error(
+                    `No input stream. Call streamIn() or pipeline()`);
+            }
             this.inputStream.push(ob);
         }
 
         streamIn(is) {
             var that = this;
             if (!(is instanceof Readable)) {
-                return Promise.reject(new Error(
-                    'Expected Readable input stream'));
+                throw new Error(
+                    'Expected Readable input stream');
             }
+            if (that._inputStream != null) {
+                throw new Error(
+                    `Input stream has already been assigned`);
+            }
+            if (is._readableState.objectMode) {
+                // Observation stream
+                that._inputStream = is;
+                that._inputStream.pipe(that.transform);
+                return new Promise((resolve,reject) => { try {
+                    var started = new Date();
+                    var bytes = 0;
+                    var observations = 0;
+                    that.log(`TBD streamIn Observation stream`);
+                    resolve({
+                        bytes,
+                        observations,
+                        started,
+                        ended: new Date(),
+                    });
+                } catch(e) { reject(e); }});
+            }
+
+            // standard line stream (e.g., stdin)
+            this._inputStream = that.createReadable();
+            that._inputStream.pipe(that.transform);
             is.setEncoding('utf8');
             var started = new Date();
             var pbody = (resolve, reject) => {(async function() { try {
@@ -172,7 +199,7 @@
                     throw new Error(`Invalid pipeline component#${i}`);
                 }
             }
-            return this.inputStream;
+            return null; // TBD
         }
 
     }
