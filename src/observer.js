@@ -16,9 +16,10 @@
     const Observation = require('./observation');
 
     class Observer {
-        constructor(opts) {
+        constructor(opts={}) {
             var that = this;
             logger.logInstance(that, opts);
+            that.name = opts.name || this.constructor.name;
             that.readSize = 0;
             Object.defineProperty(that, "pipelineArgs", {
                 writable: true,
@@ -49,22 +50,6 @@
             return that._inputStream;
         }
 
-        pushLine(line) {
-            // override this to change Observer's response to
-            // input lines
-            try {
-                var ob = new Observation(JSON.parse(line));
-            } catch(e) {
-                logger.error(e.stack);
-                var ob = new Observation(Observation.TAG_ERROR, e);
-            }
-            if (this.inputStream == null) {
-                throw new Error(
-                    `No input stream. Call streamIn() or pipeline()`);
-            }
-            this.inputStream.push(ob);
-        }
-
         streamIn(is) {
             var that = this;
             if (!(is instanceof Readable)) {
@@ -83,7 +68,7 @@
                     var started = new Date();
                     var bytes = 0;
                     var observations = 0;
-                    that.log(`TBD streamIn Observation stream`);
+                    that.log(`TBD streamIn(ObservationStream)`);
                     resolve({
                         bytes,
                         observations,
@@ -94,6 +79,7 @@
             }
 
             // standard line stream (e.g., stdin)
+            this.log(`streamIn(LineStream)`);
             this._inputStream = that.createReadable();
             that._inputStream.pipe(that.transform);
             is.setEncoding('utf8');
@@ -145,6 +131,22 @@
             return new Promise(pbody);
         }
 
+        pushLine(line) {
+            // override this to change Observer's response to
+            // input lines
+            try {
+                var ob = new Observation(JSON.parse(line));
+            } catch(e) {
+                logger.error(e.stack);
+                var ob = new Observation(Observation.TAG_ERROR, e);
+            }
+            if (this.inputStream == null) {
+                throw new Error(
+                    `No input stream. Call streamIn() or pipeline()`);
+            }
+            this.inputStream.push(ob);
+        }
+
         observe(ob) {
             // An observer can process observations:
             //
@@ -153,6 +155,7 @@
             //
             // The default observer method implements 
             // synchronous pass-through
+            this.log(`observe(${js.simpleString(ob)})`);
             return ob; 
         }
 
@@ -178,28 +181,9 @@
             return new Readable({
                 objectMode: true,
                 read(size) { // called only once 
-                    that.log(`input stream is active and reading`);
+                    that.log(`read() initialized`);
                 },
             });
-        }
-
-        pipeline(...args) {
-            this.pipelineArgs = args;
-            var sargs = args.map(a => a.constructor.name);
-            this.log(`| ${sargs.join(' | ')}`);
-            var endPoint = this;
-            for (var i = 0; i < args.length; i++) {
-                var sink = args[i];
-                if (sink instanceof Observer) {
-                    endPoint.transform.pipe(sink.transform);
-                    endPoint = sink;
-                } else if (sink instanceof Writable) {
-                    endPoint.transform.pipe(sink);
-                } else {
-                    throw new Error(`Invalid pipeline component#${i}`);
-                }
-            }
-            return null; // TBD
         }
 
     }

@@ -12,6 +12,7 @@
     const {
         Observation,
         Observer,
+        Pipeline,
     } = require('../index');
     var logLevel = false;
 
@@ -36,13 +37,11 @@
             write(ob, encoding, callback) {
                 try {
                     total += ob.value;
-                    logLevel && logger[logLevel]({
-                        output: js.simpleString(ob),
-                        total,
-                    });
+                    logLevel && logger[logLevel](`testWritable.write(${
+                        js.simpleString(ob)
+                    }) nOut:${ nOut } total:${total }`);
                     callback();  
 
-                    logLevel && logger[logLevel](`dbg`, {nOut, total});
                     should(total).equal(expected[nOut]);
                     if (++nOut >= expected.length) {
                         done();
@@ -67,22 +66,34 @@
             done();
         } catch(e) {done(e);} })();
     });
-    it("single input, single output", done=>{
+    it("TESTTESTsingle input, single output", done=>{
         (async function(){ try {
             var obr = new Observer({
+                name: 'test1-1',
                 logLevel,
             });
-            const input = obr.createReadable();
-            obr.streamIn(input);
-            var output = testWritable({
-                done, 
-                expected: [1,3,6,10], 
-                logLevel,});
-            obr.pipeline(output);
-            input.push(new Observation('test', 1));
-            input.push(new Observation('test', 2));
-            input.push(new Observation('test', 3));
-            input.push(new Observation('test', 4));
+
+            var {
+                inputStream,
+                outputStream,
+                observers,
+            } = new Pipeline({
+                logLevel,
+            }).build(
+                obr.createReadable(),
+                obr, 
+                testWritable({
+                    done, 
+                    expected: [1,3,6,10], 
+                    logLevel,
+                })
+            );
+
+            should.deepEqual(observers, [obr]);
+            inputStream.push(new Observation('test', 1));
+            inputStream.push(new Observation('test', 2));
+            inputStream.push(new Observation('test', 3));
+            inputStream.push(new Observation('test', 4));
         } catch(e) {done(e);} })();
     });
     it("Observers can be piped", done=>{
@@ -111,55 +122,72 @@
             var a1 = new Add1({
                 logLevel,
             });
-            var passThrough = new Observer();
-            var minus = new Minus();
-            const output = testWritable({
-                done, 
-                expected:[-2,-5,-9,-14], 
+            var passThrough = new Observer({
                 logLevel,
             });
-            a1.pipeline(
-                passThrough, 
-                minus, 
-                output
+            var minus = new Minus({
+                logLevel,
+            });
+            var {
+                inputStream,
+            } = new Pipeline({
+                logLevel,
+            }).build(
+                a1.createReadable(),
+                a1,
+                passThrough,
+                new Minus(),
+                testWritable({
+                    done, 
+                    expected:[-2,-5,-9,-14], 
+                    logLevel,
+                })
             );
-            var input = a1.createReadable();
-            should(input._readableState.objectMode).equal(true);
-            a1.streamIn(input);
-            input.push(new Observation('test', 1));
-            input.push(new Observation('test', 2));
-            input.push(new Observation('test', 3));
-            input.push(new Observation('test', 4));
+            should(inputStream._readableState.objectMode).equal(true);
+            inputStream.push(new Observation('test', 1));
+            inputStream.push(new Observation('test', 2));
+            inputStream.push(new Observation('test', 3));
+            inputStream.push(new Observation('test', 4));
         } catch(e) {done(e);} })();
     });
     it("pushLine() process input line", done=>{
         (async function(){ try {
-            var obr = new Observer({
+            var obr = new Observer({logLevel});
+            var {
+                observers,
+            } = new Pipeline({
                 logLevel,
-            });
-            var output = testWritable({
-                done, 
-                expected: [1,3,6,10], 
-                logLevel,});
-            obr.pipeline(output);
+            }).build(
+                obr.createReadable(),
+                obr,
+                testWritable({ done, expected: [1,3,6,10], logLevel,})
+            );
 
-            obr.streamIn(obr.createReadable());
             obr.pushLine(`{"tag":"test", "value":1}`);
             obr.pushLine(`{"tag":"test", "value":2}`);
             obr.pushLine(`{"tag":"test", "value":3}`);
             obr.pushLine(`{"tag":"test", "value":4}`);
         } catch(e) {done(e);} })();
     });
-    it("streamIn(is) accepts line input stream", done=>{
+    it("streamIn(is) accepts text stream", done=>{
         (async function() { try {
-            var is = new Readable({ read() {}, });
+            // Examples of text streams:
+            //   * process.stdin is a text stream
+            //   * fs.createReadStream() creates a text stream
+            // For testing, we create our own text stream
+            // to verify that chunking boundaries are handled
+            // properly.
+            var textStream = new Readable({ read() {}, }); 
             var obr = new Observer({ logLevel, });
-            var output = testWritable({
-                done: e => e && done(e),
-                expected: [1,3,6,10], 
-                logLevel,});
-            obr.pipeline(output);
-            var promise = obr.streamIn(is);
+            var promise = obr.streamIn(textStream);
+            var pipeline = new Pipeline({ logLevel, }).build(
+                obr,
+                testWritable({
+                    done: e => e && done(e),
+                    expected: [1,3,6,10], 
+                    logLevel,
+                })
+            );
 
             // Observer will create an observation for each
             // input line regardless of how it is presented
@@ -174,12 +202,12 @@
             [10, 30, 35, 36, 50, 70].forEach((ix,i) => {
                 let chunk = inputText.substring(0,ix);
                 inputText = inputText.substring(ix);
-                is.push(chunk);
+                textStream.push(chunk);
             });
-            is.push(inputText); // remainder
-            is.push(null); // eos
+            textStream.push(inputText); // remainder
+            textStream.push(null); // eos
 
-            // The returned promise provides a summary
+            // The returned promise resolves to a summary
             // that may be of some interest.
             var res = await promise;
             should(res).properties({
@@ -190,7 +218,7 @@
             done();
         } catch(e) {done(e);} })();
     });
-    it("streamIn(is) calls pushLine", done=>{
+    it("TESTTESTstreamIn(is) calls pushLine", done=>{
         (async function() { try {
             var is = new Readable({ read() {}, });
             var testLines = [];
@@ -210,8 +238,8 @@
                 done: e => e && done(d),
                 expected: [1,3,6,10], 
                 logLevel,});
-            obr.pipeline(output);
-            var promise = obr.streamIn(is);
+            var pipeline = new Pipeline({logLevel})
+                .build(is, obr, output);
 
             var inputLines =  [
                 `{"tag":"test", "value":1}`,
@@ -222,7 +250,7 @@
             is.push(inputLines.join('\n')); 
             is.push(null); // eos
 
-            var res = await promise;
+            var res = await pipeline.inputPromise;
             should(res).properties({
                 bytes: 103,
                 observations: 4,

@@ -8,6 +8,7 @@ module.exports = {
     Observation: require('./src/observation'),
     Observer: require('./src/observer'),
     Parser: require('./src/parser'),
+    Pipeline: require('./src/pipeline'),
     Scanner: require('./src/scanner'),
     Thing: require('./src/thing'),
     Workspace: require('./src/workspace'),

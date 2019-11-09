@@ -10,6 +10,7 @@
     } = require('stream');
     const {
         Observation,
+        Pipeline,
         Scanner,
     } = require('../index');
     const TESTMAP = {
@@ -184,7 +185,7 @@
         var ob = scanner.scan("123.456");  // no match
         should.deepEqual(ob, new Observation("scanned", "123.456", null, ob.t));
     });
-    it("TESTTESTtransformLegacy(is,os) transforms input to output stream", done=>{
+    it("transformLegacy(is,os) transforms input to output stream", done=>{
         (async function() { try {
             var scanner = new Scanner({
                 map: TESTMAP,
@@ -270,7 +271,7 @@
         should.deepEqual(ob, 
             new Observation(Scanner.TAG_NUMBER, 1234, null, ob.t));
     });
-    it("TESTTESTstreamIn ", done=>{
+    it("streamIn ", done=>{
         (async function() { try {
             var scanner = new Scanner({
                 map: TESTMAP,
@@ -279,16 +280,15 @@
 
             // Bind output stream
             var obOut = [];
-            var os = scanner.createWritable(ob => obOut.push(ob));
-            scanner.pipeline(os);
-
-            // Bind input stream.
-            // Pipeline is synchronous, so output is done
-            // when input is done and promise is resolved.
             var ispath = path.join(__dirname, 'data', 'a0001.txt');
             var is = fs.createReadStream(ispath);
-            var result = await scanner.streamIn(is);
+            var os = scanner.createWritable(ob => obOut.push(ob));
+            var pipeline = new Pipeline({logLevel})
+                .build(is, scanner, os);
 
+            // Pipeline is synchronous, so output is done
+            // when input is done and promise is resolved.
+            var result = await pipeline.inputPromise;
             should(result).properties(['started', 'ended']);
             should(result).properties({
                 bytes: 24,
