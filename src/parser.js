@@ -265,7 +265,7 @@
                     stack[0] = new RuleState("root");
                 }
 
-                return this.processObservation(ob) 
+                return this.processObservation(ob);
             } catch(e) {
                 e.observation = ob;
                 logger.warn(e.stack);
@@ -292,10 +292,10 @@
                 this.reject(ob);
             }
 
-            // Observation sinks return null.
-            // Observation transforms can return an observation
-            // synchronusly by returning here or
-            // asynchronously by transform.push(ob)
+            // Parsers normally don't generate one output for every input
+            // so we return null here. Parser output is generally
+            // pushed to the output stream during the reduce or 
+            // shift operations for individual rules.
             return null; 
         }
 
