@@ -232,14 +232,23 @@
         }
 
         buildGrammar(opts={}) {
-            var t = opts.template || {};
-            var addRoot = opts.addRoot || this.add_expr_enter;
-            var ntRoot = addRoot.call(this, t);
-            t.root = [ 
+            var {
+                template,
+                type,
+                addRoot,
+            } = opts;
+            template = template || {};
+            if (type === "calculator") {
+                this.add_delta_op(template);
+            }
+
+            addRoot = addRoot || this.add_expr_enter;
+            var ntRoot = addRoot.call(this, template);
+            template.root = [ 
                 ntRoot, 
                 this.eoi, // everything ends: End Of Input
             ];
-            return new Grammar(t);
+            return new Grammar(template);
         }
 
     }

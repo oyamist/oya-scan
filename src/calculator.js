@@ -48,7 +48,7 @@
             var gf = opts.grammarFactory;
 
             opts.grammar = opts.grammar || gf.buildGrammar({
-                addRoot: gf.add_expr_enter,
+                type: 'calculator',
             });
 
             return opts;
@@ -143,22 +143,26 @@
             if (d1 instanceof Array) {
                 for (var i = 0; i < d1.length; i++) {
                     var d1i = d1[i];
+                    var d1iv = d1i.value;
                     var tag = d1i.tag;
                     if (d1i.tag === plus) {
-                        v0 += this.numberOf(d1i.value);
+                        v0 += this.numberOf(d1iv);
                     } else if (d1i.tag === minus) {
-                        v0 -= this.numberOf(d1i.value);
+                        v0 -= this.numberOf(d1iv);
                     } else if (tag === multiply) {
-                        v0 *= this.numberOf(d1i.value);
+                        v0 *= this.numberOf(d1iv);
                     } else if (tag === divide) {
-                        v0 /= this.numberOf(d1i.value);
+                        v0 /= this.numberOf(d1iv);
                     } else {
                         throw new Error(
                             `Invalid rhsData[1]:${JSON.stringify(d1i)}`);
                     }
                 }
-                this.log(`calcImmediate() v0:${v0}`);
-                this.setDisplay({text:`${v0}`});
+                if (d1.length) {
+                    this.log(`calcImmediate(${d0.value},${d1}) `+
+                        `=> ${v0}`);
+                    this.setDisplay({text:`${v0}`});
+                }
             }
             return new Observation(number, v0);
         }
@@ -166,14 +170,19 @@
         reduce_addop_term(lhs, rhsData) {
             var d0 = rhsData[0];
             var d1 = rhsData[1];
-            return new Observation(d0.tag, d1);
+            var d2 = rhsData[2];
+            return d2 
+                ? new Observation(d0.tag, d2 ) //AT ::= AO STAR(DO) T
+                : new Observation(d0.tag, d1); //AT ::= AO T
         }
 
         reduce_mulop_factor(lhs, rhsData) {
             var d0 = rhsData[0];
             var d1 = rhsData[1];
-            var ob = new Observation(d0.tag, d1);
-            return ob;
+            var d2 = rhsData[2];
+            return d2
+                ? new Observation(d0.tag, d2 ) //MF ::= MO STAR(DO) F
+                : new Observation(d0.tag, d1); //MF ::= MO F
         }
 
         reduce_signed(lhs, rhsData) {
@@ -251,7 +260,8 @@
                 enter,
             } = this.grammarFactory;
             if (this.deltaOp == null) {
-                this.observe(new Observation(number, total));
+                var result = new Observation(number, total);
+                this.observe(result);
                 this.deltaNum = total;
                 this.deltaOp = deltaOp;
             } else {
@@ -267,8 +277,11 @@
                 }
                 this.log(`delta(${totalOld},${deltaOp},${deltaNum}) `+
                     `=> ${total}`);
-                this.observe(new Observation(number, total));
+                var result = new Observation(number, total);
+                this.observe(result);
             }
+            this.log(`push ${js.simpleString(result)}`);
+            this.transform.push(result);
         }
 
         reduce_delta_op(lhs, rhsData, result) {
@@ -351,7 +364,7 @@
             return result;
         }
 
-        transform(is, os, opts={}) {
+        transformLegacy(is, os, opts={}) {
             var consume = (line, os) => {
                 var obIn = new Observation(JSON.parse(line));
                 var res = this.observe(obIn);

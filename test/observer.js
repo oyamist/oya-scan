@@ -66,7 +66,7 @@
             done();
         } catch(e) {done(e);} })();
     });
-    it("TESTTESTsingle input, single output", done=>{
+    it("single input, single output", done=>{
         (async function(){ try {
             var obr = new Observer({
                 name: 'test1-1',
@@ -117,7 +117,7 @@
             input.push(new Observation('test', 4));
         } catch(e) {done(e);} })();
     });
-    it("TESTTESTObservers can be piped", done=>{
+    it("Observers can be piped", done=>{
         (async function(){ try {
             var a1 = new Add1({
                 logLevel,
@@ -218,7 +218,7 @@
             done();
         } catch(e) {done(e);} })();
     });
-    it("TESTTESTstreamIn(is) calls pushLine", done=>{
+    it("streamIn(is) calls pushLine", done=>{
         (async function() { try {
             var is = new Readable({ read() {}, });
             var testLines = [];

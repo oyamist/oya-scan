@@ -155,7 +155,7 @@
             }
             if (advance) {
                 if (s1) {
-                    this.advance(s1, `reduce(${s0.lhs})`);
+                    this.advance(s1, `r1(${s0.lhs})`);
                 } else {
                     answers.unshift(s0Data);
                     if (answers.length > maxAnswers) {
@@ -317,7 +317,7 @@
             var ob = lookahead.shift();
             this.shift(ob);
             s0.rhsData.push(ob);
-            this.advance(s0, 'stepTerminal');
+            this.advance(s0, 'st1');
             return true;
         }
 
@@ -342,7 +342,7 @@
                 matched.push(ob);
                 this.shift(ob);
                 if (max1) {
-                    this.advance(s0, 'stepStar-OptT');
+                    this.advance(s0, 'ss1');
                     return true;
                 }
                 return true;
@@ -363,7 +363,7 @@
                         var rqd = (grammar.rhs(arg).length === 1);
                         var reduced = this.reduce(false, rqd);
                         if (reduced && max1) {
-                            this.advance(s0, `stepStar-OptNT${reduced}`);
+                            this.advance(s0, `ss2${reduced}`);
                         }
                         return true;
                     } 
@@ -377,7 +377,7 @@
                 return false; // mandatory match failed
             }
 
-            this.advance(stack[0], 'stepStarSkip'); // empty match
+            this.advance(stack[0], 'ss3'); // empty match
             return this.step();
         }
 
@@ -430,7 +430,7 @@
                     var ob = lookahead.shift();
                     s0.rhsData[index] = ob;
                     this.shift(ob);
-                    this.advance(s0, `stepAltT${iArg}`);
+                    this.advance(s0, `sa1${iArg}`);
                     return true;
                 }
             }
@@ -489,14 +489,15 @@
             var {
                 stack,
             } = this;
+            if (stack.length === 0) {
+                return '';
+            }
             var end = Math.min(this.stack.length, index+n);
             var sv = stack.slice(index, end).map(s => `${s}`);
 
-            if (end < this.stack.length) {
-                sv.push('...');
-            }
-
-            return sv.join('; ');
+            return end >= this.stack.length
+                ? `${sv.join('; ')}`
+                : `${sv.join('; ')}; `;
         }
 
     }

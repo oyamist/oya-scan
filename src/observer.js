@@ -34,7 +34,8 @@
                 readableObjectMode: true,
                 transform(ob, encoding, cb) {
                     if (ob instanceof Observation) {
-                        that.transform.push(that.observe(ob));
+                        var obResult = that.observe(ob);
+                        obResult && that.transform.push(obResult);
                     } else {
                         that.transform.push(
                             new Error('expected Observation')

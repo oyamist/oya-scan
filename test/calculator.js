@@ -8,13 +8,17 @@
     const tmp = require('tmp');
     const fs = require('fs');
     const path = require('path');
-    const Stream = require('stream');
+    const {
+        Readable,
+        Writable,
+    } = require('stream');
     const {
         Calculator,
         Grammar,
         GrammarFactory,
         Observation,
         Parser,
+        Pipeline,
 
     } = require("../index");
     const logLevel = false;
@@ -436,7 +440,7 @@
         calc.observe(testOb(eoi));
         should(js.simpleString(calc.display)).equal('{text:1}');
     });
-    it("transform(...) implements LineFilter", (done)=>{
+    it("transformLegacy(...) implements LineFilter", (done)=>{
         done(); return;
         var handled = false;
         (async function() { try {
@@ -448,12 +452,12 @@
                 grammarFactory: gf,
                 logLevel,
             });
-            var is = new Stream.Readable();
+            var is = new Readable();
             var ospath = tmp.tmpNameSync();
             var os = fs.createWriteStream(ospath, {
                 emitClose: true,
             });
-            var promise = calc.transform(is, os, {
+            var promise = calc.transformLegacy(is, os, {
                 logLevel,
             });
             var obs = [
@@ -505,40 +509,19 @@
             done(e); 
         }})();
     });
-    it("default ctor calculates", ()=>{
-        var calc = new Calculator({
-            logLevel,
-        });
-        var gf = calc.grammarFactory;
-        var g = calc.grammar;
-        //console.log(js.simpleString(g));
-        var {
-            digit,
-            plus,
-            enter,
-            eoi,
-        } = gf;
-        var obs = [
-            new Observation(digit, '1'),
-            new Observation(plus, '+'),
-            new Observation(digit, '2'),
-            new Observation(plus, '+'),
-            new Observation(digit, 3),
-            new Observation(enter, '='),
-        ];
-        var i = 0;
-        should(calc.observe(obs[i++])).equal(null); // 1
+    it("TESTTESTobserve(ob) calculates", ()=>{
+        var calc = new Calculator({ logLevel, grammarFactory: gf});
+
+        // The observe() method can be called directly to verify
+        // calculator internal state for testing without streams.
+        should(calc.observe(new Observation(gf.digit, '1'))).equal(null);
         should(js.simpleString(calc.display)).equal('{text:1}');
-        should(calc.observe(obs[i++])).equal(null); // +
+        should(calc.observe(new Observation(gf.plus, '+'))).equal(null);
         should(js.simpleString(calc.display)).equal('{text:1,op:+}');
-        should(calc.observe(obs[i++])).equal(null); // 2
+        should(calc.observe(new Observation(gf.digit, '2'))).equal(null);
         should(js.simpleString(calc.display)).equal('{text:2}');
-        should(calc.observe(obs[i++])).equal(null); // +
-        should(js.simpleString(calc.display)).equal('{text:3,op:+}');
-        should(calc.observe(obs[i++])).equal(null); // 3
-        should(js.simpleString(calc.display)).equal('{text:3}');
-        should(calc.observe(obs[i++])).equal(null); // enter
-        should(js.simpleString(calc.display)).equal('{text:6,op:=}');
+        should(calc.observe(new Observation(gf.enter, '='))).equal(null);
+        should(js.simpleString(calc.display)).equal('{text:3,op:=}');
     });
     it("undo() clears last observation", ()=>{
         var calc = new Calculator({
@@ -588,6 +571,7 @@
     it("observe() accepts number", ()=>{
         var tc = new TestCalc({
             grammarFactory: gf,
+            grammar: gf.buildGrammar(),
             logLevel,
         });
         tc.observe(new Observation(number, 1));
@@ -602,6 +586,7 @@
     it("enter collapses state", ()=>{
         var tc = new TestCalc({
             grammarFactory: gf,
+            grammar: gf.buildGrammar(),
             logLevel,
         });
         var {
@@ -629,6 +614,7 @@
     it("enter running sum", ()=>{
         var tc = new TestCalc({
             grammarFactory: gf,
+            grammar: gf.buildGrammar(),
             logLevel,
         });
         var g = tc.grammar;
@@ -699,6 +685,38 @@
         tc.testChar('=', '{text:2,op:=}');
         tc.testChar('=', '{text:1,op:=}');
         tc.testChar('=', '{text:0.5,op:=}');
+    });
+    it("TESTTESTpipeline emits result observations", done=>{
+        (async function() { try {
+            var calc = new Calculator({ logLevel });
+            var outObs = [];
+            var {
+                inputPromise,
+                inputStream: is,
+            } = new Pipeline({ logLevel }).build(
+                calc.createReadable(),
+                calc,
+                calc.createWritable(ob=>outObs.push(ob)),
+            );
+
+            var gf = calc.grammarFactory;
+            is.push(new Observation(gf.digit, 1));
+            is.push(new Observation(gf.digit, 0));
+            is.push(new Observation(gf.plus, '+'));
+            is.push(new Observation(gf.enter, '='));
+            is.push(new Observation(gf.enter, '='));
+            is.push(new Observation(gf.enter, '='));
+            is.push(null); // EOS
+
+            // check output after input is done
+            await inputPromise; 
+            should.deepEqual(outObs.map(o=>o.value), [10,20,30]);
+            for (var i = 0; i < outObs.length; i++) {
+                should(outObs[i].tag).equal(gf.number);
+                should(outObs[i]).instanceOf(Observation);
+            }
+            done();
+        } catch(e) { done(e); }})();
     });
 
 })
