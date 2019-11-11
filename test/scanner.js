@@ -283,7 +283,7 @@
             var ispath = path.join(__dirname, 'data', 'a0001.txt');
             var is = fs.createReadStream(ispath);
             var os = scanner.createWritable(ob => obOut.push(ob));
-            var pipeline = new Pipeline({logLevel})
+            var pipeline = await new Pipeline({logLevel})
                 .build(is, scanner, os);
 
             // Pipeline is synchronous, so output is done

@@ -77,7 +77,7 @@
                 inputStream,
                 outputStream,
                 observers,
-            } = new Pipeline({
+            } = await new Pipeline({
                 logLevel,
             }).build(
                 obr.createReadable(),
@@ -130,7 +130,7 @@
             });
             var {
                 inputStream,
-            } = new Pipeline({
+            } = await new Pipeline({
                 logLevel,
             }).build(
                 a1.createReadable(),
@@ -155,7 +155,7 @@
             var obr = new Observer({logLevel});
             var {
                 observers,
-            } = new Pipeline({
+            } = await new Pipeline({
                 logLevel,
             }).build(
                 obr.createReadable(),
@@ -180,7 +180,7 @@
             var textStream = new Readable({ read() {}, }); 
             var obr = new Observer({ logLevel, });
             var promise = obr.streamIn(textStream);
-            var pipeline = new Pipeline({ logLevel, }).build(
+            var pipeline = await new Pipeline({ logLevel, }).build(
                 obr,
                 testWritable({
                     done: e => e && done(e),
@@ -238,7 +238,7 @@
                 done: e => e && done(d),
                 expected: [1,3,6,10], 
                 logLevel,});
-            var pipeline = new Pipeline({logLevel})
+            var pipeline = await new Pipeline({logLevel})
                 .build(is, obr, output);
 
             var inputLines =  [

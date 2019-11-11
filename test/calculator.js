@@ -693,7 +693,7 @@
             var {
                 inputPromise,
                 inputStream: is,
-            } = new Pipeline({ logLevel }).build(
+            } = await new Pipeline({ logLevel }).build(
                 calc.createReadable(),
                 calc,
                 calc.createWritable(ob=>outObs.push(ob)),
@@ -709,7 +709,7 @@
             is.push(null); // EOS
 
             // check output after input is done
-            await inputPromise; 
+            //await inputPromise; 
             should.deepEqual(outObs.map(o=>o.value), [10,20,30]);
             for (var i = 0; i < outObs.length; i++) {
                 should(outObs[i].tag).equal(gf.number);
