@@ -33,64 +33,37 @@
     };
     const logLevel = false;
 
-    it("default ctor", () => {
+    it("TESTTESTdefault ctor", () => {
         var scanner = new Scanner();
         should(scanner).instanceOf(Scanner);
         should.deepEqual(scanner.map, {});
         should(scanner).properties({
             tag: Scanner.TAG_SCANNED,
-            patterns: [],
         });
+        should.deepEqual(scanner.patterns, [
+            Scanner.MATCH_OBSERVATION,
+            Scanner.MATCH_TINYOBS,
+        ]);
 
-        // floating point number
-        var ob = scanner.scan('1');
-        should.deepEqual(ob, new Observation("scanned", "1", null, ob.t));
-        var ob = scanner.scan('42');
-        should.deepEqual(ob, new Observation("scanned", "42", null, ob.t));
-        var ob = scanner.scan('123.456');
-        should.deepEqual(ob, new Observation("scanned", "123.456", null, ob.t));
-        var ob = scanner.scan('-123.456');
-        should.deepEqual(ob, new Observation("scanned", "-123.456", null, ob.t));
-
-        // not a number
-        var ob = scanner.scan('123,456');
-        should.deepEqual(ob, new Observation("scanned", '123,456', null, ob.t));
-        var ob = scanner.scan('123.456.789');
-        should.deepEqual(ob, new Observation("scanned", '123.456.789', null, ob.t));
-        var ob = scanner.scan('+1');
-        should.deepEqual(ob, new Observation("scanned", '+1', null, ob.t));
-        var ob = scanner.scan('1a1');
-        should.deepEqual(ob, new Observation("scanned", '1a1', null, ob.t));
+        // numbers aren't special
+        should(scanner.scan('123').toString()).equal('scanned:123');
+        should(scanner.scan('12.34').toString()).equal('scanned:12.34');
     });
-    it("custom ctor",() => {
+    it("TESTTESTcustom ctor",() => {
+        // custom scanner recognizes integers
         var map = TESTMAP;
-        var tag = 'barcode'; // new default tag
-        var PAT_INT = '[0-9]+';
-        var patterns = [{
-            re: PAT_INT,
-            value: 'number', // integers
+        var tag = 'string'; 
+        var patterns = [{ 
+            re: /^[0-9]+$/,
+            value: 'integer', 
         }];
-        var scanner = new Scanner({
-            map,
-            tag,
-            patterns,
-        });
-        should.deepEqual(scanner.map, TESTMAP);
-        should(scanner).properties({
-            tag,
-            map,
-        });
-        should.deepEqual(scanner.patterns, [{
-            re: new RegExp(`^${PAT_INT}$`),
-            value: 'number',
-        }]);
+        var scanner = new Scanner({ map, tag, patterns, });
+        should(scanner).properties({ map, tag, patterns });
 
-        var ob = scanner.scan('123');
-        should.deepEqual(ob, new Observation('number', 123, null, ob.t));
-        var ob = scanner.scan('123.456');
-        should.deepEqual(ob, new Observation('barcode', "123.456", null, ob.t));
+        should(scanner.scan('123').toString()).equal('integer:123');
+        should(scanner.scan('12.34').toString()).equal('string:12.34');
     });
-    it("scan(data) returns mapped Observation (Object)", () => {
+    it("TESTTESTscan(data) => mapped Observation (Object)", () => {
         var scanner = new Scanner({
             map: TESTMAP,
         });
@@ -106,16 +79,14 @@
         // mapped data
         var dataout = scanner.scan("a0001");
         should(Date.now() - dataout.t).above(-1).below(5);
-        should(dataout.value).equal('red');
-        should(dataout.tag).equal('color');
+        should(dataout.toString()).equal('color:red');
 
         // mapped data
         var dataout = scanner.scan("a0003");
         should(Date.now() - dataout.t).above(-1).below(5);
-        should(dataout.value).equal(5);
-        should(dataout.tag).equal('height');
+        should(dataout.toString()).equal('height:5');
     });
-    it("scan(data) returns mapped Observation (function)", () => {
+    it("TESTTESTscan(data) => mapped Observation (function)", ()=>{
         var mapper = {
             map: (barcode)=>{
                 return {
@@ -145,50 +116,53 @@
         // mapped data
         var dataout = scanner.scan("a0001");
         should(Date.now() - dataout.t).above(-1).below(5);
-        should(dataout.value).equal('red');
-        should(dataout.tag).equal('color');
+        should(dataout.toString()).equal('color:red');
     });
-    it("scan(data) returns number", () => {
+    it("TESTTESTscan() serialized Observations", () => {
+        var scanner = new Scanner();
+        var obIn = new Observation("weight", 123, "kg");
+        var ob = scanner.scan(JSON.stringify(obIn));
+        should.deepEqual(ob, obIn);
+    });
+    it("TESTTESTscan() Tiny Observations", () => {
+        var scanner = new Scanner();
+
+        var ob = scanner.scan('{tg:val:ty}'); // 3 parts
+        should.deepEqual(ob, new Observation('tg', 'val', 'ty', ob.t));
+        var ob = scanner.scan('{tg:val}'); // 2 parts
+        should.deepEqual(ob, new Observation('tg', 'val', undefined, ob.t));
+    });
+    it("TESTTESTscan(data) custom patterns", () => {
         var scanner = new Scanner({
             patterns: [ Scanner.MATCH_NUMBER ],
         });
 
         // default number pattern
-        var ob = scanner.scan("123.456");
-        should.deepEqual(ob, new Observation("number", 123.456, null, ob.t));
-        var ob = scanner.scan('1');
-        should.deepEqual(ob, new Observation("number", 1, null, ob.t));
-        var ob = scanner.scan('42');
-        should.deepEqual(ob, new Observation("number", 42, null, ob.t));
-        var ob = scanner.scan('123.456');
-        should.deepEqual(ob, new Observation("number", 123.456, null, ob.t));
-        var ob = scanner.scan('-123.456');
-        should.deepEqual(ob, new Observation("number", -123.456, null, ob.t));
+        should(scanner.scan('123.456').toString()).equal('number:123.456');
+        should(scanner.scan('-12.34').toString()).equal('number:-12.34');
+        should(scanner.scan('1').toString()).equal('number:1');
+        should(scanner.scan('42').toString()).equal('number:42');
 
         // custom number
-        var patterns = [{
-            re: '[0-9]+',
-            value: 'number',
-        },{
-            re: /^PI$/,
-            value: new Observation('number', 3.1415926),
-        }];
-        var scanner = new Scanner({
-            patterns,
+        var scanner = new Scanner({ 
+            patterns: [{
+                re: '[0-9]+',
+                value: 'integer',
+            },{
+                re: /^PI$/,
+                value: new Observation('float', 3.1415926),
+            }],
         });
-        var ob = scanner.scan('123'); // string pattern
-        should.deepEqual(ob, new Observation("number", 123, null, ob.t));
-        var ob = scanner.scan('PI'); // RegExp pattern
-        should.deepEqual(ob, new Observation("number", 3.1415926, null, ob.t));
-        var ob = scanner.scan('PIT'); // no match
-        should.deepEqual(ob, new Observation("scanned", "PIT", null, ob.t));
-        var ob = scanner.scan("123.456");  // no match
-        should.deepEqual(ob, new Observation("scanned", "123.456", null, ob.t));
+        should(scanner.scan('123').toString()).equal('integer:123');
+        should(scanner.scan('PI').toString()).equal('float:3.1415926');
+        should(scanner.scan('PIT').toString()).equal('scanned:PIT');
+        should(scanner.scan('12.3').toString()).equal('scanned:12.3');
     });
     it("transformLegacy(is,os) transforms input to output stream", done=>{
         (async function() { try {
             var scanner = new Scanner({
                 map: TESTMAP,
+                patterns: [],
             });
             var ispath = path.join(__dirname, 'data', 'a0001.txt');
             var is = fs.createReadStream(ispath);

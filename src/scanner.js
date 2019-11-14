@@ -15,11 +15,16 @@
     const Observation = require('./observation');
     const Observer = require('./observer');
     const LineFilter = require('./line-filter');
+    const TAG_NUMBER = "number";
+    const TAG_OBSERVATION = "{observation}";
+    const TAG_TINYOBS = "{tiny-obs}";
     const TAG_SCANNED = "scanned";
     const TAG_CODE128 = "CODE128";
     const TAG_UPCA = "UPC-A";
     const TAG_EAN13 = "EAN13";
     const TAG_UPCE_EAN8 = "UPC-E/EAN-8";
+    const PAT_OBSERVATION = '{".*}';
+    const PAT_TINYOBS = '{.+:.*(:.+)?}';
     const PAT_UPCA = '[0-9]{12,12}'; 
     const PAT_EAN13 = '[0-9]{13,13}'; 
     const PAT_UPCE_EAN8 = '[0-9]{8,8}'; // UPC-E or EAN-8
@@ -35,7 +40,10 @@
             super(opts);
             this.map = opts.map || {};
             this.tag = opts.tag || TAG_SCANNED;  // default tag
-            var patterns = opts.patterns || [];
+            var patterns = opts.patterns || [
+                Scanner.MATCH_OBSERVATION,
+                Scanner.MATCH_TINYOBS,
+            ];
             this.patterns = patterns.map(p => {
                 var re = p.re instanceof RegExp
                     ? p.re : RegExp(`^${p.re}$`);
@@ -46,9 +54,21 @@
             });
         }
 
+        static get MATCH_TINYOBS() { return {
+                re: RegExp(`^${PAT_TINYOBS}$`),
+                value: TAG_TINYOBS,
+            };
+        }
+
+        static get MATCH_OBSERVATION() { return {
+                re: RegExp(`^${PAT_OBSERVATION}$`),
+                value: TAG_OBSERVATION,
+            };
+        }
+
         static get MATCH_NUMBER() { return {
-                re: PAT_NUMBER,
-                value: 'number',
+                re: RegExp(`^${PAT_NUMBER}$`),
+                value: TAG_NUMBER,
             };
         }
         static get MATCH_UPCE_EAN8() { return {
@@ -70,23 +90,34 @@
         static get TAG_EAN13() { return TAG_EAN13; }
         static get TAG_UPCA() { return TAG_UPCA; }
         static get TAG_UPCE_EAN8() { return TAG_UPCE_EAN8; }
-        static get TAG_NUMBER() { return "number"; }
+        static get TAG_NUMBER() { return TAG_NUMBER; }
         static get TAG_SCANNED() { return TAG_SCANNED; }
 
         pushLine(line) {
-            var odata = this.scan(line);
-            this.inputStream.push(odata);
+            try {
+                var odata = this.scan(line);
+                this.inputStream.push(odata);
+            } catch(e) {
+                this.inputStream.push(e);
+            }
         }
 
-        scan(barcode) {
+        scan(text) {
             var t = new Date();
             for (var i = 0; i < this.patterns.length; i++) {
                 var p = this.patterns[i];
-                if (p.re.test(barcode)) {
-                    if (p.value === 'number') {
-                        return new Observation(p.value, Number(barcode)); 
+                if (p.re.test(text)) {
+                    if (p.value === TAG_OBSERVATION) {
+                        return new Observation(JSON.parse(text)); 
+                    } else if (p.value === TAG_TINYOBS) {
+                        var p = text
+                            .substring(1,text.length-1)
+                            .split(':');
+                        return new Observation(p[0], p[1], p[2]);
+                    } else if (p.value === TAG_NUMBER) {
+                        return new Observation(TAG_NUMBER, Number(text)); 
                     } else if (typeof p.value === 'string') {
-                        return new Observation(p.value, barcode);
+                        return new Observation(p.value, text);
                     } else {
                         return p.value;
                     }
@@ -96,11 +127,11 @@
             var mapper = this.map;
             var mapperType = typeof mapper.map;
             if (mapper && (mapperType === 'function')) {
-                var m = mapper.map(barcode);
+                var m = mapper.map(text);
             } else {
-                var m = mapper[barcode];
+                var m = mapper[text];
             }
-            var value = barcode;
+            var value = text;
             var tag = this.tag;
             if (m) {
                 value = m.value;
