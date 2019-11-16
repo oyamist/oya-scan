@@ -21,7 +21,7 @@
             });
         }
 
-        static OPTS_DEFAULT(terse = false) {
+        static options(terse = false) {
             return {
                 addop_term: terse ? 'AT' : "addop_term", 
                 addop: terse ? 'AO' : "addop", 
@@ -53,6 +53,18 @@
                 unsigned: terse ? 'U' : "unsigned", 
 
             };
+        }
+
+        static get OPTS_VERBOSE() {
+            return GrammarFactory.options(false);
+        }
+
+        static get OPTS_TERSE() {
+            return GrammarFactory.options(true);
+        }
+
+        static OPTS_DEFAULT(terse = false) {
+            return GrammarFactory.options(terse);
         }
 
         add_expr_enter(t=this.template) {

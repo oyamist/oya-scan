@@ -19,6 +19,7 @@
         Observation,
         Parser,
         Pipeline,
+        Scanner,
 
     } = require("../index");
     const logLevel = false;
@@ -711,6 +712,38 @@
             // check output after input is done
             //await inputPromise; 
             should.deepEqual(outObs.map(o=>o.value), [10,20,30]);
+            for (var i = 0; i < outObs.length; i++) {
+                should(outObs[i].tag).equal(gf.number);
+                should(outObs[i]).instanceOf(Observation);
+            }
+            done();
+        } catch(e) { done(e); }})();
+    });
+    it("TESTTESTScanner|Calculator pipeline", done=>{
+        (async function() { try {
+            var scanner = new Scanner({ logLevel });
+            var calc = new Calculator({ logLevel });
+            var outObs = [];
+            var {
+                inputPromise,
+                inputStream: is,
+            } = await new Pipeline({ logLevel }).build(
+                calc.createReadable(),
+                scanner,
+                calc,
+                calc.createWritable(ob=>outObs.push(ob)),
+            );
+
+            var gf = calc.grammarFactory;
+            is.push(new Observation(gf.digit, 1));
+            is.push(new Observation(gf.plus, '+'));
+            is.push(new Observation(gf.digit, 2));
+            is.push(new Observation(gf.enter, '='));
+            is.push(null); // EOS
+
+            // check output after input is done
+            //await inputPromise; 
+            should.deepEqual(outObs.map(o=>o.value), [3]);
             for (var i = 0; i < outObs.length; i++) {
                 should(outObs[i].tag).equal(gf.number);
                 should(outObs[i]).instanceOf(Observation);

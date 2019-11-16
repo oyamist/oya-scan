@@ -9,10 +9,16 @@ const {
 const JsBarcode = require('jsbarcode');
 const { Image, createCanvas } = require('canvas');
 const {
-    Scanner,
     Calculator,
+    GrammarFactory,
+    Pipeline,
+    Scanner,
 } = require('../index');
-const Stream = require('stream');
+const {
+    PassThrough,
+    Readable,
+    Writable,
+} = require('stream');
 
 function help() {
     console.log(`
@@ -72,10 +78,13 @@ for (var i=0; i<process.argv.length; i++) {
 
 }
 
+var gf = new GrammarFactory(GrammarFactory.OPTS_TERSE);
 var calc = new Calculator({
+    grammarFactory: gf,
     logLevel,
 });
 
+if (0) {
 if (iss) {
     if (!fs.existsSync(mpath)) {
         throw new Error(`Map file not found:${mpath}`);
@@ -86,15 +95,43 @@ if (iss) {
         map,
         logLevel,
     });
-    var calcInput = new Stream.PassThrough();
+    var calcInput = new PassThrough();
     var pscan = scanner.transformLegacy(process.stdin, calcInput);
 } else {
     var calcInput = process.stdin;
 } 
 var pcalc = calc.transform(calcInput, process.stdout);
-
 pcalc.then(r => {
     r.argv = process.argv;
     console.error(JSON.stringify(r, null, 2));
 });
+} else {
+(async function() { try {
+    console.log(`dbg stdin`, process.stdin instanceof Readable);
+    if (!fs.existsSync(mpath)) {
+        throw new Error(`Map file not found:${mpath}`);
+    }
+    var map = JSON.parse(fs.readFileSync(mpath));
+    logLevel && logger[logLevel](`loaded scan map from:${mpath}`);
+    var scanner = new Scanner({
+        map,
+        logLevel,
+    });
+    var {
+        inputPromise,
+    } = await new Pipeline({ logLevel, }).build(
+        process.stdin,
+        scanner,
+        calc,
+        Pipeline.Format('${tag}:${value} ${type}',process.stdout)
+    );
+    var res = await inputPromise;
+    console.log(`dbg res`, res);
+} catch(e) {
+    logger.error(e.stack);
+    process.exit(-1);
+}})();
+
+}
+
 

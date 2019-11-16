@@ -9,6 +9,7 @@
         Writable,
     } = require('stream');
     const {
+        GrammarFactory,
         Observation,
         Pipeline,
         Scanner,
@@ -278,6 +279,45 @@
                 `height:10`,
             ]);
 
+            done();
+        } catch(e) {done(e)} })();
+    });
+    it("TESTTESTcalc-map Scanner ", done=>{
+        (async function() { try {
+            var gf = new GrammarFactory(GrammarFactory.OPTS_TERSE);
+            var mpath = path.join(__dirname, 'data', 'calc-map.json');
+            var map = JSON.parse(fs.readFileSync(mpath));
+            var scanner = new Scanner({ map, logLevel, });
+            var scan0 = "  0  " ;
+            var scan1 = "  1  " ;
+            var scan2 = "  2  " ;
+            var scan3 = "  3  " ;
+            var scan4 = "  4  " ;
+            var scan5 = "  5  " ;
+            var scan6 = "  6  " ;
+            var scan7 = "  7  " ;
+            var scan8 = "  8  " ;
+            var scan9 = "  9  " ;
+            var scanPlus = "  +  ";
+            var scanMinus = "  -  ";
+            var scanMultiply = "  *  ";
+            var scanDivide = "  /  ";
+            var scanEqual = "  =  ";
+            should(scanner.scan(scan0)+'').equal('D:0');
+            should(scanner.scan(scan1)+'').equal('D:1');
+            should(scanner.scan(scan2)+'').equal('D:2');
+            should(scanner.scan(scan3)+'').equal('D:3');
+            should(scanner.scan(scan4)+'').equal('D:4');
+            should(scanner.scan(scan5)+'').equal('D:5');
+            should(scanner.scan(scan6)+'').equal('D:6');
+            should(scanner.scan(scan7)+'').equal('D:7');
+            should(scanner.scan(scan8)+'').equal('D:8');
+            should(scanner.scan(scan9)+'').equal('D:9');
+            should(scanner.scan(scanPlus)+'').equal('"+":+');
+            should(scanner.scan(scanMinus)+'').equal('"-":-');
+            should(scanner.scan(scanMultiply)+'').equal('"*":*');
+            should(scanner.scan(scanDivide)+'').equal('"/":/');
+            should(scanner.scan(scanEqual)+'').equal('"=":=');
             done();
         } catch(e) {done(e)} })();
     });

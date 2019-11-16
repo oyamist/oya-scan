@@ -1,81 +1,81 @@
 {
     "  0  " : {
-        "tag": "digit",
+        "tag": "D",
         "value": 0
     },
     "  1  " : {
-        "tag": "digit",
+        "tag": "D",
         "value": 1
     },
     "  2  " : {
-        "tag": "digit",
+        "tag": "D",
         "value": 2
     },
     "  3  " : {
-        "tag": "digit",
+        "tag": "D",
         "value": 3
     },
     "  4  " : {
-        "tag": "digit",
+        "tag": "D",
         "value": 4
     },
     "  5  " : {
-        "tag": "digit",
+        "tag": "D",
         "value": 5
     },
     "  6  " : {
-        "tag": "digit",
+        "tag": "D",
         "value": 6
     },
     "  7  " : {
-        "tag": "digit",
+        "tag": "D",
         "value": 7
     },
     "  8  " : {
-        "tag": "digit",
+        "tag": "D",
         "value": 8
     },
     "  9  " : {
-        "tag": "digit",
+        "tag": "D",
         "value": 9
     },
     "  .  " : {
-        "tag": ".",
-        "value": "point"
+        "tag": "\".\"",
+        "value": "."
     },
     "  *  " : {
         "background": "#ffff99",
-        "tag": "*",
-        "value": "times"
+        "tag": "\"*\"",
+        "value": "*"
     },
     "  /  " : {
         "background": "#ffff99",
-        "tag": "/",
-        "value": "divide"
+        "tag": "\"/\"",
+        "value": "/"
     },
     "  +  " : {
         "background": "#ffff99",
-        "tag": "+",
-        "value": "plus"
+        "tag": "\"+\"",
+        "value": "+"
     },
     "  -  " : {
         "background": "#ffff99",
-        "tag": "-",
-        "value": "minus"
+        "tag": "\"-\"",
+        "value": "-"
     },
     "  =  " : {
         "background": "#ffff99",
-        "tag": "enter",
-        "value": "enter"
+        "tag": "\"=\"",
+        "value": "="
     },
     "  C  " : {
         "background": "#ccccff",
-        "tag": "undo",
-        "value": "undo"
+        "tag": "C",
+        "value": "C"
     },
     "  AC  " : {
         "background": "#ccccff",
-        "tag": "clear",
-        "value": "clear"
+        "tag": "AC",
+        "value": "AC"
     }
 }
