@@ -10,6 +10,7 @@ module.exports = {
     Parser: require('./src/parser'),
     Pipeline: require('./src/pipeline'),
     Scanner: require('./src/scanner'),
+    Source: require('./src/source'),
     Thing: require('./src/thing'),
     Workspace: require('./src/workspace'),
 

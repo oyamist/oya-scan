@@ -11,6 +11,7 @@
         logger,
     } = require('just-simple').JustSimple;
     const Observer = require('./observer');
+    const Source = require('./source');
 
     class Pipeline {
         constructor(opts={}) {
@@ -71,6 +72,11 @@
                 if (args[i] instanceof Readable) {
                     that.log(`[${i}] Readable input stream`);
                     that.inputStream = args[i];
+                    i++;
+                } else if (args[i] instanceof Source) {
+                    endPoint = args[i];
+                    observers.push(args[i]);
+                    that.log(`[${i}] Source ${args[i].name}`);
                     i++;
                 }
                 for (; i <= iEnd; i++) {
