@@ -51,34 +51,28 @@
             return that._inputStream;
         }
 
-        streamIn(is) {
+        streamInObjects(is) {
             var that = this;
-            if (!(is instanceof Readable)) {
-                throw new Error(
-                    'Expected Readable input stream');
-            }
-            if (that._inputStream != null) {
-                throw new Error(
-                    `Input stream has already been assigned`);
-            }
-            if (is._readableState.objectMode) {
-                // Observation stream
-                that._inputStream = is;
-                that._inputStream.pipe(that.transform);
-                return new Promise((resolve,reject) => { try {
-                    var started = new Date();
-                    var bytes = 0;
-                    var observations = 0;
-                    that.log(`TBD streamIn(ObservationStream)`);
-                    resolve({
-                        bytes,
-                        observations,
-                        started,
-                        ended: new Date(),
-                    });
-                } catch(e) { reject(e); }});
-            }
 
+            // Observation stream
+            that._inputStream = is;
+            that._inputStream.pipe(that.transform);
+            return new Promise((resolve,reject) => { try {
+                var started = new Date();
+                var bytes = 0;
+                var observations = 0;
+                that.log(`TBD streamIn(ObservationStream)`);
+                resolve({
+                    bytes,
+                    observations,
+                    started,
+                    ended: new Date(),
+                });
+            } catch(e) { reject(e); }});
+        }
+
+        streamInLines(is) {
+            var that = this;
             // standard line stream (e.g., stdin)
             this.log(`streamIn(LineStream)`);
             this._inputStream = that.createReadable();
@@ -130,6 +124,22 @@
                 });
             } catch(e) { reject(e); }})()};
             return new Promise(pbody);
+        }
+
+        streamIn(is) {
+            var that = this;
+            if (!(is instanceof Readable)) {
+                throw new Error(
+                    'Expected Readable input stream');
+            }
+            if (that._inputStream != null) {
+                throw new Error(
+                    `Input stream has already been assigned`);
+            }
+
+            return is._readableState.objectMode
+                ? that.streamInObjects(is)
+                : that.streamInLines(is);
         }
 
         pushLine(line) {
