@@ -5,22 +5,49 @@
     } = require('just-simple').JustSimple;
     const {
         Readable,
+        Transform,
     } = require('stream');
     const Observer = require('./observer');
+    const Observation = require('./observation');
+    var instCount = 0;
 
     /*
      * Sources provide observations to downstream observers
      */
-    class Source extends Observer {
+    class Source {
         constructor(opts={}) {
-            super(opts);
+            //super(opts);
             var that = this;
-            that.streamIn(new Readable({
+            logger.logInstance(that, opts);
+            this.name = opts.name || 
+                `${this.constructor.name}-${instCount++}`;
+            that.obsCount = 0;
+
+            var objectSink = new Readable({
                 objectMode: true,
                 read(size) { // called only once 
                     that.log(`read() initialized`);
                 },
-            }));
+            });
+            Object.defineProperty(this, "_objectSink", {
+                value: objectSink,
+            });
+            this.transform = new Transform({
+                writableObjectMode: true,
+                readableObjectMode: true,
+                transform(ob, encoding, cb) {
+                    if (ob instanceof Observation) {
+                        that.obsCount++;
+                        that.transform.push(ob);
+                    } else {
+                        that.transform.push(
+                            new Error('expected Observation')
+                        );
+                    }
+                    cb();
+                }
+            });
+            objectSink.pipe(this.transform);
 
             this.observations = opts.observations;
             this.lineStream = opts.lineStream;
@@ -29,9 +56,10 @@
         }
 
         onInitialize() {
+            this.started = new Date();
             if (this.observations) {
                 var observations = this.observations;
-                observations.forEach(o => this.inputStream.push(o));
+                observations.forEach(o => this._objectSink.push(o));
             } else if (this.lineStream) {
                 this.streamInLine(this.lineStream);
             }
@@ -118,6 +146,22 @@
                     `No input stream. Call streamIn() or pipeline()`);
             }
             this.inputStream.push(ob);
+        }
+
+        streamIn(is) {
+            var that = this;
+            if (!(is instanceof Readable)) {
+                throw new Error(
+                    'Expected Readable input stream');
+            }
+            if (that._inputStream != null) {
+                throw new Error(
+                    `Input stream has already been assigned`);
+            }
+
+            return is._readableState.objectMode
+                ? that.streamInObjects(is)
+                : that.streamInLines(is);
         }
 
     }
