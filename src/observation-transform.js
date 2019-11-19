@@ -9,12 +9,12 @@
     const Observation = require('./observation');
     var instCount = 0;
 
-    class ObservationTransform {
+    class ObservationTransform { // abstract superclass
         constructor(opts={}) {
             var that = this;
             logger.logInstance(that, opts);
             that.name = opts.name || 
-                `${that.constructor.name}-${instCount++}`;
+                `${that.constructor.name}${instCount++}`;
             that.obsCount = 0;
 
             that.transform = new Transform({

@@ -5,9 +5,7 @@
     } = require('just-simple').JustSimple;
     const {
         Readable,
-        Transform,
     } = require('stream');
-    const Observer = require('./observer');
     const Observation = require('./observation');
     const ObservationTransform = require('./observation-transform');
     var instCount = 0;
@@ -20,19 +18,30 @@
             super(opts);
             var that = this;
 
-            var inputStream = new Readable({
+            var objectsIn = new Readable({
                 objectMode: true,
                 read(size) { // called only once 
                     that.log(`read() initialized`);
                 },
             });
-            Object.defineProperty(this, "inputStream", {
-                value: inputStream,
+            Object.defineProperty(this, "objectsIn", {
+                value: objectsIn,
             });
-            inputStream.pipe(this.transform);
+            objectsIn.pipe(this.transform);
 
-            this.observations = opts.observations;
-            this.lineStream = opts.lineStream;
+            if (opts.observations) {
+                this.observations = opts.observations;
+                if (opts.lineStream) {
+                    throw new Error(
+                        `lineStream not allowed with observations`);
+                }
+                this.log(`Created observations Source`);
+            } else if (opts.lineStream) {
+                this.lineStream = opts.lineStream;
+                this.log(`Created lineStream Source`);
+            } else {
+                this.log(`Created objectsIn Source`);
+            }
 
             this.initialized = false;
         }
@@ -41,9 +50,13 @@
             this.started = new Date();
             if (this.observations) {
                 var observations = this.observations;
-                observations.forEach(o => this.inputStream.push(o));
+                observations.forEach(o => this.objectsIn.push(o));
+                this.log(`Source observations initialized`);
             } else if (this.lineStream) {
                 this.streamInLine(this.lineStream);
+                this.log(`Source lineStream initialized`);
+            } else {
+                this.log(`Source objectsIn initialized`);
             }
 
             this.initalized = true;
@@ -111,16 +124,17 @@
             return new Promise(pbody);
         }
 
+        /*
+         * By default, convert lines to observations
+         */
         pushLine(line) {
-            // override this to change Observer's response to
-            // input lines
             try {
                 var ob = new Observation(JSON.parse(line));
             } catch(e) {
                 logger.error(e.stack);
                 var ob = new Observation(Observation.TAG_ERROR, e);
             }
-            this.inputStream.push(ob);
+            this.objectsIn.push(ob);
         }
 
     }
