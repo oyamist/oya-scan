@@ -14,12 +14,12 @@
         exec,
     } = require('child_process');
     const Observation = require('./observation');
+    const ObservationTransform = require('./observation-transform');
 
-    class Observer {
+    class Observer extends ObservationTransform {
         constructor(opts={}) {
+            super(opts);
             var that = this;
-            logger.logInstance(that, opts);
-            that.name = opts.name || this.constructor.name;
             that.readSize = 0;
             Object.defineProperty(that, "pipelineArgs", {
                 writable: true,
@@ -28,21 +28,6 @@
             Object.defineProperty(that, "_inputStream", {
                 writable: true,
                 value: null,
-            });
-            that.transform = new Transform({
-                writableObjectMode: true,
-                readableObjectMode: true,
-                transform(ob, encoding, cb) {
-                    if (ob instanceof Observation) {
-                        var obResult = that.observe(ob);
-                        obResult && that.transform.push(obResult);
-                    } else {
-                        that.transform.push(
-                            new Error('expected Observation')
-                        );
-                    }
-                    cb();
-                }
             });
         }
 
