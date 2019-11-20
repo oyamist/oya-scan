@@ -1,5 +1,6 @@
 
 module.exports = {
+    Aggregator: require('./src/aggregator'),
     Calculator: require('./src/calculator'),
     Grammar: require('./src/grammar'),
     GrammarFactory: require('./src/grammar-factory'),

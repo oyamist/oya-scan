@@ -13,6 +13,7 @@
         Writable,
     } = require('stream');
     const {
+        Aggregator,
         Calculator,
         Grammar,
         GrammarFactory,
@@ -20,6 +21,7 @@
         Parser,
         Pipeline,
         Scanner,
+        Source,
 
     } = require("../index");
     const logLevel = false;
@@ -510,7 +512,7 @@
             done(e); 
         }})();
     });
-    it("TESTTESTobserve(ob) calculates", ()=>{
+    it("observe(ob) calculates", ()=>{
         var calc = new Calculator({ logLevel, grammarFactory: gf});
 
         // The observe() method can be called directly to verify
@@ -690,36 +692,30 @@
     it("TESTTESTpipeline emits result observations", done=>{
         (async function() { try {
             var calc = new Calculator({ logLevel });
-            var outObs = [];
-            var {
-                inputPromise,
-                inputStream: is,
-            } = await new Pipeline({ logLevel }).build(
-                calc.createReadable(),
+            var gf = calc.grammarFactory;
+            var observations = [
+                new Observation(gf.digit, 1),
+                new Observation(gf.digit, 0),
+                new Observation(gf.plus, '+'),
+                new Observation(gf.enter, '='),
+                new Observation(gf.enter, '='),
+                new Observation(gf.enter, '='),
+            ];
+            var testSrc = new Source({ logLevel: 'info', observations });
+            var testSink = new Aggregator({logLevel});
+            var pipeline = await new Pipeline({ logLevel }).build(
+                testSrc,
                 calc,
-                calc.createWritable(ob=>outObs.push(ob)),
+                testSink,
             );
 
-            var gf = calc.grammarFactory;
-            is.push(new Observation(gf.digit, 1));
-            is.push(new Observation(gf.digit, 0));
-            is.push(new Observation(gf.plus, '+'));
-            is.push(new Observation(gf.enter, '='));
-            is.push(new Observation(gf.enter, '='));
-            is.push(new Observation(gf.enter, '='));
-            is.push(null); // EOS
-
-            // check output after input is done
-            //await inputPromise; 
-            should.deepEqual(outObs.map(o=>o.value), [10,20,30]);
-            for (var i = 0; i < outObs.length; i++) {
-                should(outObs[i].tag).equal(gf.number);
-                should(outObs[i]).instanceOf(Observation);
-            }
+            await testSrc.initialize();
+            should.deepEqual(testSink.observations.map(o=>o.value), 
+                [10,20,30]);
             done();
         } catch(e) { done(e); }})();
     });
-    it("TESTTESTScanner|Calculator pipeline", done=>{
+    it("Scanner|Calculator pipeline", done=>{
         (async function() { try {
             var scanner = new Scanner({ logLevel });
             var calc = new Calculator({ logLevel });

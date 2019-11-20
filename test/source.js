@@ -2,35 +2,17 @@
     const should = require("should");
     const fs = require('fs');
     const path = require('path');
-    const tmp = require('tmp');
-    const {
-        Readable,
-        Writable,
-        Transform,
-    } = require('stream');
     const { js, logger } = require('just-simple').JustSimple;
+    const { Transform } = require('stream');
     const {
+        Aggregator,
         Observation,
-        Observer,
         Source,
         Pipeline,
     } = require('../index');
     var logLevel = false;
 
-    class TestSink extends Observer {
-        constructor(opts={}) {
-            super(opts);
-            this.observations = [];
-        }
-
-        observe(ob) {
-            console.log("TESTSINK observe", ob);
-            this.observations.push(ob);
-            return null;
-        }
-    }
-
-    it("TESTTESTdefault ctor", done=>{
+    it("default ctor", done=>{
         (async function(){ try {
             var src = new Source();
             should(src.transform).instanceOf(Transform);
@@ -43,7 +25,7 @@
             done();
         } catch(e) {done(e);} })();
     });
-    it("TESTTESTcustom ctor", done=>{
+    it("custom ctor", done=>{
         (async function(){ try {
             var logLevel = 'debug';
             var name = "test1";
@@ -52,22 +34,52 @@
             done();
         } catch(e) {done(e);} })();
     });
-    it("TESTTESTinitialize() starts data source", done=>{
+    it("initialize() observations", done=>{
         (async function(){ try {
             var logLevel = 'info';
             var observations = [ new Observation('hello', 'world'), ];
             var testSource = new Source({ logLevel, observations, });
-            var testSink = new TestSink();
-            var pipeline = await new Pipeline({logLevel}).build(
-                testSource,
-                testSink,
-            );
+            var testSink = new Aggregator();
+            var promise = new Pipeline({logLevel})
+                .build(testSource, testSink);
 
             should(testSink.observations.length).equal(0);
-            var pInit = testSource.initialize();
-            should(pInit).instanceOf(Promise);
-            await pInit;
+            await promise;
             should.deepEqual(testSink.observations, observations);
+
+            done();
+        } catch(e) {done(e);} })();
+    });
+    it("initialize() lineStream ReadStream", done=>{
+        (async function(){ try {
+            var ispath = path.join(__dirname, 'data', 'obs1234.json');
+            var lineStream = fs.createReadStream(ispath);
+            var testSource = new Source({ logLevel, lineStream, });
+            var testSink = new Aggregator({logLevel});
+            var promise = new Pipeline({logLevel})
+                .build(testSource, testSink);
+
+            should(testSink.observations.length).equal(0);
+            await promise;
+            var testObs = testSink.observations;
+            should.deepEqual(testObs.map(o=>js.simpleString(o)), [
+                'test:1 kg', 'test:2 kg', 'test:3 kg', 'test:4 kg', ]);
+
+            done();
+        } catch(e) {done(e);} })();
+    });
+    it("initialize() lineStream path", done=>{
+        (async function(){ try {
+            var lineStream = path.join(__dirname, 'data', 'obs1234.json');
+            var testSource = new Source({ logLevel, lineStream, });
+            var testSink = new Aggregator({logLevel});
+            var promise = new Pipeline({logLevel})
+                .build(testSource, testSink);
+            var testObs = testSink.observations;
+            should.deepEqual(testObs.map(o=>js.simpleString(o)), []);
+            await promise;
+            should.deepEqual(testObs.map(o=>js.simpleString(o)), [
+                'test:1 kg', 'test:2 kg', 'test:3 kg', 'test:4 kg', ]);
 
             done();
         } catch(e) {done(e);} })();

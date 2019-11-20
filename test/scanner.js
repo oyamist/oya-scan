@@ -9,10 +9,12 @@
         Writable,
     } = require('stream');
     const {
+        Aggregator,
         GrammarFactory,
         Observation,
         Pipeline,
         Scanner,
+        Source,
     } = require('../index');
     const TESTMAP = {
         a0001: {
@@ -34,7 +36,7 @@
     };
     const logLevel = false;
 
-    it("TESTTESTdefault ctor", () => {
+    it("default ctor", () => {
         var scanner = new Scanner();
         should(scanner).instanceOf(Scanner);
         should.deepEqual(scanner.map, {});
@@ -50,7 +52,7 @@
         should(scanner.scan('123').toString()).equal('scanned:123');
         should(scanner.scan('12.34').toString()).equal('scanned:12.34');
     });
-    it("TESTTESTcustom ctor",() => {
+    it("custom ctor",() => {
         // custom scanner recognizes integers
         var map = TESTMAP;
         var tag = 'string'; 
@@ -64,7 +66,7 @@
         should(scanner.scan('123').toString()).equal('integer:123');
         should(scanner.scan('12.34').toString()).equal('string:12.34');
     });
-    it("TESTTESTscan(data) => mapped Observation (Object)", () => {
+    it("scan(data) => mapped Observation (Object)", () => {
         var scanner = new Scanner({
             map: TESTMAP,
         });
@@ -87,7 +89,7 @@
         should(Date.now() - dataout.t).above(-1).below(5);
         should(dataout.toString()).equal('height:5');
     });
-    it("TESTTESTscan(data) => mapped Observation (function)", ()=>{
+    it("scan(data) => mapped Observation (function)", ()=>{
         var mapper = {
             map: (barcode)=>{
                 return {
@@ -119,13 +121,13 @@
         should(Date.now() - dataout.t).above(-1).below(5);
         should(dataout.toString()).equal('color:red');
     });
-    it("TESTTESTscan() serialized Observations", () => {
+    it("scan() serialized Observations", () => {
         var scanner = new Scanner();
         var obIn = new Observation("weight", 123, "kg");
         var ob = scanner.scan(JSON.stringify(obIn));
         should.deepEqual(ob, obIn);
     });
-    it("TESTTESTscan() Tiny Observations", () => {
+    it("scan() Tiny Observations", () => {
         var scanner = new Scanner();
 
         var ob = scanner.scan('{tg:val:ty}'); // 3 parts
@@ -133,7 +135,7 @@
         var ob = scanner.scan('{tg:val}'); // 2 parts
         should.deepEqual(ob, new Observation('tg', 'val', undefined, ob.t));
     });
-    it("TESTTESTscan(data) custom patterns", () => {
+    it("scan(data) custom patterns", () => {
         var scanner = new Scanner({
             patterns: [ Scanner.MATCH_NUMBER ],
         });
@@ -246,33 +248,23 @@
         should.deepEqual(ob, 
             new Observation(Scanner.TAG_NUMBER, 1234, null, ob.t));
     });
-    it("streamIn ", done=>{
+    it("TESTTESTstreamIn ", done=>{
         (async function() { try {
-            var scanner = new Scanner({
-                map: TESTMAP,
-                logLevel,
+            var logLevel = 'info';
+            console.log('dbg scanner test');
+            var lineStream = path.join(__dirname, 'data', 'a0001.txt');
+            var scanner = new Scanner({ 
+                logLevel, 
+                map: TESTMAP, 
+                lineStream,
             });
 
             // Bind output stream
-            var obOut = [];
-            var ispath = path.join(__dirname, 'data', 'a0001.txt');
-            var is = fs.createReadStream(ispath);
-            var os = scanner.createWritable(ob => obOut.push(ob));
+            var testSnk = new Aggregator({logLevel});
             var pipeline = await new Pipeline({logLevel})
-                .build(is, scanner, os);
-
-            // Pipeline is synchronous, so output is done
-            // when input is done and promise is resolved.
-            var result = await pipeline.inputPromise;
-            should(result).properties(['started', 'ended']);
-            should(result).properties({
-                bytes: 24,
-                observations: 4,
-            });
-            should(result.started).instanceOf(Date);
-            should(result.ended).instanceOf(Date);
-
-            should.deepEqual(obOut.map(ob => js.simpleString(ob)), [
+                .build(scanner, testSnk);
+            var testObs = testSnk.observations;
+            should.deepEqual(testObs.map(ob => js.simpleString(ob)), [
                 `color:red`,
                 `color:blue`,
                 `height:5`,
@@ -282,7 +274,7 @@
             done();
         } catch(e) {done(e)} })();
     });
-    it("TESTTESTcalc-map Scanner ", done=>{
+    it("calc-map Scanner ", done=>{
         (async function() { try {
             var gf = new GrammarFactory(GrammarFactory.OPTS_TERSE);
             var mpath = path.join(__dirname, 'data', 'calc-map.json');

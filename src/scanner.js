@@ -13,6 +13,7 @@
         exec,
     } = require('child_process');
     const Observation = require('./observation');
+    const Source = require('./source');
     const Observer = require('./observer');
     const LineFilter = require('./line-filter');
     const TAG_NUMBER = "number";
@@ -35,7 +36,7 @@
         '[0-9]{0,4}\\.[0-9]{0,3}', // floating point
     ].join('|')+')';
 
-    class Scanner extends Observer {
+    class Scanner extends Source {
         constructor(opts = {}) {
             super(opts);
             this.map = opts.map || {};

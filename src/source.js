@@ -1,4 +1,6 @@
 (function(exports) {
+    const fs = require('fs');
+    const path = require('path');
     const { 
         js,
         logger,
@@ -35,40 +37,46 @@
                     throw new Error(
                         `lineStream not allowed with observations`);
                 }
-                this.log(`Created observations Source`);
+                var nObs = this.observations.length;
+                this.log(`ctor: observations[${nObs}]`);
             } else if (opts.lineStream) {
-                this.lineStream = opts.lineStream;
-                this.log(`Created lineStream Source`);
+                this.lineStream = typeof opts.lineStream === 'string'
+                    ? fs.createReadStream(opts.lineStream)
+                    : opts.lineStream;
+                this.log(`ctor: lineStream`);
             } else {
-                this.log(`Created objectsIn Source`);
+                this.log(`ctor: objectsIn`);
             }
-
-            this.initialized = false;
         }
 
-        onInitialize() {
-            this.started = new Date();
-            if (this.observations) {
-                var observations = this.observations;
-                observations.forEach(o => this.objectsIn.push(o));
-                this.log(`Source observations initialized`);
-            } else if (this.lineStream) {
-                this.streamInLine(this.lineStream);
-                this.log(`Source lineStream initialized`);
-            } else {
-                this.log(`Source objectsIn initialized`);
-            }
+        onInitialize(resolve,reject) {
+            var that = this;
+            (async function() { try {
+                that.initialized = null;
+                var {
+                    observations,
+                    objectsIn,
+                } = that;
+                that.started = new Date();
+                if (observations) {
+                    var nObs = observations.length;
+                    observations.forEach(o => objectsIn.push(o));
+                    objectsIn.push(null); // EOS
+                    that.log(`observations[${nObs}] initialized`);
+                } else if (that.lineStream) {
+                    await that.streamInLines(that.lineStream);
+                    that.log(`lineStream initialized`);
+                } else {
+                    that.log(`objectsIn initialized`);
+                }
 
-            this.initalized = true;
-        }
-
-        initialize() {
-            // Subclass can do whatever here
-            this.onInitialize();
-            return Promise.resolve(this);
+                that.initialized = true;
+                resolve(that);
+            } catch(e) { reject(e); }})();
         }
 
         streamInLines(is) {
+            var that = this;
             if (is._readableState.objectMode) {
                 throw new Error(
                     `Line input stream cannot be object stream`);
