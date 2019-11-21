@@ -1,8 +1,6 @@
 (typeof describe === 'function') && describe("observer", function() {
     const should = require("should");
-    const {
-        Transform,
-    } = require('stream');
+    const { Transform, } = require('stream');
     const { js, logger } = require('just-simple').JustSimple;
     const {
         Aggregator,
@@ -29,6 +27,32 @@
             should(obr.transform._readableState)
                 .properties({ objectMode: true, });
             should(obr.initialized).equal(false);
+            done();
+        } catch(e) {done(e);} })();
+    });
+    it("TESTTESTinitialize()", done=> {
+        (async function(){ try {
+            var obr = new Observer({logLevel});
+            should(obr.initialized).equal(false);
+            await obr.initialize();
+            should(obr.initialized).equal(true);
+            done();
+        } catch(e) {done(e);} })();
+    });
+    it("TESTTESTobserve(ob) processes observation", done=> {
+        (async function(){ try {
+            var obr = new Observer({logLevel});
+            var ob = new Observation('test', 42);
+
+            // observe() requires initialization
+            should(obr.initialized).equal(false);
+            should.throws(() => {
+                obr.observe(ob);
+            });
+
+            // observe() is passthrough by default
+            await obr.initialize();
+            should(obr.observe(ob)).equal(ob);
             done();
         } catch(e) {done(e);} })();
     });

@@ -9,7 +9,7 @@
     const Observation = require('./observation');
     var instCount = 0;
 
-    class ObTransform { // abstract superclass
+    class Observer { // abstract superclass
         constructor(opts={}) {
             var that = this;
             logger.logInstance(that, opts);
@@ -77,6 +77,6 @@
         }
     }
 
-    module.exports = exports.ObTransform = ObTransform;
+    module.exports = exports.Observer = Observer;
 })(typeof exports === "object" ? exports : (exports = {}));
 
