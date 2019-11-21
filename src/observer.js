@@ -25,23 +25,23 @@
                 writable: true,
                 value: undefined,
             });
-            Object.defineProperty(that, "_inputStream", {
+            Object.defineProperty(that, "_objectsIn", {
                 writable: true,
                 value: null,
             });
         }
 
-        get inputStream() {
+        get objectsIn() {
             var that = this;
-            return that._inputStream;
+            return that._objectsIn;
         }
 
         streamInObjects(is) {
             var that = this;
 
             // Observation stream
-            that._inputStream = is;
-            that._inputStream.pipe(that.transform);
+            that._objectsIn = is;
+            that._objectsIn.pipe(that.transform);
             return new Promise((resolve,reject) => { try {
                 var started = new Date();
                 var bytes = 0;
@@ -60,8 +60,8 @@
             var that = this;
             // standard line stream (e.g., stdin)
             this.log(`streamIn(LineStream)`);
-            this._inputStream = that.createReadable();
-            that._inputStream.pipe(that.transform);
+            this._objectsIn = that.createReadable();
+            that._objectsIn.pipe(that.transform);
             is.setEncoding('utf8');
             var started = new Date();
             var pbody = (resolve, reject) => {(async function() { try {
@@ -117,7 +117,7 @@
                 throw new Error(
                     'Expected Readable input stream');
             }
-            if (that._inputStream != null) {
+            if (that._objectsIn != null) {
                 throw new Error(
                     `Input stream has already been assigned`);
             }
@@ -136,11 +136,11 @@
                 logger.error(e.stack);
                 var ob = new Observation(Observation.TAG_ERROR, e);
             }
-            if (this.inputStream == null) {
+            if (this.objectsIn == null) {
                 throw new Error(
                     `No input stream. Call streamIn() or pipeline()`);
             }
-            this.inputStream.push(ob);
+            this.objectsIn.push(ob);
         }
 
         observe(ob) {

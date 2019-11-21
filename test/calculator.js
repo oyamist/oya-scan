@@ -702,47 +702,33 @@
                 new Observation(gf.enter, '='),
             ];
             var testSrc = new Source({ logLevel: 'info', observations });
-            var testSink = new Aggregator({logLevel});
-            var pipeline = await new Pipeline({ logLevel }).build(
-                testSrc,
-                calc,
-                testSink,
-            );
-
-            await testSrc.initialize();
-            should.deepEqual(testSink.observations.map(o=>o.value), 
-                [10,20,30]);
+            var testSnk = new Aggregator({ logLevel });
+            var pipeline = await new Pipeline({ logLevel })
+                .build( testSrc, calc, testSnk );
+            var testObs = testSnk.observations;
+            should.deepEqual(testObs.map(o=>o.value), [10,20,30]);
             done();
         } catch(e) { done(e); }})();
     });
-    it("Scanner|Calculator pipeline", done=>{
+    it("TESTTESTScanner|Calculator pipeline", done=>{
         (async function() { try {
-            var scanner = new Scanner({ logLevel });
             var calc = new Calculator({ logLevel });
-            var outObs = [];
-            var {
-                inputPromise,
-                inputStream: is,
-            } = await new Pipeline({ logLevel }).build(
-                calc.createReadable(),
-                scanner,
-                calc,
-                calc.createWritable(ob=>outObs.push(ob)),
-            );
-
             var gf = calc.grammarFactory;
-            is.push(new Observation(gf.digit, 1));
-            is.push(new Observation(gf.plus, '+'));
-            is.push(new Observation(gf.digit, 2));
-            is.push(new Observation(gf.enter, '='));
-            is.push(null); // EOS
-
-            // check output after input is done
-            //await inputPromise; 
-            should.deepEqual(outObs.map(o=>o.value), [3]);
-            for (var i = 0; i < outObs.length; i++) {
-                should(outObs[i].tag).equal(gf.number);
-                should(outObs[i]).instanceOf(Observation);
+            var observations = [
+                new Observation(gf.digit, 1),
+                new Observation(gf.plus, '+'),
+                new Observation(gf.digit, 2),
+                new Observation(gf.enter, '='),
+            ];
+            var scanner = new Scanner({ logLevel, observations });
+            var testSnk = new Aggregator({ logLevel });
+            var pipeline = await new Pipeline({ logLevel })
+                .build(scanner, calc, testSnk);
+            var testObs = testSnk.observations;
+            should.deepEqual(testObs.map(o=>o.value), [3]);
+            for (var i = 0; i < testObs.length; i++) {
+                should(testObs[i].tag).equal(gf.number);
+                should(testObs[i]).instanceOf(Observation);
             }
             done();
         } catch(e) { done(e); }})();

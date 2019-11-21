@@ -97,9 +97,9 @@
         pushLine(line) {
             try {
                 var odata = this.scan(line);
-                this.inputStream.push(odata);
+                this.objectsIn.push(odata);
             } catch(e) {
-                this.inputStream.push(e);
+                this.objectsIn.push(e);
             }
         }
 

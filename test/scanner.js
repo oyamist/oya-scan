@@ -248,7 +248,7 @@
         should.deepEqual(ob, 
             new Observation(Scanner.TAG_NUMBER, 1234, null, ob.t));
     });
-    it("TESTTESTstreamIn ", done=>{
+    it("TESTTESTlineStream", done=>{
         (async function() { try {
             var logLevel = 'info';
             console.log('dbg scanner test');
