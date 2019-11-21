@@ -113,11 +113,6 @@
                     }
                 }
 
-                if (that.inputStream) {
-                    that.inputPromise = 
-                        observers[0].streamIn(that.inputStream);
-                }
-
                 for (var iOvr=0; iOvr < observers.length; iOvr++) {
                     await observers[iOvr].initialize();
                 }
