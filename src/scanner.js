@@ -145,19 +145,6 @@
                 value,
             });
         }
-
-        transformLegacy(is,os) {
-            var consume = (line, os) => {
-                var odata = this.scan(line);
-                os.write(JSON.stringify(odata)+'\n');
-            };
-            var lf = new LineFilter({
-                logLevel: this.logLevel,
-                consume,
-            });
-
-            return lf.transform(is, os);
-        }
     }
 
     module.exports = exports.Scanner = Scanner;

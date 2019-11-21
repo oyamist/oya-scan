@@ -689,7 +689,7 @@
         tc.testChar('=', '{text:1,op:=}');
         tc.testChar('=', '{text:0.5,op:=}');
     });
-    it("TESTTESTpipeline emits result observations", done=>{
+    it("pipeline emits result observations", done=>{
         (async function() { try {
             var calc = new Calculator({ logLevel });
             var gf = calc.grammarFactory;
@@ -710,7 +710,7 @@
             done();
         } catch(e) { done(e); }})();
     });
-    it("TESTTESTScanner|Calculator pipeline", done=>{
+    it("Scanner|Calculator pipeline", done=>{
         (async function() { try {
             var calc = new Calculator({ logLevel });
             var gf = calc.grammarFactory;

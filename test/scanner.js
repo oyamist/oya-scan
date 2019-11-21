@@ -161,58 +161,6 @@
         should(scanner.scan('PIT').toString()).equal('scanned:PIT');
         should(scanner.scan('12.3').toString()).equal('scanned:12.3');
     });
-    it("transformLegacy(is,os) transforms input to output stream", done=>{
-        (async function() { try {
-            var scanner = new Scanner({
-                map: TESTMAP,
-                patterns: [],
-            });
-            var ispath = path.join(__dirname, 'data', 'a0001.txt');
-            var is = fs.createReadStream(ispath);
-            var ospath = tmp.tmpNameSync();
-            var os = fs.createWriteStream(ospath);
-
-            // transformLegacy returns a Promise
-            var result = await scanner.transformLegacy(is, os);
-
-            should(result).properties(['started', 'ended']);
-            should(result).properties({
-                bytes: 24,
-                observations: 4,
-            });
-            should(result.started).instanceOf(Date);
-            should(result.ended).instanceOf(Date);
-
-            // output stream has one observation per line
-            should(fs.existsSync(ospath));
-            var odata = fs.readFileSync(ospath);
-            var otext = odata.toString();
-            //console.log(`dbg odata`, odata);
-            var ojs = otext.trim().split('\n').map(line => 
-                line && JSON.parse(line));
-            should(ojs[0]).properties({ // a001
-                tag: 'color',
-                value: 'red',
-            });
-            if (ojs[1] == null) {
-                console.log(`dbg ojs`, ojs);
-            }
-            should(ojs[1]).properties({ // a002
-                tag: 'color',
-                value: 'blue',
-            });
-            should(ojs[2]).properties({ // a003
-                tag: 'height',
-                value: 5,
-            });
-            should(ojs[3]).properties({ // a004
-                tag: 'height',
-                value: 10,
-            });
-            should(ojs.length).equal(4); 
-            done();
-        } catch(e) {done(e)} })();
-    });
     it("scan(barcode) recognizes UPC/EAN codes", () => {
         var scanner = new Scanner({
             patterns: [
@@ -248,7 +196,7 @@
         should.deepEqual(ob, 
             new Observation(Scanner.TAG_NUMBER, 1234, null, ob.t));
     });
-    it("TESTTESTlineStream", done=>{
+    it("lineStream", done=>{
         (async function() { try {
             var logLevel = 'info';
             console.log('dbg scanner test');

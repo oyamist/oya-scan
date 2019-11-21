@@ -13,14 +13,14 @@
     } = require('just-simple').JustSimple;
     const logLevel = false;
 
-    it("TESTTESTdefault ctor", function() {
+    it("default ctor", function() {
         var pipeline = new Pipeline();
         should(pipeline).properties({
             logLevel: 'info',
             observers: [],
         });
     });
-    it("TESTTESTcustom ctor", function() {
+    it("custom ctor", function() {
         var logLevel = 'debug';
         var pipeline = new Pipeline({
             logLevel,
@@ -30,7 +30,7 @@
             observers: [],
         });
     });
-    it("TESTTESTbuild() creates pipeline", done=>{
+    it("build() creates pipeline", done=>{
         (async function(){ try {
             var observations = [
                 new Observation('test', 1),

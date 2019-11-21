@@ -21,25 +21,26 @@
                     `${that.name}.initialize() must be called before use`),
             });
 
-            Object.defineProperty(that, 'transform', {
-                value: new Transform({
-                    writableObjectMode: true,
-                    readableObjectMode: true,
-                    transform(ob, encoding, cb) {
-                        if (ob instanceof Observation) {
-                            let obResult = that.observe(ob);
-                            if (obResult) { 
-                                that.obsCount++;
-                                that.transform.push(obResult);
-                            }
-                        } else {
-                            that.transform.push(
-                                new Error('expected Observation')
-                            );
+            var transform = opts.transform || new Transform({
+                writableObjectMode: true,
+                readableObjectMode: true,
+                transform(ob, encoding, cb) {
+                    if (ob instanceof Observation) {
+                        let obResult = that.observe(ob);
+                        if (obResult) { 
+                            that.obsCount++;
+                            that.transform.push(obResult);
                         }
-                        cb();
+                    } else {
+                        that.transform.push(
+                            new Error('expected Observation')
+                        );
                     }
-                }),
+                    cb();
+                }
+            });
+            Object.defineProperty(that, 'transform', {
+                value: transform,
             });
             that.initialized = false;
         }

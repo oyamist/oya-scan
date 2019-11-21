@@ -18,7 +18,7 @@
         }
     }
 
-    it("TESTTESTdefault ctor", done=>{
+    it("default ctor", done=>{
         (async function(){ try {
             var obr = new Observer();
             should(obr.transform).instanceOf(Transform);
@@ -30,7 +30,7 @@
             done();
         } catch(e) {done(e);} })();
     });
-    it("TESTTESTinitialize()", done=> {
+    it("initialize()", done=> {
         (async function(){ try {
             var obr = new Observer({logLevel});
             should(obr.initialized).equal(false);
@@ -39,7 +39,7 @@
             done();
         } catch(e) {done(e);} })();
     });
-    it("TESTTESTobserve(ob) processes observation", done=> {
+    it("observe(ob) processes observation", done=> {
         (async function(){ try {
             var obr = new Observer({logLevel});
             var ob = new Observation('test', 42);
@@ -56,7 +56,7 @@
             done();
         } catch(e) {done(e);} })();
     });
-    it("TESTTESTObservers can be piped", done=>{
+    it("Observers can be piped", done=>{
         (async function(){ try {
             var observations = [
                 new Observation('test', 1),

@@ -60,7 +60,7 @@
             done();
         } catch(e) {done(e);} })();
     });
-    it("TESTTESTaverage", done=>{
+    it("average", done=>{
         (async function(){ try {
             var testSrc = new Source({ logLevel, observations });
             var agg = new Aggregator({ logLevel, avg: true });
@@ -77,7 +77,7 @@
             done();
         } catch(e) {done(e);} })();
     });
-    it("TESTTESTsum", done=>{
+    it("sum", done=>{
         (async function(){ try {
             var testSrc = new Source({ logLevel, observations });
             var agg = new Aggregator({ logLevel, sum: true });
@@ -95,7 +95,7 @@
             done();
         } catch(e) {done(e);} })();
     });
-    it("TESTTESTsum", done=>{
+    it("sum", done=>{
         (async function(){ try {
             var testSrc = new Source({ logLevel, observations });
             var agg = new Aggregator({ logLevel, sum: true });
@@ -113,7 +113,7 @@
             done();
         } catch(e) {done(e);} })();
     });
-    it("TESTTESTcount", done=>{
+    it("count", done=>{
         (async function(){ try {
             var testSrc = new Source({ logLevel, observations });
             var agg = new Aggregator({ logLevel, count: true });
@@ -131,7 +131,7 @@
             done();
         } catch(e) {done(e);} })();
     });
-    it("TESTTESTmin", done=>{
+    it("min", done=>{
         (async function(){ try {
             var testSrc = new Source({ logLevel, observations });
             var agg = new Aggregator({ logLevel, min: true });
@@ -149,7 +149,7 @@
             done();
         } catch(e) {done(e);} })();
     });
-    it("TESTTESTmax", done=>{
+    it("max", done=>{
         (async function(){ try {
             var testSrc = new Source({ logLevel, observations });
             var agg = new Aggregator({ logLevel, max: true });
@@ -167,7 +167,7 @@
             done();
         } catch(e) {done(e);} })();
     });
-    it("TESTTESTstats", done=>{
+    it("stats", done=>{
         (async function(){ try {
             var testSrc = new Source({ logLevel, observations });
             var agg = new Aggregator({ 

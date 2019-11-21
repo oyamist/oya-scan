@@ -12,6 +12,7 @@
     } = require('just-simple').JustSimple;
     const Observer = require('./observer');
     const Source = require('./source');
+    const Sink = require('./sink');
 
     class Pipeline {
         constructor(opts={}) {
@@ -19,46 +20,10 @@
             this.observers = [];
         }
 
-        static Stringify(os) {
-            var transform = new Transform({
-                writableObjectMode: true,
-                readableObjectMode: false,
-                transform(ob, encoding, cb) {
-                    var json = JSON.stringify(ob);
-                    transform.push(json);
-                    cb();
-                }
-            });
-            os && transform.pipe(os);
-            return transform;
-        }
-
-        static Format(fmt, os) {
-            var format = typeof fmt === 'function' 
-                ? fmt
-                : (ob => {
-                    var s = fmt.replace('${tag}', ob.tag)
-                        .replace('${value}', ob.value);
-                    return ob.type === undefined
-                        ? s.replace('${type}', '')
-                        : s.replace('${type}', ob.type);
-                })
-            var transform = new Transform({
-                writableObjectMode: true,
-                readableObjectMode: false,
-                transform(ob, encoding, cb) {
-                    var text = format(ob);
-                    transform.push(text);
-                    cb();
-                }
-            });
-            os && transform.pipe(os);
-            return transform;
-        }
-
         build(...args) {
             var that = this;
             var {
+                logLevel,
                 observers,
             } = this;
             var pbody = (resolve,reject) => (async function() {try{
@@ -71,7 +36,7 @@
                 var iEnd = args.length-1;
                 if (args[i] instanceof Readable) {
                     endPoint = new Source({
-                        logLevel: that.logLevel,
+                        logLevel,
                         inputStream: args[i],
                     });
                     observers.push(endPoint);
@@ -98,8 +63,12 @@
                                 that.log(`build() [${i}] `+
                                     `Writable object stream`);
                             } else {
-                                var outTrans = Pipeline.Stringify(arg);
-                                endPoint.transform.pipe(outTrans);
+                                var sink = new Sink({
+                                    logLevel,
+                                    outputStream: arg,
+                                });
+                                endPoint.transform.pipe(sink);
+                                observers.push(sink);
                                 that.log(`build() [${i}] Stringify stream`);
                             }
                         } else {
