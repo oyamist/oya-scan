@@ -9,13 +9,13 @@
         Readable,
     } = require('stream');
     const Observation = require('./observation');
-    const ObservationTransform = require('./observation-transform');
+    const ObTransform = require('./ob-transform');
     var instCount = 0;
 
     /*
      * Sources provide observations to downstream observers
      */
-    class Source extends ObservationTransform {
+    class Source extends ObTransform {
         constructor(opts={}) {
             super(opts);
             var that = this;

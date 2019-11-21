@@ -1,16 +1,16 @@
-(typeof describe === 'function') && describe("observation-transform", function() {
+(typeof describe === 'function') && describe("ob-transform", function() {
     const should = require("should");
     const { Transform, } = require('stream');
     const { js, logger } = require('just-simple').JustSimple;
     const {
         Observation,
-        ObservationTransform,
+        ObTransform,
     } = require('../index');
     var logLevel = false;
 
     it("TESTTESTdefault ctor", done=>{
         (async function(){ try {
-            var obr = new ObservationTransform();
+            var obr = new ObTransform();
             should(obr.transform).instanceOf(Transform);
             should(obr.transform._writableState)
                 .properties({ objectMode: true, });
@@ -21,7 +21,7 @@
     });
     it("TESTTESTinitialize()", done=> {
         (async function(){ try {
-            var obr = new ObservationTransform({logLevel});
+            var obr = new ObTransform({logLevel});
             should(obr.initialized).equal(false);
             await obr.initialize();
             should(obr.initialized).equal(true);
@@ -30,7 +30,7 @@
     });
     it("TESTTESTobserve(ob) processes observation", done=> {
         (async function(){ try {
-            var obr = new ObservationTransform({logLevel});
+            var obr = new ObTransform({logLevel});
             var ob = new Observation('test', 42);
 
             // observe() requires initialization

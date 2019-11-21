@@ -14,9 +14,9 @@
         exec,
     } = require('child_process');
     const Observation = require('./observation');
-    const ObservationTransform = require('./observation-transform');
+    const ObTransform = require('./ob-transform');
 
-    class Observer extends ObservationTransform {
+    class Observer extends ObTransform {
         constructor(opts={}) {
             super(opts);
             var that = this;

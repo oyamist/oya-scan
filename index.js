@@ -7,7 +7,7 @@ module.exports = {
     GuidStore: require('./src/guid-store'),
     LineFilter: require('./src/line-filter'),
     Observation: require('./src/observation'),
-    ObservationTransform: require('./src/observation-transform'),
+    ObTransform: require('./src/ob-transform'),
     Observer: require('./src/observer'),
     Parser: require('./src/parser'),
     Pipeline: require('./src/pipeline'),
