@@ -84,4 +84,57 @@
             done();
         } catch(e) {done(e);} })();
     });
+    it("TESTTESTLineStream sources can be shared", done=>{
+        (async function(){ try {
+            var lineStream = path.join(__dirname, 'data', 'obs1234.json');
+            var testSrc = new Source({ logLevel, lineStream, });
+            var testSnk1 = new Aggregator({logLevel});
+            var testSnk2 = new Aggregator({logLevel});
+
+            // STEP 1: Shared sources must be built together
+            var p1 = new Pipeline({logLevel})
+                .build(testSrc, testSnk1);
+            var p2 = new Pipeline({logLevel})
+                .build(testSrc, testSnk2);
+            var testObs1 = testSnk1.observations;
+            var testObs2 = testSnk2.observations;
+            should.deepEqual(testObs1.map(o=>js.simpleString(o)), []);
+            should.deepEqual(testObs2.map(o=>js.simpleString(o)), []);
+
+            // STEP 2: Shared sources must be initialized together
+            await p1;
+            await p2;
+
+            should.deepEqual(testObs1.map(o=>js.simpleString(o)), [
+                'test:1 kg', 'test:2 kg', 'test:3 kg', 'test:4 kg', ]);
+            should.deepEqual(testObs2.map(o=>js.simpleString(o)), [
+                'test:1 kg', 'test:2 kg', 'test:3 kg', 'test:4 kg', ]);
+
+            done();
+        } catch(e) {done(e);} })();
+    });
+    it("TESTTESTObservation sources can be shared", done=>{
+        (async function(){ try {
+            var observations = [
+                new Observation('test', 1),
+                new Observation('test', 2),
+                new Observation('test', 3),
+            ];
+            var testSrc = new Source({ logLevel, observations, });
+            var testSnk1 = new Aggregator({logLevel});
+            var testSnk2 = new Aggregator({logLevel});
+
+            // STEP 1: Shared sources must be built together
+            var p1 = new Pipeline({logLevel}).build(testSrc, testSnk1);
+            var p2 = new Pipeline({logLevel}).build(testSrc, testSnk2);
+
+            // STEP 2: Shared sources must be initialized together
+            await p1; // initialize pipeline
+            await p2; // initialize pipeline
+            should.deepEqual(testSnk1.observations, observations);
+            should.deepEqual(testSnk2.observations, observations);
+
+            done();
+        } catch(e) {done(e);} })();
+    });
 })
