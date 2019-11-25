@@ -213,8 +213,7 @@
 
             // revert an invalid entry
             puzzle.setBox('cl.A', 'pr.5', 0);
-            var m = puzzle.validate(puzzle.subgrid('cl.A', 'pr.5'));
-            console.log(`dbg m`, m);
+            puzzle.validate(puzzle.subgrid('cl.A', 'pr.5'));
 
             done();
         } catch(e) {done(e);} })();
