@@ -4,15 +4,18 @@
     const winston = require('winston');
     const should = require("should");
     const tmp = require("tmp");
+    const { js, logger } = require('just-simple').JustSimple;
     const {
         Thing,
         Workspace,
         Observation,
         Scanner,
     } = require("../index");
+    const logLevel = 'info';
 
     var storeDir = tmp.tmpNameSync();
     var wstest = new Workspace({
+        logLevel,
         storeDir,
         patterns: [ Scanner.MATCH_NUMBER ],
     });
@@ -23,11 +26,11 @@
         should(ws).instanceOf(Workspace);
         should(ws).properties({
             type: 'Workspace',
-            storeName: 'workspace',
+            name: 'workspace',
         });
         should(ws.scanner).instanceOf(Scanner);
     });
-    it("scanning new barcode creates new Thing", ()=>{
+    it("TESTTESTscanning new barcode creates new Thing", ()=>{
         var ws = wstest;
         var scanner = ws.scanner;
 

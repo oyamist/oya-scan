@@ -1,39 +1,43 @@
 (function(exports) {
     const fs = require('fs');
     const path = require('path');
-    const LOCAL = path.join(__dirname, '../local');
+    const { 
+        logger,
+        LOCAL_DIR,
+    } = require('just-simple').JustSimple;
 
     class GuidStore {
         constructor(opts={}) {
+            logger.logInstance(this, opts);
             this.type = opts.type || this.constructor.name;
             this.folderPrefix = opts.folderPrefix || 2;
-            this.storeDir = opts.storeDir || 
-                path.join(__dirname, '../local');
+            this.storeDir = opts.storeDir || LOCAL_DIR;
             if (!fs.existsSync(this.storeDir)) {
                 fs.mkdirSync(this.storeDir);
             }
 
             this.suffix = opts.suffix || '';
             this.volume = opts.volume || 'common';
-            this.storeName = opts.storeName;
-            if (this.storeName == null) {
+            this.name = opts.name;
+            if (this.name == null) {
                 var nameLower = this.type.toLocaleLowerCase();
-                var storeName = '';
+                var name = '';
                 for (var i = 0; i < nameLower.length; i++) {
                     var c = nameLower.charAt(i);
                     if (i && this.type.charAt(i) !== c) {
-                        storeName += '-';
+                        name += '-';
                     }
-                    storeName += c;
+                    name += c;
                 }
-                this.storeName = storeName;
+                this.name = name;
             }
 
             // Unserialized properties
-            Object.defineProperty(this, 'storePath', {
-                value: opts.storePath ||  path.join(this.storeDir, this.storeName),
-            });
+            var storePath = opts.storePath || 
+                path.join(this.storeDir, this.name);
+            Object.defineProperty(this, 'storePath', {value: storePath});
             fs.existsSync(this.storePath) || fs.mkdirSync(this.storePath);
+            this.log(`${this.storePath}`);
         }
 
         guidPath(...args) {

@@ -6,6 +6,7 @@ module.exports = {
     GrammarFactory: require('./src/grammar-factory'),
     GuidStore: require('./src/guid-store'),
     LineFilter: require('./src/line-filter'),
+    LogicPuzzle: require('./src/logic-puzzle'),
     Observation: require('./src/observation'),
     Observer: require('./src/observer'),
     Parser: require('./src/parser'),

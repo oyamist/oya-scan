@@ -1,6 +1,7 @@
 (function(exports) {
     const fs = require('fs');
     const path = require('path');
+    const { logger } = require('just-simple').JustSimple;
     const LOCAL = path.join(__dirname, '../local');
     const GuidStore = require('./guid-store');
     const Scanner = require('./scanner');
@@ -19,12 +20,14 @@
                     fs.readFileSync(this.indexPath));
             } else {
                 var index = this.index = {
-                    type: this.constructor.name,
+                    type: this.type,
                     version: VERSION,
                     scannerMap: {},
                 };
                 this.sync();
             }
+            var keys = Object.keys(this.index.scannerMap);
+            this.log(`${keys.length} objects`);
 
             this.scanner = new Scanner({
                 map: this,

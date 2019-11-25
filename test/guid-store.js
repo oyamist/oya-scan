@@ -19,7 +19,7 @@
         var storeDir = tmp.tmpNameSync();
         var store = new GuidStore({
             type: 'TestStore',
-            storeName: 'a-test-store',
+            name: 'a-test-store',
             storeDir,
         });
         should(store.storeDir).equal(storeDir);
