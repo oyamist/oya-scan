@@ -141,10 +141,42 @@
         }
 
         toString(grid=this.grid) {
-            return Object.keys(this.grid).reduce((a,k) => {
-                a += `${k} => ${js.simpleString(this.grid[k])}\n`;
+            return Object.keys(grid).reduce((a,k) => {
+                a += `${k} => ${js.simpleString(grid[k])}\n`;
                 return a;
             },'');
+        }
+
+        infer() {
+            var {
+                grid,
+                cagtegories,
+            } = this;
+            var rowKeys = Object.keys(grid);
+            var matched = {};
+            var g = rowKeys.reduce((g,kr) => {
+                let row = grid[kr];
+                let colKeys = Object.keys(row);
+                let rowCats = colKeys.reduce((rc,kc) => {
+                    var cc = kc.split('.')[0];
+                    if (row[kc] === true) {
+                        rc[cc] = true;
+                        matched[kc] = true;
+                    }
+                    return rc;
+                },{});
+                g[kr] = colKeys.reduce((r,kc) => {
+                    var cc = kc.split('.')[0];
+                    if (rowCats[cc]) {
+                        r[kc] = row[kc] === true;
+                    } else {
+                        r[kc] = matched[kc] ? false : row[kc];
+                    }
+                    return r;
+                },{});
+                return g;
+            }, {});
+            return g;
         }
     }
 

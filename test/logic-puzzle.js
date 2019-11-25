@@ -218,4 +218,33 @@
             done();
         } catch(e) {done(e);} })();
     });
+    it("TESTTESTinfer(...) => removes boxes", done=>{
+        (async function(){ try {
+            var puzzle = await new LogicPuzzle({ 
+                logLevel, 
+                categories, 
+            }).initialize();
+
+            should.deepEqual(puzzle.infer(), emptyGrid);
+
+            puzzle.setBox('cl.A', 'pr.5', true);
+            puzzle.setBox('cl.A', 'ma.N', false);
+            var gridpr5ma = Object.assign({}, gridprma, {'pr.5': false});
+            should.deepEqual(puzzle.infer(), 
+                Object.assign({}, emptyGrid, {
+                'cl.A': Object.assign({}, gridprma, {
+                    'pr.5': true,  // setBox
+                    'pr.6': false, // inferred
+                    'pr.7': false, // inferred
+                    'pr.8': false, // inferred
+                    'ma.N': false, // setBox
+                }),
+                'cl.F': gridpr5ma,
+                'cl.G': gridpr5ma,
+                'cl.H': gridpr5ma,
+            }));
+
+            done();
+        } catch(e) {done(e);} })();
+    });
 });
