@@ -16,23 +16,23 @@
     var pr = [ 5, 6, 7, 8 ]; // prices
     var ma = [ "L", "N", "T", "W" ]; // masseuses
     var gridmapr = {
+      'ma.L': 0, 'ma.N': 0, 'ma.T': 0, 'ma.W': 0,
       'pr.5': 0, 'pr.6': 0, 'pr.7': 0, 'pr.8': 0, 
-      'ma.L': 0, 'ma.N': 0, 'ma.T': 0, 'ma.W': 0
     };
-    var gridma = { 
-        'ma.L': 0, 'ma.N': 0, 'ma.T': 0, 'ma.W': 0 
-    };
+    var gridma = {'ma.L': 0, 'ma.N': 0, 'ma.T': 0, 'ma.W': 0, };
+    var gridpr = {'pr.5':0, 'pr.6':0, 'pr.7':0, 'pr.8':0,};
+
     var emptyGrid = {
         'cl.A': gridmapr,
         'cl.G': gridmapr,
         'cl.F': gridmapr,
         'cl.H': gridmapr,
-        'pr.5': gridma,
-        'pr.6': gridma,
-        'pr.7': gridma,
-        'pr.8': gridma,
+        'ma.L': gridpr,
+        'ma.N': gridpr,
+        'ma.T': gridpr,
+        'ma.W': gridpr,
     }
-    var categories = { cl, pr, ma };
+    var categories = { cl, ma, pr, };
 
     it("TESTTESTdefault ctor", done=>{
         (async function(){ try {
@@ -65,8 +65,8 @@
             await puzzle.initialize();
             should.deepEqual(puzzle.catItems,[
                 'cl.A', 'cl.G', 'cl.F', 'cl.H',
-                'pr.5', 'pr.6', 'pr.7', 'pr.8',
                 'ma.L', 'ma.N', 'ma.T', 'ma.W',
+                'pr.5', 'pr.6', 'pr.7', 'pr.8',
             ]);
             should.deepEqual(puzzle.grid, emptyGrid);
             done();
@@ -243,6 +243,7 @@
                 }),
                 'cl.H': gridmaTpr,
             }));
+            console.log(`dbg infer`, puzzle.toString());
 
             done();
         } catch(e) {done(e);} })();
