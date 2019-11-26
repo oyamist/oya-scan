@@ -150,24 +150,24 @@
         infer() {
             var {
                 grid,
-                cagtegories,
             } = this;
             var rowKeys = Object.keys(grid);
             var matched = {};
             var g = rowKeys.reduce((g,kr) => {
+                var rc = kr.split('.')[0];
                 let row = grid[kr];
                 let colKeys = Object.keys(row);
-                let rowCats = colKeys.reduce((rc,kc) => {
-                    var cc = kc.split('.')[0];
+                let colCats = colKeys.reduce((rc,kc) => {
+                    var kcc = kc.split('.')[0];
                     if (row[kc] === true) {
-                        rc[cc] = true;
+                        rc[kcc] = true;
                         matched[kc] = true;
                     }
                     return rc;
                 },{});
                 g[kr] = colKeys.reduce((r,kc) => {
-                    var cc = kc.split('.')[0];
-                    if (rowCats[cc]) {
+                    var kcc = kc.split('.')[0];
+                    if (colCats[kcc]) {
                         r[kc] = row[kc] === true;
                     } else {
                         r[kc] = matched[kc] ? false : row[kc];
