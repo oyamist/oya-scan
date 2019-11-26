@@ -10,6 +10,9 @@
             super((opts = LogicPuzzle.options(opts)));
             this.categories = opts.categories;
             this.isValid = true;
+            Object.defineProperty(this, 'undoStack', {
+                value: [],
+            });
         }
 
         static options(opts={}) {
@@ -55,13 +58,27 @@
         }
 
         setBox(item1, item2, value) {
-            var row1 = this.grid[item1];
+            var {
+                grid,
+                undoStack,
+            } = this;
+            var row1 = grid[item1];
             if (row1 && row1[item2] != null) {
+                var oldValue = row1[item2];
+                undoStack.push(() => { 
+                    this.log(`undo: setBox(${item1},${item2},${oldValue})`);
+                    row1[item2] = oldValue; 
+                });
                 row1[item2] = value;
                 return;
             } 
-            var row2 = this.grid[item2];
+            var row2 = grid[item2];
             if (row2 && row2[item1] != null) {
+                var oldValue = row2[item1];
+                undoStack.push(() => { 
+                    this.log(`undo: setBox(${item1},${item2},${oldValue})`);
+                    row2[item1] = oldValue; 
+                });
                 row2[item1] = value;
                 return;
             }
@@ -149,9 +166,11 @@
         }
 
         infer() {
+            var that = this;
             var {
                 grid,
                 rowKeys,
+                undoStack,
             } = this;
             var colRowCat = rowKeys.reduce((crc,kr) => {
                 let krc = kr.split('.')[0];
@@ -181,7 +200,23 @@
                 },{});
                 return g;
             }, {});
+            undoStack.push(() => { 
+                this.log(`undo: reverting infer()`);
+                that.grid = grid; 
+            });
+            this.grid = g;
             return g;
+        }
+
+        undo() {
+            var {
+                undoStack,
+            } = this;
+            if (undoStack.length <= 0) {
+                throw new Error(`Nothing to undo()`);
+            }
+            var tos = undoStack.pop();
+            tos();
         }
     }
 

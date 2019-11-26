@@ -34,7 +34,7 @@
     }
     var categories = { cl, ma, pr, };
 
-    it("TESTTESTdefault ctor", done=>{
+    it("default ctor", done=>{
         (async function(){ try {
             var puzzle = new LogicPuzzle();
             should(puzzle).properties({
@@ -46,7 +46,7 @@
             done();
         } catch(e) {done(e);} })();
     });
-    it("TESTTESTcustom ctor", done=>{
+    it("custom ctor", done=>{
         (async function(){ try {
             var puzzle = new LogicPuzzle({ logLevel, categories, });
             should(puzzle).properties({ 
@@ -58,7 +58,7 @@
             done();
         } catch(e) {done(e);} })();
     });
-    it("TESTTESTinitialize() sets up logic grid", done=>{
+    it("initialize() sets up logic grid", done=>{
         (async function(){ try {
             var puzzle = new LogicPuzzle({ logLevel, categories, });
             should(puzzle.catItems).equal(undefined);
@@ -72,7 +72,7 @@
             done();
         } catch(e) {done(e);} })();
     });
-    it("TESTTESTgetBox(...) => grid value", done=>{
+    it("getBox(...) => grid value", done=>{
         (async function(){ try {
             var puzzle = await new LogicPuzzle({ 
                 logLevel, 
@@ -85,7 +85,7 @@
             done();
         } catch(e) {done(e);} })();
     });
-    it("TESTTESTsetBox(...) => grid value", done=>{
+    it("setBox(...) => grid value", done=>{
         (async function(){ try {
             var puzzle = await new LogicPuzzle({ 
                 logLevel, 
@@ -106,7 +106,7 @@
             done();
         } catch(e) {done(e);} })();
     });
-    it("TESTTESTsubgrid(...) => subgrid", done=>{
+    it("subgrid(...) => subgrid", done=>{
         (async function(){ try {
             var puzzle = await new LogicPuzzle({logLevel, categories})
                 .initialize();
@@ -123,7 +123,7 @@
             done();
         } catch(e) {done(e);} })();
     });
-    it("TESTTESTvalidate(...) => validates subgrid rows", done=>{
+    it("validate(...) => validates subgrid rows", done=>{
         (async function(){ try {
             var puzzle = await new LogicPuzzle({ 
                 logLevel, 
@@ -172,7 +172,7 @@
             done();
         } catch(e) {done(e);} })();
     });
-    it("TESTTESTvalidate(...) => validates subgrid columns", done=>{
+    it("validate(...) => validates subgrid columns", done=>{
         (async function(){ try {
             var puzzle = await new LogicPuzzle({ 
                 logLevel, 
@@ -218,7 +218,7 @@
             done();
         } catch(e) {done(e);} })();
     });
-    it("TESTTESTinfer(...) => updates boxes", done=>{
+    it("infer(...) => updates boxes", done=>{
         (async function(){ try {
             var puzzle = await new LogicPuzzle({ 
                 logLevel, 
@@ -244,6 +244,32 @@
                 'cl.H': gridmaTpr,
             }));
             console.log(`dbg infer`, puzzle.toString());
+
+            done();
+        } catch(e) {done(e);} })();
+    });
+    it("TESTTESTundo() => restores prior state", done=>{
+        (async function(){ try {
+            var puzzle = await new LogicPuzzle({ 
+                logLevel: 'info', 
+                categories, 
+            }).initialize();
+
+            // error handling
+            should.throws(() => puzzle.undo());
+
+            // undo setBox()
+            puzzle.setBox('cl.G', 'ma.T', true);
+            puzzle.undo();
+            should.deepEqual(puzzle.grid, emptyGrid);
+
+            // undo infer()
+            puzzle.setBox('cl.G', 'ma.T', true);
+            var oldPuzzle = JSON.parse(JSON.stringify(puzzle, null, 2));
+            puzzle.infer();
+            puzzle.undo();
+            should.deepEqual(JSON.parse(JSON.stringify(puzzle)), 
+                oldPuzzle);
 
             done();
         } catch(e) {done(e);} })();
