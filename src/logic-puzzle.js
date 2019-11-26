@@ -40,6 +40,7 @@
                 }});
                 return aCol;
             }, {});
+            this.rowKeys = Object.keys(this.grid).sort();
             resolve(this);
         }
 
@@ -150,28 +151,32 @@
         infer() {
             var {
                 grid,
+                rowKeys,
             } = this;
-            var rowKeys = Object.keys(grid);
-            var matched = {};
+            var colRowCat = rowKeys.reduce((crc,kr) => {
+                let krc = kr.split('.')[0];
+                crc[krc] = crc[krc] || {};
+                let row = grid[kr];
+                Object.keys(row).forEach(kc => {
+                    (row[kc] === true) && (crc[krc][kc] = true);
+                }, {});
+                return crc;
+            }, {});
             var g = rowKeys.reduce((g,kr) => {
-                var rc = kr.split('.')[0];
+                let krc = kr.split('.')[0];
+                let crckrc = colRowCat[krc];
                 let row = grid[kr];
                 let colKeys = Object.keys(row);
-                let colCats = colKeys.reduce((rc,kc) => {
+                let colCats = colKeys.reduce((cc,kc) => {
                     var kcc = kc.split('.')[0];
-                    if (row[kc] === true) {
-                        rc[kcc] = true;
-                        matched[kc] = true;
-                    }
-                    return rc;
+                    (row[kc] === true) && (cc[kcc] = true);
+                    return cc;
                 },{});
                 g[kr] = colKeys.reduce((r,kc) => {
                     var kcc = kc.split('.')[0];
-                    if (colCats[kcc]) {
-                        r[kc] = row[kc] === true;
-                    } else {
-                        r[kc] = matched[kc] ? false : row[kc];
-                    }
+                    r[kc] = colCats[kcc]
+                        ? (row[kc] === true)
+                        : (crckrc[kc] ? false : row[kc]);
                     return r;
                 },{});
                 return g;
