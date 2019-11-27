@@ -238,6 +238,23 @@
             }, 0);
         }
 
+        solutions() {
+            var {
+                grid,
+                rowKeys,
+            } = this;
+            var nBoxes = 0;
+            var state = {};
+            var keys = Object.keys(state).sort();
+            var cursor = keys.map(k=>0);
+            var next = () => {
+                let newCursor = [];
+                let solution = [];
+                return solution;
+            }
+            return {next, cursor, keys, state, };
+        }
+
     }
 
     module.exports = exports.LogicPuzzle = LogicPuzzle;

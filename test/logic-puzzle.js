@@ -290,4 +290,20 @@
             done();
         } catch(e) {done(e);} })();
     });
+    it("TESTTESTsolutions() => # varitions", done=>{
+        (async function(){ try {
+            var puzzle = await new LogicPuzzle({ 
+                logLevel: 'info', 
+                categories, 
+            }).initialize();
+
+            var iter = puzzle.solutions();
+            console.log(iter);
+            console.log(`dbg next`, iter.next());
+
+            // This is really hard!
+
+            done();
+        } catch(e) {done(e);} })();
+    });
 });
