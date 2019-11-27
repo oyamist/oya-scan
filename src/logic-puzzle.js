@@ -237,6 +237,7 @@
                 }, a);
             }, 0);
         }
+
     }
 
     module.exports = exports.LogicPuzzle = LogicPuzzle;
