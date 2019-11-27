@@ -22,6 +22,10 @@
             });
         }
 
+        static factorial(n) {
+            return n > 1 ? n * LogicPuzzle.factorial(n-1) : 1;
+        }
+
         onInitialize(resolve, reject) {
             var rowCats = Object.keys(this.categories);
             var colCats = rowCats.slice();
@@ -44,6 +48,7 @@
                 return aCol;
             }, {});
             this.rowKeys = Object.keys(this.grid).sort();
+            this.initialized = true;
             resolve(this);
         }
 
@@ -217,6 +222,20 @@
             }
             var tos = undoStack.pop();
             tos();
+        }
+
+        emptyBoxes() {
+            var {
+                grid,
+                rowKeys,
+            } = this;
+            var nBoxes = 0;
+            return rowKeys.reduce((a,kr) => {
+                var row = grid[kr];
+                return Object.keys(row).reduce((a,kc) => {
+                    return row[kc] === 0 ? a+1 : a;
+                }, a);
+            }, 0);
         }
     }
 

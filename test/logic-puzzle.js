@@ -274,4 +274,20 @@
             done();
         } catch(e) {done(e);} })();
     });
+    it("TESTTESTemptyBoxes() => # empty boxes", done=>{
+        (async function(){ try {
+            var puzzle = await new LogicPuzzle({ 
+                logLevel: 'info', 
+                categories, 
+            }).initialize();
+
+            should(puzzle.emptyBoxes()).equal(48);
+            puzzle.setBox('cl.F', 'ma.T', true);
+            should(puzzle.emptyBoxes()).equal(47);
+            puzzle.infer();
+            should(puzzle.emptyBoxes()).equal(41);
+
+            done();
+        } catch(e) {done(e);} })();
+    });
 });
